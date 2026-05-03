@@ -499,6 +499,16 @@ typedef struct _cef_settings_t {
   /// Specify whether signal handlers must be disabled on POSIX systems.
   ///
   int disable_signal_handlers;
+
+#if CEF_API_ADDED(14600)
+  ///
+  /// If true use a Views (bare-bones) window instead of a Chrome UI window when
+  /// creating default popups for Chrome style native-hosted (non-Views)
+  /// browsers. This applies when CefLifeSpanHandler::OnBeforePopup has not been
+  /// implemented to provide parent window information for the new popup.
+  ///
+  int use_views_default_popup;
+#endif
 } cef_settings_t;
 
 ///
@@ -574,8 +584,8 @@ typedef struct _cef_browser_settings_t {
   /// The maximum rate in frames per second (fps) that CefRenderHandler::OnPaint
   /// will be called for a windowless browser. The actual fps may be lower if
   /// the browser cannot generate frames at the requested rate. The minimum
-  /// value is 1 and the maximum value is 60 (default 30). This value can also
-  /// be changed dynamically via CefBrowserHost::SetWindowlessFrameRate.
+  /// value is 1 and the default value is 30. This value can also be changed
+  /// dynamically via CefBrowserHost::SetWindowlessFrameRate.
   ///
   int windowless_frame_rate;
 
@@ -672,7 +682,11 @@ typedef struct _cef_browser_settings_t {
   /// Controls whether databases can be used. Also configurable using the
   /// "disable-databases" command-line switch.
   ///
+#if CEF_API_ADDED(13800)
+  cef_state_t databases_deprecated;
+#else
   cef_state_t databases;
+#endif
 
   ///
   /// Controls whether WebGL can be used. Note that WebGL requires hardware
@@ -707,6 +721,22 @@ typedef struct _cef_browser_settings_t {
   /// supported with Chrome style.
   ///
   cef_state_t chrome_zoom_bubble;
+
+#if CEF_API_ADDED(CEF_EXPERIMENTAL)
+  ///
+  /// Controls whether CDP accessibility tree serialization collapses off-screen
+  /// nodes. When enabled, off-screen landmarks and headings are serialized as
+  /// summaries (role + name only) and other off-screen nodes are pruned.
+  /// This reduces snapshot size for AI agents using Playwright ariaSnapshot().
+  /// WARNING: This collapses the CDP accessibility tree and disables CDP
+  /// dynamic tree updates (nodesUpdated events). The DevTools Accessibility
+  /// panel will show an incomplete tree. Platform screen readers (NVDA, JAWS,
+  /// VoiceOver) are unaffected — they use a separate code path.
+  /// Can also be configured at runtime using
+  /// CefBrowserHost::SetAxViewportCollapse.
+  ///
+  cef_state_t ax_viewport_collapse;
+#endif
 } cef_browser_settings_t;
 
 ///
@@ -1061,6 +1091,11 @@ typedef enum {
 
   CEF_RESULT_CODE_CHROME_FIRST,
 
+#if CEF_API_ADDED(13800)
+  /// The process is of an unknown type.
+  CEF_RESULT_CODE_BAD_PROCESS_TYPE = 6,
+#endif
+
   /// A critical chrome file is missing.
   CEF_RESULT_CODE_MISSING_DATA = 7,
 
@@ -1093,7 +1128,24 @@ typedef enum {
   /// system state can't be recovered and will be unstable.
   CEF_RESULT_CODE_SYSTEM_RESOURCE_EXHAUSTED = 37,
 
+#if CEF_API_ADDED(13800)
+  /// The browser process exited because it was re-launched without elevation.
+  CEF_RESULT_CODE_NORMAL_EXIT_AUTO_DE_ELEVATED = 38,
+#endif
+
+#if CEF_API_ADDED(13900)
+  /// Upon encountering a commit failure in a process, PartitionAlloc terminated
+  /// another process deemed less important.
+  CEF_RESULT_CODE_TERMINATED_BY_OTHER_PROCESS_ON_COMMIT_FAILURE = 39,
+#endif
+
+#if CEF_API_ADDED(13900)
+  CEF_RESULT_CODE_CHROME_LAST = 40,
+#elif CEF_API_ADDED(13800)
+  CEF_RESULT_CODE_CHROME_LAST = 39,
+#else
   CEF_RESULT_CODE_CHROME_LAST = 38,
+#endif
 
   // The following values should be kept in sync with Chromium's
   // sandbox::TerminationCodes type.
@@ -1271,7 +1323,11 @@ typedef enum {
   PDE_TYPE_BYTES,
   PDE_TYPE_FILE,
 
+#if CEF_API_ADDED(13601)
+  PDE_TYPE_NUM_VALUES,
+#else
   PDF_TYPE_NUM_VALUES,
+#endif
 } cef_postdataelement_type_t;
 
 ///
@@ -3625,6 +3681,17 @@ typedef enum {
 #if CEF_API_ADDED(13400)
   CEF_CPAIT_CHANGE_PASSWORD,
 #endif
+#if CEF_API_ADDED(13800)
+  CEF_CPAIT_LENS_OVERLAY_HOMEWORK,
+#endif
+#if CEF_API_ADDED(14000)
+  CEF_CPAIT_AI_MODE,
+#endif
+#if CEF_API_ADDED(14400)
+  CEF_CPAIT_READING_MODE,
+  CEF_CPAIT_CONTEXTUAL_SIDE_PANEL,
+  CEF_CPAIT_JS_OPTIMIZATIONS,
+#endif
   CEF_CPAIT_NUM_VALUES,
 } cef_chrome_page_action_icon_type_t;
 
@@ -3633,10 +3700,27 @@ typedef enum {
 /// ToolbarButtonType type.
 ///
 typedef enum {
+#if CEF_API_ADDED(14000)
+  CEF_CTBT_CAST_DEPRECATED,
+#else
   CEF_CTBT_CAST,
+#endif
+#if CEF_API_ADDED(13600)
+  CEF_CTBT_DOWNLOAD_DEPRECATED,
+  CEF_CTBT_SEND_TAB_TO_SELF_DEPRECATED,
+#else
   CEF_CTBT_DOWNLOAD,
   CEF_CTBT_SEND_TAB_TO_SELF,
+#endif
+#if CEF_API_ADDED(14000)
+  CEF_CTBT_SIDE_PANEL_DEPRECATED,
+  CEF_CTBT_MEDIA,
+  CEF_CTBT_TAB_SEARCH,
+  CEF_CTBT_BATTERY_SAVER,
+  CEF_CTBT_AVATAR,
+#else
   CEF_CTBT_SIDE_PANEL,
+#endif
   CEF_CTBT_NUM_VALUES,
 } cef_chrome_toolbar_button_type_t;
 
@@ -3788,6 +3872,13 @@ typedef enum {
   CEF_PERMISSION_TYPE_WEB_APP_INSTALLATION = 1 << 22,
   CEF_PERMISSION_TYPE_WINDOW_MANAGEMENT = 1 << 23,
   CEF_PERMISSION_TYPE_FILE_SYSTEM_ACCESS = 1 << 24,
+#if CEF_API_ADDED(13600)
+  CEF_PERMISSION_TYPE_LOCAL_NETWORK_ACCESS = 1 << 25,
+#endif
+#if CEF_API_ADDED(14500)
+  CEF_PERMISSION_TYPE_LOCAL_NETWORK = 1 << 26,
+  CEF_PERMISSION_TYPE_LOOPBACK_NETWORK = 1 << 27,
+#endif
 } cef_permission_request_types_t;
 
 ///
@@ -4022,8 +4113,12 @@ typedef enum {
   CEF_TASK_TYPE_EXTENSION,
   /// A browser plugin guest process.
   CEF_TASK_TYPE_GUEST,
+#if CEF_API_ADDED(14000)
+  CEF_TASK_TYPE_PLUGIN_DEPRECATED,
+#else
   /// A plugin process.
   CEF_TASK_TYPE_PLUGIN,
+#endif
   /// A sandbox helper process
   CEF_TASK_TYPE_SANDBOX_HELPER,
   /// A dedicated worker running on the renderer process.

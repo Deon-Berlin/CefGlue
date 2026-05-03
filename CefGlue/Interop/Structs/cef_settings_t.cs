@@ -32,6 +32,7 @@ namespace Xilium.CefGlue.Interop
         public cef_string_t locale;
         public cef_string_t log_file;
         public CefLogSeverity log_severity;
+        public CefLogItems log_items;
         public cef_string_t javascript_flags;
         public cef_string_t resources_dir_path;
         public cef_string_t locales_dir_path;
@@ -44,6 +45,7 @@ namespace Xilium.CefGlue.Interop
         public cef_string_t chrome_policy_id;
         public int chrome_app_icon_id;
         public int disable_signal_handlers;
+        public int use_views_default_popup;
 
         #region Alloc & Free
         private static int _sizeof;

@@ -10,6 +10,8 @@
                 <MenuItem Header="_Open Dev Tools..." Click="OnOpenDevToolsMenuItemClick"/>
                 <MenuItem Header="_Evaluate Javascript" Click="OnEvaluateJavascriptMenuItemClick" />
                 <MenuItem Header="_Bind Javascript Object" Click="OnBindJavascriptObjectMenuItemClick" />
+                <Separator />
+                <MenuItem Header="_Website Snapshot..." Click="OnWebsiteSnapshotMenuItemClick" />
             </MenuItem>
         </Menu>
 

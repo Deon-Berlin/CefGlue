@@ -237,5 +237,41 @@
         /// </summary>
         protected virtual void OnMediaAccessChange(CefBrowser browser, bool hasVideoAccess, bool hasAudioAccess)
         { }
+
+
+        private int on_contents_bounds_change(cef_display_handler_t* self, cef_browser_t* browser, cef_rect_t* new_bounds)
+        {
+            CheckSelf(self);
+
+            var mBrowser = CefBrowser.FromNative(browser);
+
+            return OnContentBoundChange(mBrowser, new CefRectangle(*new_bounds)) ? 1 : 0;
+        }
+
+        /// <summary>
+        /// Called when the browser's bound changed by javascript.
+        /// </summary>
+        protected virtual bool OnContentBoundChange(CefBrowser browser, CefRectangle rectangle)
+        {
+            return false;
+        }
+
+
+        private int get_root_window_screen_rect(cef_display_handler_t* self, cef_browser_t* browser, cef_rect_t* rect)
+        {
+            CheckSelf(self);
+
+            var mBrowser = CefBrowser.FromNative(browser);
+
+            return OnGetRootWindowScreenRectangle(mBrowser, new CefRectangle(*rect)) ? 1 : 0;
+        }
+
+        /// <summary>
+        /// Called to retrieve the external (client-provided) root window rectangle in screen DIP coordinates.
+        /// </summary>
+        protected virtual bool OnGetRootWindowScreenRectangle(CefBrowser browser, CefRectangle rectangle)
+        {
+            return false;
+        }
     }
 }

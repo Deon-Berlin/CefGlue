@@ -37,6 +37,10 @@ namespace Xilium.CefGlue.Interop
         [DllImport(libcef.DllName, EntryPoint = "cef_quit_message_loop", CallingConvention = libcef.CEF_CALL)]
         public static extern void quit_message_loop();
         
+        // CefSetNestableTasksAllowed
+        [DllImport(libcef.DllName, EntryPoint = "cef_set_nestable_tasks_allowed", CallingConvention = libcef.CEF_CALL)]
+        public static extern void set_nestable_tasks_allowed(int allowed);
+        
         // CefCrashReportingEnabled
         [DllImport(libcef.DllName, EntryPoint = "cef_crash_reporting_enabled", CallingConvention = libcef.CEF_CALL)]
         public static extern int crash_reporting_enabled();

@@ -1,31 +1,44 @@
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Xilium.CefGlue.Common;
+using Xilium.CefGlue.Common.Shared;
 
 namespace Xilium.CefGlue.Demo.WPF
 {
     internal static class Program
     {
+        public static bool IsOSR { get; private set; }
+
         [STAThread]
         private static int Main(string[] args)
         {
+            StackDebug.Log(args, "WPF");
+
+            BrowserProcess.CefSubProcess.Run(args);
+
+            IsOSR = args.Any(x => x == "-osr");
+
             // generate a unique cache path to avoid problems when launching more than one process
             // https://www.magpcss.org/ceforum/viewtopic.php?f=6&t=19665
-            var cachePath = Path.Combine(Path.GetTempPath(), "CefGlue_" + Guid.NewGuid().ToString().Replace("-", null));
+            var cachePath = Path.Combine(Path.GetTempPath(), "CefGlue", Environment.ProcessId.ToString());
+            var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "logs"); 
+            Directory.CreateDirectory(logPath);
             
             AppDomain.CurrentDomain.ProcessExit += delegate { Cleanup(cachePath); };
             
             var settings = new CefSettings()
             {
                 RootCachePath = cachePath,
-#if WINDOWLESS
-                // its recommended to leave this off (false), since its less performant and can cause more issues
-                WindowlessRenderingEnabled = true
-#else
-                WindowlessRenderingEnabled = false
-#endif
+                LogSeverity = CefLogSeverity.Verbose,
+                LogFile = Path.Combine(logPath, "cef_debug.log"),
+                WindowlessRenderingEnabled = IsOSR, // its recommended to leave this off (false), since its less performant and can cause more issues
             };
-            CefRuntimeLoader.Initialize(settings);
+            CefRuntimeLoader.Initialize(settings, customSchemes:
+            [
+                new CustomScheme { SchemeName = "test", SchemeHandlerFactory = new CustomSchemeHandler() }
+            ]);
 
             var app = new App();
             app.InitializeComponent();
@@ -48,6 +61,14 @@ namespace Xilium.CefGlue.Demo.WPF
             } catch (IOException) {
                 // ignore
             }
+        }
+    }
+
+    class CustomSchemeHandler : CefSchemeHandlerFactory
+    {
+        protected override CefResourceHandler Create(CefBrowser browser, CefFrame frame, string schemeName, CefRequest request)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

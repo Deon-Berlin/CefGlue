@@ -114,6 +114,10 @@ namespace Xilium.CefGlue.Interop
         [DllImport(libcef.DllName, EntryPoint = "cef_v8_value_create_array_buffer_with_copy", CallingConvention = libcef.CEF_CALL)]
         public static extern cef_v8_value_t* create_array_buffer_with_copy(void* buffer, UIntPtr length);
         
+        // CreateArrayBufferFromBackingStore
+        [DllImport(libcef.DllName, EntryPoint = "cef_v8_value_create_array_buffer_from_backing_store", CallingConvention = libcef.CEF_CALL)]
+        public static extern cef_v8_value_t* create_array_buffer_from_backing_store(cef_v8_backing_store_t* backing_store);
+        
         // CreateFunction
         [DllImport(libcef.DllName, EntryPoint = "cef_v8_value_create_function", CallingConvention = libcef.CEF_CALL)]
         public static extern cef_v8_value_t* create_function(cef_string_t* name, cef_v8_handler_t* handler);

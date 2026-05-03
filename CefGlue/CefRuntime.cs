@@ -1,4 +1,6 @@
-﻿namespace Xilium.CefGlue
+﻿using CefGlue;
+
+namespace Xilium.CefGlue
 {
     using System;
     using System.IO;
@@ -17,6 +19,7 @@
         static CefRuntime()
         {
             _platform = DetectPlatform();
+            NativeLibsLoader.Install();
         }
 
         #region Platform Detection
@@ -26,7 +29,7 @@
             {
                 return CefRuntimePlatform.Windows;
             }
-            
+
             if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
                 return CefRuntimePlatform.MacOS;
@@ -111,19 +114,14 @@
 
         private static void CheckVersionByApiHash()
         {
-            // We need to load libCEF.so before getting API Hash on Linux.
-            if (Platform == CefRuntimePlatform.Linux) 
+            // We need to load libCEF before getting API Hash on Linux and macOS.
+            var libCefFile = CefRuntimeLocator.FindLibrary();
+            // if found, load the first one.
+            if (libCefFile != null)
             {
-                // find all the libcef.so files inside the application folder and its subfolders
-                var libCefFile = Directory.EnumerateFiles(AppDomain.CurrentDomain.BaseDirectory, libcef.DllName + ".so", SearchOption.AllDirectories).FirstOrDefault();
-
-                // if found, load the first one.
-                if (libCefFile != null)
-                {
-                    NativeLibrary.TryLoad(libCefFile, out _);
-                }
+                NativeLibrary.TryLoad(libCefFile, out _);
             }
-            
+
             // get CEF_API_HASH_PLATFORM
             string actual;
             try

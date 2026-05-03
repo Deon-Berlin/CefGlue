@@ -5,8 +5,6 @@
     <RootNamespace>Xilium.CefGlue.Avalonia</RootNamespace>
     <AssemblyName>Xilium.CefGlue.Avalonia</AssemblyName>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <PackageId>CefGlue.Avalonia$(PackageSuffix)</PackageId>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
   </PropertyGroup>
 
@@ -20,21 +18,14 @@
 
   <ItemGroup>
     <PackageReference PrivateAssets="all" Include="Avalonia" />
-    <PackageReference Include="Avalonia.ReactiveUI" />
+    <PackageReference Include="ReactiveUI.Avalonia" />
     <PackageReference Include="System.Reactive.Linq" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CefGlue.Common\CefGlue.Common.csproj">
-      <PrivateAssets>none</PrivateAssets>
-    </ProjectReference>
-    <ProjectReference Include="..\CefGlue\CefGlue.csproj">
-      <PrivateAssets>all</PrivateAssets>
-    </ProjectReference>
+    <ProjectReference Include="..\CefGlue.BrowserProcess.Core\CefGlue.BrowserProcess.Core.csproj" />
+    <ProjectReference Include="..\CefGlue.Common\CefGlue.Common.csproj" PrivateAssets="none" />
+    <ProjectReference Include="..\CefGlue\CefGlue.csproj" PrivateAssets="all" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Platform\MacOS\" />
-    <Folder Include="Platform\Windows\" />
-  </ItemGroup>
 </Project>

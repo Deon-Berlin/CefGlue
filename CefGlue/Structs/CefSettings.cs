@@ -293,6 +293,19 @@
         /// </summary>
         public bool DisableSignalHandlers { get; set; }
 
+        /// <summary>
+        /// The log items prepended to each log line. If not set the default log items
+        /// will be used.
+        /// </summary>
+        public CefLogItems LogItems { get; set; }
+
+        /// <summary>
+        /// If true use a Views (bare-bones) window instead of a Chrome UI window when
+        /// creating default popups for Chrome style native-hosted (non-Views) browsers.
+        /// Added in CEF 146.
+        /// </summary>
+        public bool UseViewsDefaultPopup { get; set; }
+
         internal cef_settings_t* ToNative()
         {
             var ptr = cef_settings_t.Alloc();
@@ -312,6 +325,7 @@
             cef_string_t.Copy(Locale, &ptr->locale);
             cef_string_t.Copy(LogFile, &ptr->log_file);
             ptr->log_severity = LogSeverity;
+            ptr->log_items = LogItems;
             cef_string_t.Copy(JavaScriptFlags, &ptr->javascript_flags);
             cef_string_t.Copy(ResourcesDirPath, &ptr->resources_dir_path);
             cef_string_t.Copy(LocalesDirPath, &ptr->locales_dir_path);
@@ -324,6 +338,7 @@
             cef_string_t.Copy(ChromePolicyId, &ptr->chrome_policy_id);
             ptr->chrome_app_icon_id = ChromeAppIconId;
             ptr->disable_signal_handlers = DisableSignalHandlers ? 1 : 0;
+            ptr->use_views_default_popup = UseViewsDefaultPopup ? 1 : 0;
             return ptr;
         }
 

@@ -33,12 +33,7 @@ namespace Xilium.CefGlue.Common
                     commandLine.AppendSwitch("enable-begin-frame-scheduling");
                     commandLine.AppendSwitch("disable-smooth-scrolling");
                 }
-                
-                // Telemetry to debug
-                //commandLine.AppendSwitch("disable-features", "NetworkServiceSandbox");
-                commandLine.AppendSwitch("log-severity", "verbose");
-                commandLine.AppendSwitch("log-file", "C:\\git\\CefGlue\\cef_main_log.txt");
-                
+
                 if (_flags != null)
                 {
                     foreach (var flag in _flags)

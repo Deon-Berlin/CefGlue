@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>$(DotnetVersion)</TargetFramework>
     <AssemblyName>Xilium.CefGlue</AssemblyName>
+    <PackageId>$(CefGluePackageNamePrefix)Core</PackageId>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
@@ -21,7 +22,4 @@
     <None Include="Interop\Base\cef_string_t.disabled.cs" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
 </Project>

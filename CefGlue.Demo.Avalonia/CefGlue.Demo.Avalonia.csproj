@@ -1,15 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
+    <OutputType Condition="$([MSBuild]::IsOSPlatform('Windows'))">WinExe</OutputType>
     <RollForward>LatestMajor</RollForward>
     <TargetFramework>$(DotnetVersion)</TargetFramework>
     <AssemblyName>Xilium.CefGlue.Demo.Avalonia</AssemblyName>
     <RootNamespace>Xilium.CefGlue.Demo.Avalonia</RootNamespace>
     <RollForward>Major</RollForward>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
-
+    
   <PropertyGroup Condition="'$(Configuration)'=='Debug_WindowlessRender'">
     <DefineConstants>$(DefineConstants);WINDOWLESS</DefineConstants>
   </PropertyGroup>
@@ -27,22 +29,36 @@
     <NSPrincipalClass>NSApplication</NSPrincipalClass>
     <NSHighResolutionCapable>true</NSHighResolutionCapable>
   </PropertyGroup>
-  <Import Project="$(ProjectDir)..\CefGlue.CopyLocal.props" />
+    
+  <PropertyGroup Condition="$(TargetFramework.EndsWith('-macos'))">
+    <ApplicationId>$(CFBundleIdentifier)</ApplicationId>
+    <MacOSMinimumSystemVersion>15.0</MacOSMinimumSystemVersion>
+    <SupportedOSPlatformVersion>15.0</SupportedOSPlatformVersion>
+    <TargetPlatformVersion>26.1</TargetPlatformVersion>
+    <RuntimeIdentifier>osx-arm64</RuntimeIdentifier>
+  </PropertyGroup>
+    
+  <Import Project="$(ProjectDir)..\CefGlue.Packages.props" />
+    
+  <ItemGroup>
+    <Compile Include="..\CefGlue.Demo.WPF\StackDebug.cs" Link="StackDebug.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Dotnet.Bundle" />
     <PackageReference Include="Avalonia.Desktop" />
-    <PackageReference Include="Avalonia.ReactiveUI" />
     <PackageReference Include="Avalonia.Diagnostics" />
+    <PackageReference Include="ReactiveUI.Avalonia" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\CefGlue.Avalonia\CefGlue.Avalonia.csproj" />
+    <ProjectReference Include="..\CefGlue.BrowserProcess.Core\CefGlue.BrowserProcess.Core.csproj" />
     <ProjectReference Include="..\CefGlue\CefGlue.csproj" />
     <ProjectReference Include="..\CefGlue.Common\CefGlue.Common.csproj" />
     <ProjectReference Include="..\CefGlue.Common.Shared\CefGlue.Common.Shared.csproj" />
   </ItemGroup>
-
+  
   <Import Project="$(ProjectDir)..\CefGlue.Common\build\CefGlue.Common.targets" />
 
 </Project>

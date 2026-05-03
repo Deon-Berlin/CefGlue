@@ -8,45 +8,20 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <UseWPF>true</UseWPF>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
-    <PackageId>CefGlue.WPF$(PackageSuffix)</PackageId>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-    
-  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-    <DocumentationFile>bin\Release\Xilium.CefGlue.WPF.xml</DocumentationFile>
-  </PropertyGroup>
-    
-  <PropertyGroup Condition="'$(Configuration)' == 'Debug_WindowlessRender'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\$(Platform)\Debug_WindowlessRender\</OutputPath>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
     
   <ItemGroup>
     <Compile Include="..\CefGlue.Common\BaseCefBrowser.cs">
       <Link>Common\BaseCefBrowser.cs</Link>
     </Compile>
-    <AppDesigner Include="Properties\" />
   </ItemGroup>
     
   <ItemGroup>
-    <ProjectReference Include="..\CefGlue.Common\CefGlue.Common.csproj">
-      <PrivateAssets>none</PrivateAssets>
-    </ProjectReference>
-    <ProjectReference Include="..\CefGlue\CefGlue.csproj">
-      <PrivateAssets>all</PrivateAssets>
-    </ProjectReference>
-  </ItemGroup>
-    
-  <ItemGroup>
-    <PackageReference PrivateAssets="all" Include="System.Data.DataSetExtensions" />
-    <PackageReference Include="Microsoft.Windows.Compatibility" />
+    <ProjectReference Include="..\CefGlue.BrowserProcess.Core\CefGlue.BrowserProcess.Core.csproj" />
+    <ProjectReference Include="..\CefGlue.Common\CefGlue.Common.csproj" PrivateAssets="none" />
+    <ProjectReference Include="..\CefGlue\CefGlue.csproj" PrivateAssets="all" />
   </ItemGroup>
 </Project>

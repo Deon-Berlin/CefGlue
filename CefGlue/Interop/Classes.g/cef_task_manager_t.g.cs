@@ -63,7 +63,7 @@ namespace Xilium.CefGlue.Interop
         #if !DEBUG
         [SuppressUnmanagedCodeSecurity]
         #endif
-        private delegate int get_task_info_delegate(cef_task_manager_t* self, long task_id, cef_task_info_t* info);
+        private delegate int get_task_info_delegate(cef_task_manager_t* self, long task_id, CefTaskInfo* info);
         
         [UnmanagedFunctionPointer(libcef.CEF_CALLBACK)]
         #if !DEBUG
@@ -183,7 +183,7 @@ namespace Xilium.CefGlue.Interop
         private static IntPtr _p6;
         private static get_task_info_delegate _d6;
         
-        public static int get_task_info(cef_task_manager_t* self, long task_id, cef_task_info_t* info)
+        public static int get_task_info(cef_task_manager_t* self, long task_id, CefTaskInfo* info)
         {
             get_task_info_delegate d;
             var p = self->_get_task_info;

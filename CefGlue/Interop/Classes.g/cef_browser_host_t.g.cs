@@ -81,6 +81,7 @@ namespace Xilium.CefGlue.Interop
         internal IntPtr _execute_chrome_command;
         internal IntPtr _is_render_process_unresponsive;
         internal IntPtr _get_runtime_style;
+        internal IntPtr _set_ax_viewport_collapse;
         
         // CreateBrowser
         [DllImport(libcef.DllName, EntryPoint = "cef_browser_host_create_browser", CallingConvention = libcef.CEF_CALL)]
@@ -525,6 +526,12 @@ namespace Xilium.CefGlue.Interop
         [SuppressUnmanagedCodeSecurity]
         #endif
         private delegate CefRuntimeStyle get_runtime_style_delegate(cef_browser_host_t* self);
+        
+        [UnmanagedFunctionPointer(libcef.CEF_CALLBACK)]
+        #if !DEBUG
+        [SuppressUnmanagedCodeSecurity]
+        #endif
+        private delegate void set_ax_viewport_collapse_delegate(cef_browser_host_t* self, int enabled);
         
         // AddRef
         private static IntPtr _p0;
@@ -1748,6 +1755,23 @@ namespace Xilium.CefGlue.Interop
                 if (_p47 == IntPtr.Zero) { _d47 = d; _p47 = p; }
             }
             return d(self);
+        }
+        
+        // SetAxViewportCollapse
+        private static IntPtr _p48;
+        private static set_ax_viewport_collapse_delegate _d48;
+        
+        public static void set_ax_viewport_collapse(cef_browser_host_t* self, int enabled)
+        {
+            set_ax_viewport_collapse_delegate d;
+            var p = self->_set_ax_viewport_collapse;
+            if (p == _p48) { d = _d48; }
+            else
+            {
+                d = (set_ax_viewport_collapse_delegate)Marshal.GetDelegateForFunctionPointer(p, typeof(set_ax_viewport_collapse_delegate));
+                if (_p48 == IntPtr.Zero) { _d48 = d; _p48 = p; }
+            }
+            d(self, enabled);
         }
         
     }

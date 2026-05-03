@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <_CefDefaultCopyToBundleAfterTarget>_LinkNativeExecutable</_CefDefaultCopyToBundleAfterTarget>
+    <_CefFrameworkBundleDepoyScript>$(MSBuildThisFileDirectory)../CEF/deploy-cef-framework.sh</_CefFrameworkBundleDepoyScript>
+  </PropertyGroup>
+
+  <!-- Publish CEF Framework with helper apps to the app bundle created when bulding netX.0-macos target framework projects -->
+  <Target Name="CefRedistOSX64CopyBundleResources"
+          AfterTargets="_LinkNativeExecutable"
+          Condition="$(TargetFramework.EndsWith('-macos')) AND '$(RuntimeIdentifier)' == 'osx-x64' AND '$(OutputType)' == 'Exe'">
+
+    <PropertyGroup>
+      <_CefClientFrameworks>$(MSBuildThisFileDirectory)../CEF/$(RuntimeIdentifier)</_CefClientFrameworks>
+      <_CefDestFrameworks>$(_AppBundlePath)Contents/Frameworks</_CefDestFrameworks>
+
+      <CefBundleCodesignKey Condition="'$(CefBundleCodesignKey)' == ''">$(CodesignKey)</CefBundleCodesignKey>
+    </PropertyGroup>
+
+    <Message Importance="high" Text="Adding CEF Framework to AppBundle $(_AppBundlePath) with RuntimeIdentifier $(RuntimeIdentifier)" />
+    <Message Importance="high" Text="Code Signing using '$(CefBundleCodesignKey)' with entitlements '$(CefBundleEntitlementsFile)'" />
+
+    <Exec Command="chmod 755 $(_CefFrameworkBundleDepoyScript)" />
+    <Exec Command="bash &quot;$(_CefFrameworkBundleDepoyScript)&quot; \
+          &quot;$(_CefClientFrameworks)&quot; \
+          &quot;$(_CefDestFrameworks)&quot; \
+          &quot;$(CFBundleName)&quot; \
+          &quot;$(CFBundleIdentifier)&quot; \
+          &quot;$(CefBundleCodesignKey)&quot; \
+          &quot;$(CefBundleEntitlementsFile)&quot;" />
+
+  </Target>
+
+  <!-- Publish CEF libs and Resources for standard builds without App Bundle -->
+  <Target Name="CefRedistOSX64CopyResources"
+          AfterTargets="Build"
+          Condition="!$(TargetFramework.EndsWith('-macos')) AND '$(RuntimeIdentifier)' == 'osx-x64' AND '$(OutputType)' == 'Exe'">
+
+    <Message Importance="high" Text="Publishing CEF Framework to $(TargetDir) with RuntimeIdentifier $(RuntimeIdentifier)" />
+
+    <PropertyGroup Condition="'$(_AppBundlePath)' == ''">
+      <CefResistOSX64SourceDir>$(MSBuildThisFileDirectory)../CEF/osx-x64</CefResistOSX64SourceDir>
+      <CefRedistOSX64TargetDir Condition="'$(CefRedistOSX64TargetDir)' == ''">$(TargetDir)</CefRedistOSX64TargetDir>
+      <CefRedistOSX64ResourceTargetDir Condition="'$(CefRedistOSX64ResourceTargetDir)' == ''">$(TargetDir)\Resources</CefRedistOSX64ResourceTargetDir>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <_CefRuntimeOSX64Main Include="$(CefResistOSX64SourceDir)/Chromium Embedded Framework" />
+      <_CefRuntimeOSX64Libraries Include="$(CefResistOSX64SourceDir)/Libraries/**/*.*" />
+      <_CefRuntimeOSX64Resources Include="$(CefResistOSX64SourceDir)/Resources/**/*.*" />
+    </ItemGroup>
+
+    <Message Importance="high" Text="Copying Chromium Embedded Framework Runtime x64 files from $(CefResistOSX64SourceDir) to $(CefRedistOSX64TargetDir)" />
+    <Copy SourceFiles="@(_CefRuntimeOSX64Main)" DestinationFiles="@(_CefRuntimeOSX64Main->'$(CefRedistOSX64TargetDir)\libcef.dylib')" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(_CefRuntimeOSX64Libraries)" DestinationFiles="@(_CefRuntimeOSX64Libraries->'$(CefRedistOSX64TargetDir)\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(_CefRuntimeOSX64Resources)" DestinationFiles="@(_CefRuntimeOSX64Resources->'$(CefRedistOSX64ResourceTargetDir)\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+  </Target>
+
+  <PropertyGroup>
+    <!-- Override with your Team ID or full certificate name -->
+    <CefBundleCodesignKey Condition="'$(CefBundleCodesignKey)' == ''">-</CefBundleCodesignKey>
+  </PropertyGroup>
+
+  <Target Name="ResignBundleAfterCefCopy"
+          Condition="'$(_AppBundlePath)' != '' AND $([MSBuild]::IsOSPlatform('OSX'))">
+    <Message Importance="high" Text="Re-signing bundle with identity: $(CefBundleCodesignKey)" />
+    <!-- Sign all CEF dylibs individually first; -deep does not re-sign flat dylibs in MonoBundle -->
+    <Exec Condition="'$(CefBundleCodesignKey)' != '-'"
+          Command="find &quot;$(_AppBundlePath)Contents/MonoBundle&quot; -name '*.dylib' -exec codesign --force --sign &quot;$(CefBundleCodesignKey)&quot; {} \;" />
+    <!-- Adhoc signing (-) does not support -options runtime; Developer ID requires it for SecCodeCopySelf on macOS 15 -->
+    <Exec Condition="'$(CefBundleCodesignKey)' == '-' OR '$(CefBundleEntitlementsFile)' == ''"
+          Command="codesign --force --sign &quot;$(CefBundleCodesignKey)&quot; &quot;$(_AppBundlePath)&quot;" />
+    <Exec Condition="'$(CefBundleCodesignKey)' != '-' AND '$(CefBundleEntitlementsFile)' != ''"
+          Command="codesign --force --sign &quot;$(CefBundleCodesignKey)&quot; --options runtime --entitlements &quot;$(CefBundleEntitlementsFile)&quot; &quot;$(_AppBundlePath)&quot;" />
+  </Target>
+</Project>

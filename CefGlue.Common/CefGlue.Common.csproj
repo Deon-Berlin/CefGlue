@@ -6,9 +6,6 @@
         <AssemblyName>Xilium.CefGlue.Common</AssemblyName>
         <RootNamespace>Xilium.CefGlue.Common</RootNamespace>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <PackageId>CefGlue.Common$(PackageSuffix)</PackageId>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
         <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     </PropertyGroup>
 
@@ -21,53 +18,18 @@
         <None Include="BaseCefBrowser.cs" />
     </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="System.Text.Json" />
-    </ItemGroup>
-
     <ItemGroup Condition="$([System.Text.RegularExpressions.Regex]::IsMatch($(DefineConstants), '(^|;)HAS_NLOG($|;)'))">
         <PackageReference Include="NLog" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\CefGlue.Common.Shared\CefGlue.Common.Shared.csproj">
-            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
-            <IncludeAssets>CefGlue.Common.Shared.dll</IncludeAssets>
-        </ProjectReference>
+        <ProjectReference Include="..\CefGlue.Common.Shared\CefGlue.Common.Shared.csproj" />
+        <ProjectReference Include="..\CefGlue\CefGlue.csproj" />
 
-        <ProjectReference Include="..\CefGlue\CefGlue.csproj">
-            <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
-            <IncludeAssets>CefGlue.dll</IncludeAssets>
-        </ProjectReference>
-
-        <!-- Forces BrowserProcess build before CopyProjectReferencesToPackage target run -->
-        <ProjectReference Include="..\CefGlue.BrowserProcess\CefGlue.BrowserProcess.csproj">
-            <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-            <PrivateAssets>all</PrivateAssets>
-        </ProjectReference>
-
-        <None Include="build\CefGlue.Common.props" Pack="True" PackagePath="build\CefGlue.Common$(PackageSuffix).props" />
-        <None Include="build\CefGlue.Common.targets" Pack="True" PackagePath="build\CefGlue.Common$(PackageSuffix).targets" />
-        <None Include="build\CefGlue.Common.props" Pack="True" PackagePath="buildTransitive\CefGlue.Common$(PackageSuffix).props" />
-        <None Include="build\CefGlue.Common.targets" Pack="True" PackagePath="buildTransitive\CefGlue.Common$(PackageSuffix).targets" />
+        <None Include="build\CefGlue.Common.props" Pack="True" PackagePath="build\CefGlue.$(CefGluePackageNameSuffix)Common.props" />
+        <None Include="build\CefGlue.Common.targets" Pack="True" PackagePath="build\CefGlue.$(CefGluePackageNameSuffix)Common.targets" />
+        <None Include="build\CefGlue.Common.props" Pack="True" PackagePath="buildTransitive\CefGlue.$(CefGluePackageNameSuffix)Common.props" />
+        <None Include="build\CefGlue.Common.targets" Pack="True" PackagePath="buildTransitive\CefGlue.$(CefGluePackageNameSuffix)Common.targets" />
     </ItemGroup>
-
-    <Target DependsOnTargets="ResolveReferences" Name="CopyProjectReferencesToPackage">
-        <ItemGroup>
-            <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths-&gt;WithMetadataValue('ReferenceSourceTarget', 'ProjectReference'))" />
-
-            <TfmSpecificPackageFile Include="..\CefGlue.BrowserProcess\bin\$(Platform)\$(Configuration)\$(DotnetVersion)\win-$(ArchitectureConfig)\publish\**\*">
-                <PackagePath>bin\win-$(ArchitectureConfig)</PackagePath>
-            </TfmSpecificPackageFile>
-            
-            <TfmSpecificPackageFile Include="..\CefGlue.BrowserProcess\bin\$(Platform)\$(Configuration)\$(DotnetVersion)\linux-$(ArchitectureConfig)\publish\**\*">
-                <PackagePath>bin\linux-$(ArchitectureConfig)</PackagePath>
-            </TfmSpecificPackageFile>
-
-            <TfmSpecificPackageFile Include="..\CefGlue.BrowserProcess\bin\$(Platform)\$(Configuration)\$(DotnetVersion)\osx-$(ArchitectureConfig)\publish\**\*">
-                <PackagePath>bin\osx-$(ArchitectureConfig)</PackagePath>
-            </TfmSpecificPackageFile>
-        </ItemGroup>
-    </Target>
-
+    
 </Project>

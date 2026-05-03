@@ -707,12 +707,24 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   virtual void WasHidden(bool hidden) = 0;
 
   ///
-  /// Send a notification to the browser that the screen info has changed. The
-  /// browser will then call CefRenderHandler::GetScreenInfo to update the
-  /// screen information with the new values. This simulates moving the webview
-  /// window from one display to another, or changing the properties of the
-  /// current display. This method is only used when window rendering is
-  /// disabled.
+  /// Notify the browser that screen information has changed. Updated
+  /// information will be sent to the renderer process to configure screen size
+  /// and position values used by CSS and JavaScript (window.deviceScaleFactor,
+  /// window.screenX/Y, window.outerWidth/Height, etc.). For background see
+  /// https://chromiumembedded.github.io/cef/general_usage#coordinate-systems
+  ///
+  /// This method is used with (a) windowless rendering and (b) windowed
+  /// rendering with external (client-provided) root window.
+  ///
+  /// With windowless rendering the browser will call
+  /// CefRenderHandler::GetScreenInfo, CefRenderHandler::GetRootScreenRect and
+  /// CefRenderHandler::GetViewRect. This simulates moving or resizing the root
+  /// window in the current display, moving the root window from one display to
+  /// another, or changing the properties of the current display.
+  ///
+  /// With windowed rendering the browser will call
+  /// CefDisplayHandler::GetRootWindowScreenRect and use the associated
+  /// display properties.
   ///
   /*--cef()--*/
   virtual void NotifyScreenInfoChanged() = 0;
@@ -792,8 +804,8 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   /// Returns the maximum rate in frames per second (fps) that
   /// CefRenderHandler::OnPaint will be called for a windowless browser. The
   /// actual fps may be lower if the browser cannot generate frames at the
-  /// requested rate. The minimum value is 1 and the maximum value is 60
-  /// (default 30). This method can only be called on the UI thread.
+  /// requested rate. The minimum value is 1 and the default value is 30. This
+  /// method can only be called on the UI thread.
   ///
   /*--cef()--*/
   virtual int GetWindowlessFrameRate() = 0;
@@ -802,8 +814,8 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   /// Set the maximum rate in frames per second (fps) that CefRenderHandler::
   /// OnPaint will be called for a windowless browser. The actual fps may be
   /// lower if the browser cannot generate frames at the requested rate. The
-  /// minimum value is 1 and the maximum value is 60 (default 30). Can also be
-  /// set at browser creation via CefBrowserSettings.windowless_frame_rate.
+  /// minimum value is 1 and the default value is 30. Can also be set at browser
+  /// creation via CefBrowserSettings.windowless_frame_rate.
   ///
   /*--cef()--*/
   virtual void SetWindowlessFrameRate(int frame_rate) = 0;
@@ -1060,6 +1072,23 @@ class CefBrowserHost : public virtual CefBaseRefCounted {
   ///
   /*--cef(default_retval=CEF_RUNTIME_STYLE_DEFAULT)--*/
   virtual cef_runtime_style_t GetRuntimeStyle() = 0;
+
+#if CEF_API_ADDED(CEF_EXPERIMENTAL)
+  ///
+  /// Enable or disable CDP accessibility tree viewport collapse for this
+  /// browser. When enabled, off-screen landmarks and headings are serialized
+  /// as summaries and other off-screen nodes are pruned. Overrides the
+  /// CefBrowserSettings.ax_viewport_collapse value. If called on the UI thread
+  /// the change will be applied immediately. Otherwise, the change will be
+  /// applied asynchronously on the UI thread.
+  /// WARNING: This collapses the CDP accessibility tree and disables CDP
+  /// dynamic tree updates (nodesUpdated events). The DevTools Accessibility
+  /// panel will show an incomplete tree. Platform screen readers (NVDA, JAWS,
+  /// VoiceOver) are unaffected — they use a separate code path.
+  ///
+  /*--cef(added=experimental)--*/
+  virtual void SetAxViewportCollapse(bool enabled) = 0;
+#endif
 };
 
 #endif  // CEF_INCLUDE_CEF_BROWSER_H_

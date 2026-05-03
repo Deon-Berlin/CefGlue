@@ -93,16 +93,9 @@ c2cs_types = {
     'cef_window_info_t': 'cef_window_info_t',
     'cef_accelerated_paint_info_t': 'cef_accelerated_paint_info_t',
 
-    'cef_text_input_context_t': 'IntPtr',
 
-    'cef_color_model_t': 'CefColorModel',
-    'cef_duplex_mode_t': 'CefDuplexMode',
-
-    'cef_cursor_type_t': 'CefCursorType',
 
 	'cef_range_t': 'cef_range_t',
-    'cef_channel_layout_t': 'CefChannelLayout',
-    'cef_text_input_mode_t': 'CefTextInputMode',
     }
 
 c2cs_platform_retval = {
@@ -187,6 +180,16 @@ c2cs_enumtypes = {
     'cef_color_variant_t': 'CefColorVariant',
     'cef_runtime_style_t': 'CefRuntimeStyle',
     'cef_task_type_t': 'CefTaskType',
+    # 146
+    'cef_component_update_error_t': 'CefComponentUpdateError',
+    'cef_component_update_priority_t': 'CefComponentUpdatePriority',
+    'cef_component_state_t': 'CefComponentState',
+    'cef_color_model_t': 'CefColorModel',
+    'cef_duplex_mode_t': 'CefDuplexMode',
+    'cef_cursor_type_t': 'CefCursorType',
+    'cef_channel_layout_t': 'CefChannelLayout',
+    'cef_text_input_mode_t': 'CefTextInputMode',
+    'cef_task_info_t': 'CefTaskInfo',
  }
 
 c2cs_structtypes = { }

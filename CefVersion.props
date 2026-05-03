@@ -1,0 +1,20 @@
+<!--
+  Central CEF version configuration.
+  This file reads version information from cef-version.json at the repository root
+  and exposes it as MSBuild properties.
+  
+  To update the CEF version, edit only cef-version.json.
+-->
+<Project>
+    <PropertyGroup>
+        <CefVersionJsonPath>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)cef-version.json'))</CefVersionJsonPath>
+        <CefVersionJsonContent Condition="Exists('$(CefVersionJsonPath)')">$([System.IO.File]::ReadAllText('$(CefVersionJsonPath)'))</CefVersionJsonContent>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(CefVersionJsonContent)' != ''">
+        <CefVersion>$([System.Text.RegularExpressions.Regex]::Match('$(CefVersionJsonContent)', '"cef_version"\s*:\s*"([^"]+)"').Groups[1].Value)</CefVersion>
+        <CefBuildVersion>$([System.Text.RegularExpressions.Regex]::Match('$(CefVersionJsonContent)', '"cef_build_version"\s*:\s*"([^"]+)"').Groups[1].Value)</CefBuildVersion>
+        <ChromiumVersion>$([System.Text.RegularExpressions.Regex]::Match('$(CefVersionJsonContent)', '"chromium_version"\s*:\s*"([^"]+)"').Groups[1].Value)</ChromiumVersion>
+        <CefGlueVersion>$([System.Text.RegularExpressions.Regex]::Match('$(CefVersionJsonContent)', '"cefglue_version"\s*:\s*"([^"]+)"').Groups[1].Value)</CefGlueVersion>
+    </PropertyGroup>
+</Project>
