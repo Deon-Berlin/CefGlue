@@ -62,6 +62,9 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v4
 
+            - name: Install ARM64 cross tools
+              run: sudo apt-get install -y binutils-aarch64-linux-gnu
+
             - name: Download CEF runtime
               working-directory: CefRuntime
               run: |
