@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+
 # Read version from central config if $2 is not set
 if [ -z "$2" ]; then
     SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -47,7 +49,7 @@ if [ ! -d "$CEFBINARIES" ]; then
     echo "Extracting CEF binaries v${CEF_VERSION}-${ARCH}"
     mkdir "$CEFBINARIES"
     tar -jxvf "$CEFZIP" -C "$CEFBINARIES"
-else 
+else
     echo "CEF binaries v${CEF_VERSION}-${ARCH} already extracted"
 fi
 
@@ -57,7 +59,17 @@ if [ ! -d "$OUTPUT" ]; then
     mkdir "$OUTPUT"
 fi
 
-CEFFRAMEWORK_DIR="$(find ${CEFBINARIES} -name "Release")/cefclient.app/Contents/Frameworks/"
+RELEASE_DIR="$(find "${CEFBINARIES}" -name "Release" -type d)"
+if [ -z "$RELEASE_DIR" ]; then
+    echo "ERROR: Release directory not found in ${CEFBINARIES}"
+    exit 1
+fi
+
+CEFFRAMEWORK_DIR="${RELEASE_DIR}/cefclient.app/Contents/Frameworks/"
+if [ ! -d "$CEFFRAMEWORK_DIR" ]; then
+    echo "ERROR: Chromium Embedded Framework not found at ${CEFFRAMEWORK_DIR}"
+    exit 1
+fi
 
 echo "Copying Chromium Embedded Framework..."
 rsync -a --delete "${CEFFRAMEWORK_DIR}" "${OUTPUT}/CEF/"
