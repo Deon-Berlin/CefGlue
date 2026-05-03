@@ -43,6 +43,10 @@
     <None Include="cef.runtime.$(RuntimeIdentifier).props" Pack="true" PackagePath="buildTransitive" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="redist/package-$(RuntimeIdentifier)-$(CefVersion)/CEF/**/*" Pack="true" PackagePath="CEF/$(RuntimeIdentifier)/" />
+  </ItemGroup>
+
   <!-- Run before GenerateNuspec so the produced files are available when the nuspec is assembled -->
   <Target Name="PrepareRedist" BeforeTargets="GenerateNuspec;Build">
     <PropertyGroup>
