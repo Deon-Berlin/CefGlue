@@ -27,6 +27,12 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v4
 
+            - name: Download CEF runtime
+              working-directory: CefRuntime
+              run: |
+                  chmod 755 make_cefredist_linux.sh
+                  ./make_cefredist_linux.sh linux-x64 ${{ github.event.inputs.cefbuildversion }}
+
             - name: Create NuGet package
               working-directory: CefRuntime
               run: |
@@ -55,6 +61,12 @@ jobs:
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
+
+            - name: Download CEF runtime
+              working-directory: CefRuntime
+              run: |
+                  chmod 755 make_cefredist_linux.sh
+                  ./make_cefredist_linux.sh linux-arm64 ${{ github.event.inputs.cefbuildversion }}
 
             - name: Create NuGet package
               working-directory: CefRuntime
@@ -85,6 +97,12 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v4
 
+            - name: Download CEF runtime
+              working-directory: CefRuntime
+              run: |
+                  chmod 755 make_cefredist_osx.sh
+                  ./make_cefredist_osx.sh osx-x64 ${{ github.event.inputs.cefbuildversion }}
+
             - name: Create NuGet package
               working-directory: CefRuntime
               run: |
@@ -113,6 +131,12 @@ jobs:
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
+
+            - name: Download CEF runtime
+              working-directory: CefRuntime
+              run: |
+                  chmod 755 make_cefredist_osx.sh
+                  ./make_cefredist_osx.sh osx-arm64 ${{ github.event.inputs.cefbuildversion }}
 
             - name: Create NuGet package
               working-directory: CefRuntime
