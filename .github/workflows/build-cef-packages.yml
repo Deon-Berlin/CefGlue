@@ -1,4 +1,4 @@
-name: Build CEF Redistribution Packages
+name: Publish CEF Runtime Packages
 
 on:
     workflow_dispatch:
@@ -95,8 +95,8 @@ jobs:
                   echo "=== NuGet Package Contents ==="
                   unzip -l LocalPackages/*.nupkg | head -50
                   echo ""
-                  echo "Checking for libcef.dylib in package..."
-                  unzip -l LocalPackages/*.nupkg | grep libcef.dylib
+                  echo "Checking for Chromium Embedded Framework in package..."
+                  unzip -l LocalPackages/*.nupkg | grep "Chromium Embedded Framework"
 
             - name: Upload artifact
               uses: actions/upload-artifact@v4
@@ -124,8 +124,8 @@ jobs:
                   echo "=== NuGet Package Contents ==="
                   unzip -l LocalPackages/*.nupkg | head -50
                   echo ""
-                  echo "Checking for libcef.dylib in package..."
-                  unzip -l LocalPackages/*.nupkg | grep libcef.dylib
+                  echo "Checking for Chromium Embedded Framework in package..."
+                  unzip -l LocalPackages/*.nupkg | grep "Chromium Embedded Framework"
 
             - name: Upload artifact
               uses: actions/upload-artifact@v4

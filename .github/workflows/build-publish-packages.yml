@@ -1,4 +1,4 @@
-name: Build and Publish CefGlue Packages
+name: Publish CefGlue Packages
 
 on:
     workflow_dispatch:
