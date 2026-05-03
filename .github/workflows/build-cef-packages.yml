@@ -168,3 +168,7 @@ jobs:
                   name: cef-redist-all-packages
                   path: all-packages/*.nupkg
                   retention-days: 30
+
+            - name: Push to NuGet.org
+              run: |
+                  dotnet nuget push all-packages/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate

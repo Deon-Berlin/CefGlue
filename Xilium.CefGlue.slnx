@@ -13,6 +13,7 @@
   </Folder>
   <Folder Name="/Solution Items/workflows/">
     <File Path=".github/workflows/build-cef-packages.yml" />
+    <File Path=".github/workflows/build-publish-packages.yml" />
   </Folder>
   <Project Path="CefGlue.Avalonia/CefGlue.Avalonia.csproj" />
   <Project Path="CefGlue.BrowserProcess.Core/CefGlue.BrowserProcess.Core.csproj" />

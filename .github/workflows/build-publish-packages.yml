@@ -1,0 +1,61 @@
+name: Build and Publish CefGlue Packages
+
+on:
+    workflow_dispatch:
+    push:
+        branches:
+            - main
+        paths:
+            - "cef-version.json"
+
+jobs:
+    build-and-publish:
+        name: Build and Publish
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Setup .NET
+              uses: actions/setup-dotnet@v4
+              with:
+                  dotnet-version: "10.0.x"
+
+            - name: Determine version suffix
+              id: version
+              run: |
+                  if [ "${{ github.ref_name }}" != "main" ]; then
+                    BRANCH=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9]/-/g' | tr '[:upper:]' '[:lower:]' | cut -c1-30)
+                    COMMITS=$(git rev-list --count HEAD)
+                    echo "suffix=${BRANCH}.${COMMITS}" >> $GITHUB_OUTPUT
+                  else
+                    echo "suffix=" >> $GITHUB_OUTPUT
+                  fi
+
+            - name: Restore dependencies
+              run: dotnet restore Xilium.CefGlue.slnx
+
+            - name: Build solution in Release
+              run: dotnet build Xilium.CefGlue.slnx -c Release --no-restore /p:VersionSuffix=${{ steps.version.outputs.suffix }}
+
+            - name: List generated packages
+              run: |
+                  echo "=== Generated NuGet Packages ==="
+                  ls -la Nuget/output/*.nupkg
+                  echo ""
+                  echo "Package sizes:"
+                  du -h Nuget/output/*.nupkg
+
+            - name: Upload artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: cefglue-packages
+                  path: Nuget/output/*.nupkg
+                  retention-days: 30
+
+            - name: Push to NuGet.org
+              run: |
+                  dotnet nuget push Nuget/output/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
