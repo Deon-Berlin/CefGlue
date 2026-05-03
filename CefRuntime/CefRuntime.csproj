@@ -28,7 +28,7 @@
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <PackageIcon>images\cef128x128.png</PackageIcon>
     <PackageTags>chrome chromium native embedded browser CEF nativepackage $(RuntimeIdentifier)</PackageTags>
-    <RepositoryUrl>https://github.com/Deon-Berlin/CefGlue-Monorepo.git</RepositoryUrl>
+    <RepositoryUrl>https://github.com/Deon-Berlin/CefGlue</RepositoryUrl>
     <Description>
       Chromium Embedded Framework (CEF) Release Distribution
       NOTE: This package is maintained on behalf of the CEF authors by DEON

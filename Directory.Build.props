@@ -29,7 +29,7 @@
         <!-- <PackageIcon></PackageIcon> -->
         <IncludeSymbols>false</IncludeSymbols>
         <IncludeSource>false</IncludeSource>
-        <RepositoryUrl>https://github.com/Deon-Berlin/CefGlue-Monorepo</RepositoryUrl>
+        <RepositoryUrl>https://github.com/Deon-Berlin/CefGlue</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <NoWarn>$(NoWarn);NU5100;NU5118;CS1591;NU1507</NoWarn>
     </PropertyGroup>
