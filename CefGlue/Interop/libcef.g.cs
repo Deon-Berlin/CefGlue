@@ -17,6 +17,10 @@ namespace Xilium.CefGlue.Interop
         [DllImport(libcef.DllName, EntryPoint = "cef_initialize", CallingConvention = libcef.CEF_CALL)]
         public static extern int initialize(cef_main_args_t* args, cef_settings_t* settings, cef_app_t* application, void* windows_sandbox_info);
         
+        // CefGetExitCode
+        [DllImport(libcef.DllName, EntryPoint = "cef_get_exit_code", CallingConvention = libcef.CEF_CALL)]
+        public static extern int get_exit_code();
+        
         // CefShutdown
         [DllImport(libcef.DllName, EntryPoint = "cef_shutdown", CallingConvention = libcef.CEF_CALL)]
         public static extern void shutdown();
@@ -32,6 +36,10 @@ namespace Xilium.CefGlue.Interop
         // CefQuitMessageLoop
         [DllImport(libcef.DllName, EntryPoint = "cef_quit_message_loop", CallingConvention = libcef.CEF_CALL)]
         public static extern void quit_message_loop();
+        
+        // CefSetNestableTasksAllowed
+        [DllImport(libcef.DllName, EntryPoint = "cef_set_nestable_tasks_allowed", CallingConvention = libcef.CEF_CALL)]
+        public static extern void set_nestable_tasks_allowed(int allowed);
         
         // CefCrashReportingEnabled
         [DllImport(libcef.DllName, EntryPoint = "cef_crash_reporting_enabled", CallingConvention = libcef.CEF_CALL)]
@@ -114,12 +122,12 @@ namespace Xilium.CefGlue.Interop
         public static extern void get_extensions_for_mime_type(cef_string_t* mime_type, cef_string_list* extensions);
         
         // CefBase64Encode
-        [DllImport(libcef.DllName, EntryPoint = "cef_base64encode", CallingConvention = libcef.CEF_CALL)]
-        public static extern cef_string_userfree* base64encode(void* data, UIntPtr data_size);
+        [DllImport(libcef.DllName, EntryPoint = "cef_base64_encode", CallingConvention = libcef.CEF_CALL)]
+        public static extern cef_string_userfree* base64_encode(void* data, UIntPtr data_size);
         
         // CefBase64Decode
-        [DllImport(libcef.DllName, EntryPoint = "cef_base64decode", CallingConvention = libcef.CEF_CALL)]
-        public static extern cef_binary_value_t* base64decode(cef_string_t* data);
+        [DllImport(libcef.DllName, EntryPoint = "cef_base64_decode", CallingConvention = libcef.CEF_CALL)]
+        public static extern cef_binary_value_t* base64_decode(cef_string_t* data);
         
         // CefURIEncode
         [DllImport(libcef.DllName, EntryPoint = "cef_uriencode", CallingConvention = libcef.CEF_CALL)]
@@ -191,7 +199,7 @@ namespace Xilium.CefGlue.Interop
         
         // CefRegisterExtension
         [DllImport(libcef.DllName, EntryPoint = "cef_register_extension", CallingConvention = libcef.CEF_CALL)]
-        public static extern int register_extension(cef_string_t* extension_name, cef_string_t* javascript_code, cef_v8handler_t* handler);
+        public static extern int register_extension(cef_string_t* extension_name, cef_string_t* javascript_code, cef_v8_handler_t* handler);
         
     }
 }

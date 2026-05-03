@@ -39,7 +39,7 @@
     <ProjectReference Include="..\CefGlue\CefGlue.csproj" />
   </ItemGroup>
 
-  <Import Project="$(ProjectDir)..\CefGlue.CopyLocal.props" />
+  <Import Project="$(ProjectDir)..\CefGlue.Packages.props" />
   <Import Project="$(ProjectDir)..\CefGlue.Common\build\CefGlue.Common.targets" />
 
 </Project>

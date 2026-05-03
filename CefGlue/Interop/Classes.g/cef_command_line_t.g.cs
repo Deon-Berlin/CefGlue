@@ -29,6 +29,7 @@ namespace Xilium.CefGlue.Interop
         internal IntPtr _get_switches;
         internal IntPtr _append_switch;
         internal IntPtr _append_switch_with_value;
+        internal IntPtr _remove_switch;
         internal IntPtr _has_arguments;
         internal IntPtr _get_arguments;
         internal IntPtr _append_argument;
@@ -161,6 +162,12 @@ namespace Xilium.CefGlue.Interop
         [SuppressUnmanagedCodeSecurity]
         #endif
         private delegate void append_switch_with_value_delegate(cef_command_line_t* self, cef_string_t* name, cef_string_t* value);
+        
+        [UnmanagedFunctionPointer(libcef.CEF_CALLBACK)]
+        #if !DEBUG
+        [SuppressUnmanagedCodeSecurity]
+        #endif
+        private delegate void remove_switch_delegate(cef_command_line_t* self, cef_string_t* name);
         
         [UnmanagedFunctionPointer(libcef.CEF_CALLBACK)]
         #if !DEBUG
@@ -526,70 +533,87 @@ namespace Xilium.CefGlue.Interop
             d(self, name, value);
         }
         
-        // HasArguments
+        // RemoveSwitch
         private static IntPtr _p14;
-        private static has_arguments_delegate _d14;
+        private static remove_switch_delegate _d14;
+        
+        public static void remove_switch(cef_command_line_t* self, cef_string_t* name)
+        {
+            remove_switch_delegate d;
+            var p = self->_remove_switch;
+            if (p == _p14) { d = _d14; }
+            else
+            {
+                d = (remove_switch_delegate)Marshal.GetDelegateForFunctionPointer(p, typeof(remove_switch_delegate));
+                if (_p14 == IntPtr.Zero) { _d14 = d; _p14 = p; }
+            }
+            d(self, name);
+        }
+        
+        // HasArguments
+        private static IntPtr _p15;
+        private static has_arguments_delegate _d15;
         
         public static int has_arguments(cef_command_line_t* self)
         {
             has_arguments_delegate d;
             var p = self->_has_arguments;
-            if (p == _p14) { d = _d14; }
+            if (p == _p15) { d = _d15; }
             else
             {
                 d = (has_arguments_delegate)Marshal.GetDelegateForFunctionPointer(p, typeof(has_arguments_delegate));
-                if (_p14 == IntPtr.Zero) { _d14 = d; _p14 = p; }
+                if (_p15 == IntPtr.Zero) { _d15 = d; _p15 = p; }
             }
             return d(self);
         }
         
         // GetArguments
-        private static IntPtr _p15;
-        private static get_arguments_delegate _d15;
+        private static IntPtr _p16;
+        private static get_arguments_delegate _d16;
         
         public static void get_arguments(cef_command_line_t* self, cef_string_list* arguments)
         {
             get_arguments_delegate d;
             var p = self->_get_arguments;
-            if (p == _p15) { d = _d15; }
+            if (p == _p16) { d = _d16; }
             else
             {
                 d = (get_arguments_delegate)Marshal.GetDelegateForFunctionPointer(p, typeof(get_arguments_delegate));
-                if (_p15 == IntPtr.Zero) { _d15 = d; _p15 = p; }
+                if (_p16 == IntPtr.Zero) { _d16 = d; _p16 = p; }
             }
             d(self, arguments);
         }
         
         // AppendArgument
-        private static IntPtr _p16;
-        private static append_argument_delegate _d16;
+        private static IntPtr _p17;
+        private static append_argument_delegate _d17;
         
         public static void append_argument(cef_command_line_t* self, cef_string_t* argument)
         {
             append_argument_delegate d;
             var p = self->_append_argument;
-            if (p == _p16) { d = _d16; }
+            if (p == _p17) { d = _d17; }
             else
             {
                 d = (append_argument_delegate)Marshal.GetDelegateForFunctionPointer(p, typeof(append_argument_delegate));
-                if (_p16 == IntPtr.Zero) { _d16 = d; _p16 = p; }
+                if (_p17 == IntPtr.Zero) { _d17 = d; _p17 = p; }
             }
             d(self, argument);
         }
         
         // PrependWrapper
-        private static IntPtr _p17;
-        private static prepend_wrapper_delegate _d17;
+        private static IntPtr _p18;
+        private static prepend_wrapper_delegate _d18;
         
         public static void prepend_wrapper(cef_command_line_t* self, cef_string_t* wrapper)
         {
             prepend_wrapper_delegate d;
             var p = self->_prepend_wrapper;
-            if (p == _p17) { d = _d17; }
+            if (p == _p18) { d = _d18; }
             else
             {
                 d = (prepend_wrapper_delegate)Marshal.GetDelegateForFunctionPointer(p, typeof(prepend_wrapper_delegate));
-                if (_p17 == IntPtr.Zero) { _d17 = d; _p17 = p; }
+                if (_p18 == IntPtr.Zero) { _d18 = d; _p18 = p; }
             }
             d(self, wrapper);
         }

@@ -5,4 +5,13 @@
     <DocumentationFile />
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(PackageId)' == ''">
+    <PackageId>$(CefGluePackageNamePrefix)$(AssemblyName.Replace('Xilium.CefGlue.', ''))</PackageId>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(PackageId)' != ''">
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
 </Project>

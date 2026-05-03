@@ -1,101 +1,56 @@
-<Project>
+﻿<Project>
+
+  <!-- Copy CEF DLLs and resources on Windows, on macOS and linux this happening automatically -->
+  <Target Name="CefRedistCopyWindowsResources" AfterTargets="Build" Condition="$([MSBuild]::IsOSPlatform('Windows')) AND $(OutputType.Contains('Exe'))">
+    <Message Importance="high" Text="Copying CEF resources for Windows $(RuntimeIdentifier) $(VcvarsFile) $(IsEditbinEnabled)... $(DevEnvDir)" />
+    
+    <!--<CallTarget Targets="ResolveVcvarsFile" />-->
+
+    <CallTarget Targets="CefRedist64CopyResources" Condition="'$(RuntimeIdentifier)' == 'win-x64' OR '$(RuntimeIdentifier)' == ''" />
+    <CallTarget Targets="CefRedistArm64CopyResources" Condition="'$(RuntimeIdentifier)' == 'win-arm64'" />
+  </Target>
+
+  <Target Name="ResolveVcvarsFile">
     <PropertyGroup>
-        <CefGlueBrowserProcessDir>CefGlueBrowserProcess</CefGlueBrowserProcessDir>
+      <_VsWherePath>$([System.Environment]::GetEnvironmentVariable('ProgramFiles(x86)'))\Microsoft Visual Studio\Installer\vswhere.exe</_VsWherePath>
     </PropertyGroup>
 
-    <ItemGroup Condition="'$(CefGlueTargetPlatform)' == 'osx-x64' OR '$(CefGlueTargetPlatform)' == 'osx-arm64'">
-        <None Condition="'$(CefGlueTargetPlatform)' == 'osx-x64'" Include="@(CefRedistOSX64)">
-            <Visible>false</Visible>
-            <Link>$(OutputDirectory)%(RecursiveDir)%(FileName)%(Extension)</Link>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-            <PublishState>Included</PublishState>
-        </None>
-        <None Condition="'$(CefGlueTargetPlatform)' == 'osx-arm64'" Include="@(CefRedistOSXARM64)">
-            <Visible>false</Visible>
-            <Link>$(OutputDirectory)%(RecursiveDir)%(FileName)%(Extension)</Link>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-            <PublishState>Included</PublishState>
-        </None>
-        <None Include="$(OutDir)\libEGL.dylib">
-            <Visible>false</Visible>
-            <Link>$(OutputDirectory)$(CefGlueBrowserProcessDir)\%(RecursiveDir)%(FileName)%(Extension)</Link>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-            <PublishState>Included</PublishState>
-        </None>
-        <None Include="$(OutDir)\libGLESv2.dylib">
-            <Visible>false</Visible>
-            <Link>$(OutputDirectory)$(CefGlueBrowserProcessDir)\%(RecursiveDir)%(FileName)%(Extension)</Link>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-            <PublishState>Included</PublishState>
-        </None>
-        <None Include="$(OutDir)\libvk_swiftshader.dylib">
-            <Visible>false</Visible>
-            <Link>$(OutputDirectory)$(CefGlueBrowserProcessDir)\%(RecursiveDir)%(FileName)%(Extension)</Link>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-            <PublishState>Included</PublishState>
-        </None>
-    </ItemGroup>
 
-    <ItemGroup Condition="'$(CefGlueTargetPlatform)' == 'linux-x64' OR '$(CefGlueTargetPlatform)' == 'linux-arm64'">
-        <None Condition="'$(CefGlueTargetPlatform)' == 'linux-x64'" Include="@(CefRedistLinux64)">
-            <Visible>false</Visible>
-            <Link>$(OutputDirectory)$(CefGlueBrowserProcessDir)\%(RecursiveDir)%(FileName)%(Extension)</Link>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-            <PublishState>Included</PublishState>
-        </None>
-        <None Condition="'$(CefGlueTargetPlatform)' == 'linux-arm64'" Include="@(CefRedistLinuxARM64)">
-            <Visible>false</Visible>
-            <Link>$(OutputDirectory)$(CefGlueBrowserProcessDir)\%(RecursiveDir)%(FileName)%(Extension)</Link>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-            <PublishState>Included</PublishState>
-        </None>
-    </ItemGroup>
+    <Exec Command="&quot;$(_VsWherePath)&quot; -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath"
+          ConsoleToMSBuild="true"
+          Condition="Exists('$(_VsWherePath)')">
+      <Output TaskParameter="ConsoleOutput" PropertyName="_VSInstallPath" />
+    </Exec>
 
-    <ItemGroup>
-        <None Include="@(CefGlueBrowserProcessFiles)">
-            <Visible>false</Visible>
-            <Link>$(OutputDirectory)$(CefGlueBrowserProcessDir)\%(RecursiveDir)%(FileName)%(Extension)</Link>
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-            <PublishState>Included</PublishState>
-        </None>
-    </ItemGroup>
+    <PropertyGroup Condition="'$(_VSInstallPath)' != ''">
+      <VcvarsFile>$(_VSInstallPath.Trim())\VC\Auxiliary\Build\vcvars64.bat</VcvarsFile>
+    </PropertyGroup>
 
-    <!-- Copy CEF resources from 'chromiumembeddedframework.runtime.<architecture>' dependency package
-     to the root folder of the build output directory. It is only applicable when compiling in Windows OS. 
-     Relies on ResolvePackageAssets MSBuild target to identify resources deployed from that specific package. -->
-    <Target Name="ResolveCEFAssets" Condition="$([MSBuild]::IsOSPlatform('Windows')) and '$(CefGlueTargetPlatform)' != ''" AfterTargets="ResolvePackageAssets">
-        <ItemGroup Condition="'$(CefGlueTargetPlatform)' == 'win-x64' OR '$(CefGlueTargetPlatform)' == 'win-arm64'">
-            <CefRuntimeFiles Include="@(RuntimeTargetsCopyLocalItems->WithMetadataValue('NuGetPackageId', 'chromiumembeddedframework.runtime.$(CefGlueTargetPlatform)'))" />
-            <None Include="@(CefRuntimeFiles)">
-                <Visible>false</Visible>
-                <Link>$(OutputDirectory)%(FileName)%(Extension)</Link>
-                <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-                <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-                <PublishState>Included</PublishState>
-            </None>
-        </ItemGroup>
-    
-        <ItemGroup>
-            <None Include="@(CefRuntimeWin64Locales)" Condition="'$(CefGlueTargetPlatform)' == 'win-x64'">
-                <Visible>false</Visible>
-                <Link>runtimes\win-x64\native\locales\%(RecursiveDir)%(FileName)%(Extension)</Link>
-                <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-                <PublishState>Included</PublishState>
-            </None>
-            <None Include="@(CefRuntimeWinArm64Locales)"  Condition="'$(CefGlueTargetPlatform)' == 'win-arm64'">
-                <Visible>false</Visible>
-                <Link>runtimes\win-arm64\native\locales\%(RecursiveDir)%(FileName)%(Extension)</Link>
-                <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-                <PublishState>Included</PublishState>
-            </None>
-        </ItemGroup>
-    </Target>
+    <Message Importance="high" Text="Resolved VcvarsFile: $(VcvarsFile)" />
+    <Warning Text="vswhere.exe not found at '$(_VsWherePath)'. VcvarsFile could not be resolved." Condition="!Exists('$(_VsWherePath)')" />
+  </Target>
+
+  <Target Name="Editbin" AfterTargets="Compile" DependsOnTargets="ResolveVcvarsFile"
+          Condition="$([MSBuild]::IsOSPlatform('Windows')) AND '$(OutputType)' == 'WinExe'">
+    <!--
+      Quick explanation: This target runs after compile, and currently 3 more times for each MSBuild command executed in the next target "PublishApp".
+      We just want this target to be executed for windows specs and when passed the VcvarsFile location.
+      Using VS Studio: VcvarsFile="$(DevEnvDir)..\..\VC\Auxiliary\Build\vcvars64.bat"
+      Using VS Studio tools: VcvarsFile="C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Auxiliary\Build\vcvars64.bat"
+    -->
+
+    <PropertyGroup>
+      <ApphostLocation>$(ProjectDir)$(BaseIntermediateOutputPath)$(Configuration)\$(TargetFramework)\</ApphostLocation>
+      <ApphostLocation Condition="'$(IsPublishing)' == 'True'">$(ApphostLocation)$(RuntimeIdentifier)\</ApphostLocation> <!-- When publishing, we also use the runtime identifiers (check the next target "PublishApp") -->
+    </PropertyGroup>
+
+    <Message Importance="high" Text="Increasing stack size for executable at $(ApphostLocation)" />
+
+    <!--
+      This command aims at increasing the stack size of Xilium.CefGlue.BrowserProcess.exe to 8 MiBs, using the visual studio tool "editbin".
+      Since we are reaching the .exe at the compile time, the file name is "apphost.exe" instead and located at /obj folder
+    -->
+    <Exec Command="call &quot;$(VcvarsFile)&quot;&#xD;&#xA; editbin /STACK:0x800000 &quot;$(ApphostLocation)\apphost.exe&quot;&#xD;&#xA;" />
+  </Target>
+
 </Project>

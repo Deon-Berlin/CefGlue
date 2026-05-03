@@ -1,24 +1,27 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project>
-    <PropertyGroup>
-        <DotnetVersion>net8.0</DotnetVersion>
-        <LangVersion>latest</LangVersion>
-        <CefRedistVersion>120.1.8</CefRedistVersion>
-        <AvaloniaVersion>11.0.9</AvaloniaVersion>
-        <CefRedistOSXVersion>120.1.8</CefRedistOSXVersion>
-        <CefRedistLinuxVersion>120.1.8</CefRedistLinuxVersion>
-        <Platforms>x64;ARM64</Platforms>
-        <Configurations>Debug;DebugWindowlessRender;Release;ReleaseWPFAvalonia</Configurations>
-    </PropertyGroup>
+    <!-- Import central CEF version configuration -->
+    <Import Project="$(MSBuildThisFileDirectory)\CefVersion.props" />
 
     <PropertyGroup>
-        <PackageOutputPath>$(MSBuildProjectDirectory)\..\Nuget\output</PackageOutputPath>
-        <Version>120.6099.211</Version>
-        <Authors>XiliumHQ,OutSystems</Authors>
+        <DotnetVersion>net10.0</DotnetVersion>
+        <LangVersion>latest</LangVersion>
+        <AvaloniaVersion>11.3.14</AvaloniaVersion>
+        <CefRedistVersion>$(CefVersion)</CefRedistVersion>
+        <CefUseCustomSubProcess>true</CefUseCustomSubProcess>
+        <CefGluePackageNameSuffix>Next.</CefGluePackageNameSuffix>
+        <CefGluePackageNamePrefix>CefGlue.$(CefGluePackageNameSuffix)</CefGluePackageNamePrefix>
+    </PropertyGroup>
+    
+    <PropertyGroup>
+        <PackageOutputPath>$(MSBuildProjectDirectory)\Nuget\output</PackageOutputPath>
+        <VersionPrefix>$(CefGlueVersion)</VersionPrefix>
+        <Authors>XiliumHQ,OutSystems,DEON</Authors>
         <Product>CefGlue</Product>
         <AssemblyTitle>CefGlue</AssemblyTitle>
-        <Description>CefGlue is a .NET binding for The Chromium Embedded Framework (CEF) by Marshall A. Greenblatt.</Description>
-        <Copyright>Copyright &#xA9; XiliumHQ 2021. Copyright &#xA9; OutSystems 2021.</Copyright>
+        <Description>CefGlue is a .NET binding for The Chromium Embedded Framework (CEF) by Marshall
+            A. Greenblatt.</Description>
+        <Copyright>Copyright &#xA9; XiliumHQ 2021. Copyright &#xA9; OutSystems 2021. Copyright &#xA9; DEON 2026.</Copyright>
         <PackageDescription>ChromiumEmbedded. $(Description)</PackageDescription>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -26,20 +29,9 @@
         <!-- <PackageIcon></PackageIcon> -->
         <IncludeSymbols>false</IncludeSymbols>
         <IncludeSource>false</IncludeSource>
-        <RepositoryUrl>https://github.com/OutSystems/CefGlue</RepositoryUrl>
+        <RepositoryUrl>https://github.com/Deon-Berlin/CefGlue</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
-        <NoWarn>$(NoWarn);NU5100;NU5118;CS1591</NoWarn>
-        <AddSyntheticProjectReferencesForSolutionDependencies>false</AddSyntheticProjectReferencesForSolutionDependencies>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Platform)' == '' or '$(Platform)' == 'x64'">
-        <ArchitectureConfig>x64</ArchitectureConfig>
-        <PackageSuffix />
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Platform)' == 'ARM64'">
-        <ArchitectureConfig>arm64</ArchitectureConfig>
-        <PackageSuffix>.ARM64</PackageSuffix>
+        <NoWarn>$(NoWarn);NU5100;NU5118;CS1591;NU1507</NoWarn>
     </PropertyGroup>
 
     <!-- Generate documentation in Release builds. -->

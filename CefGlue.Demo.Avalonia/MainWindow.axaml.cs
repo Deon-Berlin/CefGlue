@@ -1,6 +1,7 @@
-using System;
+﻿using System;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Shapes;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
@@ -12,10 +13,6 @@ namespace Xilium.CefGlue.Demo.Avalonia
         public MainWindow()
         {
             InitializeComponent();
-
-#if WINDOWLESS
-            Title += " - OSR mode";
-#endif
         }
 
         private void InitializeComponent()
@@ -36,7 +33,7 @@ namespace Xilium.CefGlue.Demo.Avalonia
             }
         }
 
-        private BrowserView ActiveBrowserView => (BrowserView) this.FindControl<TabControl>("tabControl").SelectedContent;
+        private BrowserView ActiveBrowserView => (BrowserView)this.FindControl<TabControl>("tabControl").SelectedContent;
 
         private void CreateNewTab()
         {
@@ -120,6 +117,34 @@ namespace Xilium.CefGlue.Demo.Avalonia
         private void OnOpenDevToolsMenuItemClick(object sender, RoutedEventArgs e)
         {
             ActiveBrowserView.OpenDevTools();
+        }
+
+        private void OnWebsiteSnapshotNativeMenuItemClick(object sender, EventArgs e)
+        {
+            var snapshotWindow = new SnapshotWindow();
+            snapshotWindow.Show();
+        }
+
+        private void OnWebsiteSnapshotMenuItemClick(object sender, RoutedEventArgs e)
+        {
+            var snapshotWindow = new SnapshotWindow();
+            snapshotWindow.Show();
+        }
+
+        private void OnToggleOverlayNativeMenuItemClick(object sender, EventArgs e)
+        {
+            if (this.FindControl<Ellipse>("overlay") is { } overlay)
+            {
+                overlay.IsVisible = !overlay.IsVisible;
+            }
+        }
+
+        private void OnToggleOverlayMenuItemClick(object sender, RoutedEventArgs e)
+        {
+            if (this.FindControl<Ellipse>("overlay") is { } overlay)
+            {
+                overlay.IsVisible = !overlay.IsVisible;
+            }
         }
     }
 }

@@ -1,0 +1,174 @@
+name: Build CEF Redistribution Packages
+
+on:
+    workflow_dispatch:
+        inputs:
+            cefbuildversion:
+                description: "CEF build version"
+                required: true
+                default: "146.0.10+g8219561+chromium-146.0.7680.179"
+            packages:
+                description: "Packages to build"
+                required: true
+                default: "all"
+                type: choice
+                options:
+                    - all
+                    - linux-only
+                    - macos-only
+
+jobs:
+    build-linux-x64:
+        name: Build Linux x64 Package
+        runs-on: ubuntu-latest
+        if: ${{ github.event.inputs.packages != 'macos-only' }}
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Create NuGet package
+              working-directory: CefRuntime
+              run: |
+                  dotnet pack CefRuntime.csproj --runtime linux-x64 /p:CefBuildVersion=${{ github.event.inputs.cefbuildversion }}
+
+            - name: Verify NuGet package contents
+              run: |
+                  echo "=== NuGet Package Contents ==="
+                  unzip -l LocalPackages/*.nupkg | head -50
+                  echo ""
+                  echo "Checking for libcef.so in package..."
+                  unzip -l LocalPackages/*.nupkg | grep libcef.so
+
+            - name: Upload artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: cef.runtime.linux-x64
+                  path: LocalPackages/*.nupkg
+                  retention-days: 30
+
+    build-linux-arm64:
+        name: Build Linux ARM64 Package
+        runs-on: ubuntu-latest
+        if: ${{ github.event.inputs.packages != 'macos-only' }}
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Create NuGet package
+              working-directory: CefRuntime
+              run: |
+                  dotnet pack CefRuntime.csproj --runtime linux-arm64 /p:CefBuildVersion=${{ github.event.inputs.cefbuildversion }}
+
+            - name: Verify NuGet package contents
+              run: |
+                  echo "=== NuGet Package Contents ==="
+                  unzip -l LocalPackages/*.nupkg | head -50
+                  echo ""
+                  echo "Checking for libcef.so in package..."
+                  unzip -l LocalPackages/*.nupkg | grep libcef.so
+
+            - name: Upload artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: cef.runtime.linux-arm64
+                  path: LocalPackages/*.nupkg
+                  retention-days: 30
+
+    build-macos-x64:
+        name: Build macOS x64 Package
+        runs-on: ubuntu-latest
+        if: ${{ github.event.inputs.packages != 'linux-only' }}
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Create NuGet package
+              working-directory: CefRuntime
+              run: |
+                  dotnet pack CefRuntime.csproj --runtime osx-x64 /p:CefBuildVersion=${{ github.event.inputs.cefbuildversion }}
+            
+            - name: Verify NuGet package contents
+              run: |
+                  echo "=== NuGet Package Contents ==="
+                  unzip -l LocalPackages/*.nupkg | head -50
+                  echo ""
+                  echo "Checking for libcef.dylib in package..."
+                  unzip -l LocalPackages/*.nupkg | grep libcef.dylib
+
+            - name: Upload artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: cef.runtime.osx-x64
+                  path: LocalPackages/*.nupkg
+                  retention-days: 30
+
+    build-macos-arm64:
+        name: Build macOS ARM64 Package
+        runs-on: ubuntu-latest
+        if: ${{ github.event.inputs.packages != 'linux-only' }}
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Create NuGet package
+              working-directory: CefRuntime
+              run: |
+                  dotnet pack CefRuntime.csproj --runtime osx-arm64 /p:CefBuildVersion=${{ github.event.inputs.cefbuildversion }}
+
+            - name: Verify NuGet package contents
+              run: |
+                  echo "=== NuGet Package Contents ==="
+                  unzip -l LocalPackages/*.nupkg | head -50
+                  echo ""
+                  echo "Checking for libcef.dylib in package..."
+                  unzip -l LocalPackages/*.nupkg | grep libcef.dylib
+
+            - name: Upload artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: cef.runtime.osx-arm64
+                  path: LocalPackages/*.nupkg
+                  retention-days: 30
+
+    # Summary job that collects all artifacts
+    summary:
+        name: Collect All Packages
+        runs-on: ubuntu-latest
+        needs:
+            [
+                build-linux-x64,
+                build-linux-arm64,
+                build-macos-x64,
+                build-macos-arm64,
+            ]
+        if: always()
+
+        steps:
+            - name: Download all artifacts
+              uses: actions/download-artifact@v4
+              with:
+                  path: all-packages
+                  merge-multiple: true
+
+            - name: List all packages
+              run: |
+                  echo "=== All Built Packages ==="
+                  ls -la all-packages/
+                  echo ""
+                  echo "Package sizes:"
+                  du -h all-packages/*.nupkg 2>/dev/null || echo "No packages found"
+
+            - name: Upload combined artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: cef-redist-all-packages
+                  path: all-packages/*.nupkg
+                  retention-days: 30
+
+            - name: Push to NuGet.org
+              run: |
+                  dotnet nuget push all-packages/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate

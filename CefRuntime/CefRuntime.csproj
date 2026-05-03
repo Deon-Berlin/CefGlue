@@ -1,0 +1,76 @@
+<Project Sdk="Microsoft.NET.Sdk">
+   
+  <PropertyGroup Condition="$(CefBuildVersion) != ''">
+    <CefVersion>$(CefBuildVersion.Split('+')[0])</CefVersion>
+  </PropertyGroup>
+
+  <!-- use the value from the repo if not specified -->
+  <Import Project="../CefVersion.props" Condition="$(CefVersion) == ''" />
+  
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RuntimeIdentifiers>osx-arm64;osx-x64;linux-arm64;linux-x64</RuntimeIdentifiers>
+    <CurrentPlatform>osx</CurrentPlatform>
+    <CurrentPlatform Condition="$([MSBuild]::IsOSPlatform('Linux'))">linux</CurrentPlatform>
+    <SecondaryRuntime Condition="$(RuntimeIdentifier) == ''">$(CurrentPlatform)-x64</SecondaryRuntime>
+    <RuntimeIdentifier Condition="$(RuntimeIdentifier) == ''">$(CurrentPlatform)-arm64</RuntimeIdentifier>
+    <PackageOutputPath>../LocalPackages</PackageOutputPath>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <PackageId>cef.runtime.$(RuntimeIdentifier)</PackageId>
+    <PackageVersion>$(CefVersion)</PackageVersion>
+    <Authors>The Chromium Embedded Framework Authors</Authors>
+    <Copyright>Copyright © 2025</Copyright>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageIcon>images\cef128x128.png</PackageIcon>
+    <PackageTags>chrome chromium native embedded browser CEF nativepackage $(RuntimeIdentifier)</PackageTags>
+    <RepositoryUrl>https://github.com/Deon-Berlin/CefGlue</RepositoryUrl>
+    <Description>
+      Chromium Embedded Framework (CEF) Release Distribution
+      NOTE: This package is maintained on behalf of the CEF authors by DEON
+    </Description>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <None Include="LICENSE.txt" Pack="true" PackagePath=""/>
+    <None Include="cef128x128.png" Pack="true" PackagePath="images"/>
+    <None Include="deploy-cef-framework.sh" Pack="true" PackagePath="CEF/" Condition="$(RuntimeIdentifier.StartsWith('osx-'))" />
+    <None Include="cef.runtime.$(RuntimeIdentifier).props" Pack="true" PackagePath="build" />
+    <None Include="cef.runtime.$(RuntimeIdentifier).props" Pack="true" PackagePath="buildTransitive" />
+  </ItemGroup>
+
+  <!-- Run before GenerateNuspec so the produced files are available when the nuspec is assembled -->
+  <Target Name="PrepareRedist" BeforeTargets="GenerateNuspec;Build">
+    <PropertyGroup>
+      <IsWindows Condition="$([MSBuild]::IsOSPlatform('Windows'))">true</IsWindows>
+      <RedistBuildScript>$(MSBuildThisFileDirectory)make_cefredist_linux.sh</RedistBuildScript>
+      <RedistBuildScript Condition="$(RuntimeIdentifier.StartsWith('osx-'))">$(MSBuildThisFileDirectory)make_cefredist_osx.sh</RedistBuildScript>
+    </PropertyGroup>
+
+    <Exec Command="chmod 755 $(RedistBuildScript)" Condition="'$(IsWindows)' != 'true'" />
+    <Exec Command="$(RedistBuildScript) $(RuntimeIdentifier) $(CefBuildVersion)" Condition="'$(IsWindows)' != 'true'" />
+
+    <PropertyGroup Condition="'$(IsWindows)' == 'true'">
+      <PowerShellExe Condition=" '$(PowerShellExe)'=='' ">%WINDIR%\System32\WindowsPowerShell\v1.0\powershell.exe</PowerShellExe>
+      <ScriptShell>$(MSBuildThisFileDirectory)make_cefredist.ps1</ScriptShell>
+    </PropertyGroup>
+
+    <Exec Command="$(PowerShellExe) -File &quot;$(ScriptShell)&quot; &quot;$(RedistBuildScript)&quot; &quot;$(RuntimeIdentifier)&quot; &quot;$(CefBuildVersion)&quot;"
+          Condition="'$(IsWindows)' == 'true'" />
+
+    <!-- Add redist files here, after the script has produced them, so the glob resolves correctly -->
+    <ItemGroup>
+      <None Include="redist/package-$(RuntimeIdentifier)-$(CefVersion)/CEF/**/*" Pack="true" PackagePath="CEF/$(RuntimeIdentifier)/" />
+    </ItemGroup>
+  </Target>
+  
+  <Target Name="BuildSecondaryRuntime" Condition="'$(SecondaryRuntime)' != ''"
+          AfterTargets="Build">
+    <MSBuild Projects="$(MSBuildThisFileFullPath)" Properties="RuntimeIdentifier=$(SecondaryRuntime)" />
+  </Target>
+
+</Project>

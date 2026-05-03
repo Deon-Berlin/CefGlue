@@ -1,0 +1,32 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".gitignore" />
+    <File Path="cef-version.json" />
+    <File Path="CefVersion.props" />
+    <File Path=".editorconfig" />
+    <File Path="CefGlue.Packages.props" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
+    <File Path="Directory.Packages.props" />
+    <File Path="Nuget.config" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/Solution Items/workflows/">
+    <File Path=".github/workflows/build-cef-packages.yml" />
+    <File Path=".github/workflows/build-publish-packages.yml" />
+  </Folder>
+  <Project Path="CefGlue.Avalonia/CefGlue.Avalonia.csproj" />
+  <Project Path="CefGlue.BrowserProcess.Core/CefGlue.BrowserProcess.Core.csproj" />
+  <Project Path="CefGlue.BrowserProcess/CefGlue.BrowserProcess.csproj" />
+  <Project Path="CefGlue.Common.Shared/CefGlue.Common.Shared.csproj" />
+  <Project Path="CefGlue.Common/CefGlue.Common.csproj" />
+  <Project Path="CefGlue.Demo.Avalonia/CefGlue.Demo.Avalonia.csproj" />
+  <Project Path="CefGlue.Demo.WPF/CefGlue.Demo.WPF.csproj" />
+  <Project Path="CefGlue.Tests/CefGlue.Tests.csproj" />
+  <Project Path="CefGlue.WPF/CefGlue.WPF.csproj" />
+  <Project Path="CefGlue/CefGlue.csproj" />
+  <Project Path="CefRuntime/CefRuntime.csproj">
+    <Build Project="false" />
+    <Deploy />
+  </Project>
+</Solution>

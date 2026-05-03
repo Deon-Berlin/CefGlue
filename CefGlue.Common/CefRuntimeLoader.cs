@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.IO;
-using System.Diagnostics;
-using System.Reflection;
 using Xilium.CefGlue.Common.Handlers;
 using Xilium.CefGlue.Common.Shared;
 
@@ -11,8 +8,6 @@ namespace Xilium.CefGlue.Common
 {
     public static class CefRuntimeLoader
     {
-        private const string DefaultBrowserProcessDirectory = "CefGlueBrowserProcess";
-
         private static Action<BrowserProcessHandler> _delayedInitialization;
 
         public static void Initialize(CefSettings settings = null, KeyValuePair<string, string>[] flags = null, CustomScheme[] customSchemes = null)
@@ -32,12 +27,12 @@ namespace Xilium.CefGlue.Common
             settings.UncaughtExceptionStackSize = 100; // for uncaught exception event work properly
 
             var basePath = AppContext.BaseDirectory;
-            var probingPaths = GetSubProcessPaths(basePath);
-            var subProcessPath = probingPaths.FirstOrDefault(p => File.Exists(p));
-            if (subProcessPath == null)
-                throw new FileNotFoundException($"Unable to find SubProcess. Probed locations: {string.Join(Environment.NewLine, probingPaths)}");
-
-            settings.BrowserSubprocessPath = subProcessPath;
+            
+            if (settings.BrowserSubprocessPath != null)
+            {
+                if (!File.Exists(settings.BrowserSubprocessPath))
+                    throw new FileNotFoundException($"Specified BrowserSubprocessPath does not exist: {settings.BrowserSubprocessPath}");
+            }
 
             switch (CefRuntime.Platform)
             {
@@ -46,18 +41,28 @@ namespace Xilium.CefGlue.Common
                     break;
 
                 case CefRuntimePlatform.MacOS:
-                    var resourcesPath = Path.Combine(basePath, "Resources");
-                    if (!Directory.Exists(resourcesPath))
-                    {
-                        throw new FileNotFoundException($"Unable to find Resources folder");
-                    }
-
+                    
                     settings.NoSandbox = true;
                     settings.MultiThreadedMessageLoop = false;
                     settings.ExternalMessagePump = true;
-                    settings.MainBundlePath = basePath;
-                    settings.FrameworkDirPath = basePath;
-                    settings.ResourcesDirPath = resourcesPath;
+
+                    // if a custom sub process is set, we need to configure the paths
+                    if (settings.BrowserSubprocessPath != null)
+                    {
+                        if (CefRuntimeLocator.GetResourceDirPath() is not {} resourcesPath)
+                        {
+                            throw new FileNotFoundException($"Unable to find Resources folder.");
+                        }
+                        
+                        settings.MainBundlePath = CefRuntimeLocator.GetMainBundlePath();
+                        settings.FrameworkDirPath = CefRuntimeLocator.GetFrameworkDirPath();
+                        settings.ResourcesDirPath = resourcesPath;    
+                    }
+                    else
+                    {
+                        // TODO: Check for helper apps in frameworks folder
+                    }
+
                     break;
                 
                 case CefRuntimePlatform.Linux:
@@ -72,24 +77,20 @@ namespace Xilium.CefGlue.Common
 
             // On Linux, with osr disable, the filename in CefMainArgs will be used as accessible name.
             // If the name is empty, chromium will crash at ui::AXNodeData:SetNamechecked.
-            var exeFileName = Process.GetCurrentProcess().MainModule.FileName;
+            var exeFileName = Path.GetFileName(Environment.ProcessPath);
             if (string.IsNullOrEmpty(exeFileName))
             {
                 exeFileName = "CefGlue";
             }
-            
-            // Fix crash with youtube https://github.com/chromiumembedded/cef/issues/3643
-            {
+
+            var args = new[] { 
+                exeFileName,
 #if DEBUG
-                if (CefRuntime.ChromeVersion.Split(".").First() != "120")
-                {
-                    throw new Exception("Remove this fix block after CEF upgrade");
-                }
+                "--use-mock-keychain"
 #endif
-                flags = (flags ?? []).Append(KeyValuePair.Create("disable-features", "FirstPartySets")).ToArray();
-            }
+            };
             
-            CefRuntime.Initialize(new CefMainArgs(new[] { exeFileName }), settings, new BrowserCefApp(customSchemes, flags, browserProcessHandler), IntPtr.Zero);
+            CefRuntime.Initialize(new CefMainArgs(args), settings, new BrowserCefApp(customSchemes, flags, browserProcessHandler), IntPtr.Zero);
 
             if (customSchemes != null)
             {
@@ -98,17 +99,6 @@ namespace Xilium.CefGlue.Common
                     CefRuntime.RegisterSchemeHandlerFactory(scheme.SchemeName, scheme.DomainName, scheme.SchemeHandlerFactory);
                 }
             }
-        }
-
-        private static IEnumerable<string> GetSubProcessPaths(string baseDirectory)
-        {
-            yield return Path.Combine(baseDirectory, DefaultBrowserProcessDirectory, BrowserProcessFileName);
-            yield return Path.Combine(baseDirectory, BrowserProcessFileName);
-
-            // The executing DLL might not be in the current domain directory (plugins scenario)
-            baseDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            yield return Path.Combine(baseDirectory, DefaultBrowserProcessDirectory, BrowserProcessFileName);
-            yield return Path.Combine(baseDirectory, BrowserProcessFileName);
         }
 
         internal static void Load(BrowserProcessHandler browserProcessHandler = null)

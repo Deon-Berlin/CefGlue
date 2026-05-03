@@ -1,0 +1,21 @@
+<Window x:Class="Xilium.CefGlue.Demo.WPF.SnapshotWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Website Snapshot" Height="200" Width="500">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <DockPanel Grid.Row="0" Margin="0,0,0,10">
+            <Button Name="captureButton" Content="Capture" DockPanel.Dock="Right" Padding="15,5" Click="OnCaptureClick"/>
+            <TextBox Name="addressTextBox" Text="https://www.google.com" Margin="0,0,10,0" VerticalContentAlignment="Center"/>
+        </DockPanel>
+        
+        <ProgressBar Name="progressBar" Grid.Row="1" Height="20" Margin="0,0,0,10" Visibility="Collapsed"/>
+        
+        <TextBlock Name="statusText" Grid.Row="2" TextWrapping="Wrap" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+    </Grid>
+</Window>

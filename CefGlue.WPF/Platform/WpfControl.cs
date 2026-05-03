@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Interop;
+using System.Windows.Media;
 using System.Windows.Threading;
 using Xilium.CefGlue.Common.Helpers;
 using Xilium.CefGlue.Common.Platform;
@@ -38,6 +39,12 @@ namespace Xilium.CefGlue.WPF.Platform
         {
             if (_control.IsLoaded || (_control.RenderSize.Width > 0 && _control.RenderSize.Height > 0))
             {
+                // CEF expects physical pixels, WPF RenderSize is in device-independent pixels (DIPs)
+                var dpi = VisualTreeHelper.GetDpi(_control);
+                var physicalWidth = (int)(_control.RenderSize.Width * dpi.DpiScaleX);
+                var physicalHeight = (int)(_control.RenderSize.Height * dpi.DpiScaleY);
+                //SizeChanged?.Invoke(new CefSize(physicalWidth, physicalHeight));
+
                 // fire as soon as the control becomes loaded or the render size is not empty
                 SizeChanged?.Invoke(new CefSize((int)_control.RenderSize.Width, (int)_control.RenderSize.Height));
             }

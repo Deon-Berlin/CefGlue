@@ -31,8 +31,10 @@
 #define CEF_INCLUDE_INTERNAL_CEF_STRING_WRAPPERS_H_
 #pragma once
 
-#include <memory.h>
+#include <cstring>
+#include <ostream>
 #include <string>
+#include <string_view>
 
 #include "include/internal/cef_string_types.h"
 
@@ -99,7 +101,7 @@ struct CefStringTraitsWide {
   static inline bool from_wstring(const std::wstring& str, struct_type* s) {
     return from_wstring(str.data(), str.length(), s);
   }
-#if defined(WCHAR_T_IS_UTF32)
+#if defined(WCHAR_T_IS_32_BIT)
   static inline std::u16string to_string16(const struct_type* s) {
     cef_string_utf16_t cstr;
     memset(&cstr, 0, sizeof(cstr));
@@ -120,7 +122,7 @@ struct CefStringTraitsWide {
                ? true
                : false;
   }
-#else   // WCHAR_T_IS_UTF32
+#elif defined(WCHAR_T_IS_16_BIT)
   static inline std::u16string to_string16(const struct_type* s) {
     return std::u16string(
         reinterpret_cast<const std::u16string::value_type*>(s->str), s->length);
@@ -133,7 +135,7 @@ struct CefStringTraitsWide {
                ? true
                : false;
   }
-#endif  // WCHAR_T_IS_UTF32
+#endif  // WCHAR_T_IS_16_BIT
   static inline bool from_string16(const std::u16string& str, struct_type* s) {
     return from_string16(str.data(), str.length(), s);
   }
@@ -271,7 +273,7 @@ struct CefStringTraitsUTF16 {
   static inline bool from_string(const std::string& str, struct_type* s) {
     return from_string(str.data(), str.length(), s);
   }
-#if defined(WCHAR_T_IS_UTF32)
+#if defined(WCHAR_T_IS_32_BIT)
   static inline std::wstring to_wstring(const struct_type* s) {
     cef_string_wide_t cstr;
     memset(&cstr, 0, sizeof(cstr));
@@ -288,7 +290,7 @@ struct CefStringTraitsUTF16 {
                                   struct_type* s) {
     return cef_string_wide_to_utf16(data, length, s) ? true : false;
   }
-#else   // WCHAR_T_IS_UTF32
+#elif defined(WCHAR_T_IS_16_BIT)
   static inline std::wstring to_wstring(const struct_type* s) {
     return std::wstring(reinterpret_cast<wchar_t*>(s->str), s->length);
   }
@@ -300,7 +302,7 @@ struct CefStringTraitsUTF16 {
                ? true
                : false;
   }
-#endif  // WCHAR_T_IS_UTF32
+#endif  // WCHAR_T_IS_16_BIT
   static inline bool from_wstring(const std::wstring& str, struct_type* s) {
     return from_wstring(str.data(), str.length(), s);
   }
@@ -668,6 +670,15 @@ class CefStringBase final {
   }
 
   ///
+  /// Set this string's data from an existing std::string_view. Data will be
+  /// always copied. Translation will occur if necessary based on the underlying
+  /// string type.
+  ///
+  bool FromString(std::string_view str) {
+    return FromString(str.data(), str.length());
+  }
+
+  ///
   /// Set this string's data from existing |data| and optional |length|. Data
   /// will be always copied. Translation will occur if necessary based on the
   /// underlying string type.
@@ -849,5 +860,13 @@ class CefStringBase final {
 typedef CefStringBase<CefStringTraitsWide> CefStringWide;
 typedef CefStringBase<CefStringTraitsUTF8> CefStringUTF8;
 typedef CefStringBase<CefStringTraitsUTF16> CefStringUTF16;
+
+// These functions are provided as a convenience for logging, which is where we
+// use streams. Non-ASCII characters will be converted to UTF-8.
+template <class traits>
+inline std::ostream& operator<<(std::ostream& out,
+                                const CefStringBase<traits>& str) {
+  return operator<<(out, str.ToString());
+}
 
 #endif  // CEF_INCLUDE_INTERNAL_CEF_STRING_WRAPPERS_H_

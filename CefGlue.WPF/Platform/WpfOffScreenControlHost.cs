@@ -207,8 +207,7 @@ namespace Xilium.CefGlue.WPF.Platform
             {
                 _browserScreenLocation = GetBrowserScreenLocation();
 
-                var matrix = newSource.CompositionTarget.TransformToDevice;
-                ScreenInfoChanged?.Invoke((float)matrix.M11);
+                ScreenInfoChanged?.Invoke(GetDeviceScaleFactor(newSource));
 
                 if (newSource.RootVisual is Window window)
                 {
@@ -217,6 +216,8 @@ namespace Xilium.CefGlue.WPF.Platform
                 }
             }
         }
+        
+        protected virtual float GetDeviceScaleFactor(PresentationSource source) => (float)(source?.CompositionTarget?.TransformToDevice.M11 ?? 1d);
 
         protected virtual IInputElement MousePositionReferential => _control;
 
@@ -239,7 +240,7 @@ namespace Xilium.CefGlue.WPF.Platform
                 DispatcherPriority.Normal,
                 new Action(() =>
                 {
-                    var cursor = CursorInteropHelper.Create(new SafeFileHandle(cursorHandle, false));
+                    var cursor = CefCursorFactory.Current?.Create(cursorHandle, cursorType) ?? Cursors.Arrow;
                     _control.Cursor = cursor;
                 }));
 
@@ -335,7 +336,7 @@ namespace Xilium.CefGlue.WPF.Platform
             }
         }
 
-        private Point GetBrowserScreenLocation()
+        protected virtual Point GetBrowserScreenLocation()
         {
             if (PresentationSource.FromVisual(_control) != null)
             {
@@ -358,9 +359,9 @@ namespace Xilium.CefGlue.WPF.Platform
         {
             var image = new Image()
             {
-                Stretch = Stretch.None,
-                HorizontalAlignment = HorizontalAlignment.Left,
-                VerticalAlignment = VerticalAlignment.Top,
+                Stretch = Stretch.Fill,
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                VerticalAlignment = VerticalAlignment.Stretch,
             };
 
             RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.HighQuality);

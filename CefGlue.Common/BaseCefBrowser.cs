@@ -18,11 +18,11 @@ namespace Xilium.CefGlue.Common
 
         #region Disposable
 
-        public BaseCefBrowser(Func<CefRequestContext> cefRequestContextFactory = null)
+        public BaseCefBrowser(Func<CefRequestContext> cefRequestContextFactory = null, BrowserProcessHandler browserProcessHandler = null)
         {
             if (!CefRuntimeLoader.IsLoaded)
             {
-                CefRuntimeLoader.Load();
+                CefRuntimeLoader.Load(browserProcessHandler);
             }
 
 #if HAS_NLOG
@@ -205,7 +205,7 @@ namespace Xilium.CefGlue.Common
         /// <summary>
         /// Gets or set the url.
         /// </summary>
-        public string Address { get => _adapter.Address; set => _adapter.Address = value; }
+        public partial string Address { get; set; }
 
         /// <summary>
         /// Returns true when the underlying browser has been initialized.

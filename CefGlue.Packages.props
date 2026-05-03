@@ -1,18 +1,39 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project>
-    <ItemGroup Condition="'$(Platform)' == 'x64'">
-        <PackageReference PrivateAssets="None" Include="chromiumembeddedframework.runtime.win-x64" />
-        <PackageReference PrivateAssets="None" Include="cef.redist.osx64" />
-        <PackageReference PrivateAssets="None" Include="cef.redist.linux64" />
+    <!--
+        RID-based native package references.
+        Determines which CEF native packages to restore based on RuntimeIdentifier (publish)
+        or falls back to Platform + current OS (build).
+    -->
+
+    <!-- Determine effective RID for package selection -->
+    <PropertyGroup>
+        <!-- If RuntimeIdentifier is set (publish scenario), use it directly -->
+        <CefGlueEffectiveRID Condition="'$(RuntimeIdentifier)' != ''">$(RuntimeIdentifier)</CefGlueEffectiveRID>
+
+        <!-- faults if Platform not set -->
+        <CefGlueEffectiveRID Condition="'$(CefGlueEffectiveRID)' == '' and $([MSBuild]::IsOSPlatform('Windows'))">win</CefGlueEffectiveRID>
+        <CefGlueEffectiveRID Condition="'$(CefGlueEffectiveRID)' == '' and $([MSBuild]::IsOSPlatform('Linux'))">linux</CefGlueEffectiveRID>
+        <CefGlueEffectiveRID Condition="'$(CefGlueEffectiveRID)' == '' and $([MSBuild]::IsOSPlatform('OSX'))">osx</CefGlueEffectiveRID>
+    </PropertyGroup>
+
+    <!-- Windows -->
+    <ItemGroup Condition="$(CefGlueEffectiveRID.StartsWith('win'))">
+        <PackageReference PrivateAssets="runtime;native" ExcludeAssets="runtime;native" Include="chromiumembeddedframework.runtime.win-x64" />
+        <PackageReference PrivateAssets="runtime;native" ExcludeAssets="runtime;native" Include="chromiumembeddedframework.runtime.win-arm64" />
+        <PackageReference PrivateAssets="runtime;native" ExcludeAssets="runtime;native" Include="chromiumembeddedframework.runtime" />
     </ItemGroup>
-    
-    <ItemGroup Condition="'$(Platform)' == 'ARM64'">
-        <PackageReference PrivateAssets="None" Include="chromiumembeddedframework.runtime.win-arm64" />
-        <PackageReference PrivateAssets="None" Include="cef.redist.osx.arm64" />
-        <PackageReference PrivateAssets="None" Include="cef.redist.linuxarm64" />
+
+    <!-- Linux -->
+    <ItemGroup Condition="$(CefGlueEffectiveRID.StartsWith('linux'))">
+        <PackageReference PrivateAssets="runtime;native" Include="cef.runtime.linux-x64" />
+        <PackageReference PrivateAssets="runtime;native" Include="cef.runtime.linux-arm64" />
     </ItemGroup>
-    
-    <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
-        <PackageReference PrivateAssets="None" Include="chromiumembeddedframework.runtime" />
+
+    <!-- macOS -->
+    <ItemGroup Condition="$(CefGlueEffectiveRID.StartsWith('osx'))">
+        <PackageReference PrivateAssets="runtime;native" Include="cef.runtime.osx-x64" />
+        <PackageReference PrivateAssets="runtime;native" Include="cef.runtime.osx-arm64" />
     </ItemGroup>
+
 </Project>

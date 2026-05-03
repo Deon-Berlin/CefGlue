@@ -2,6 +2,7 @@
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using Xilium.CefGlue.Common;
+using Xilium.CefGlue.Common.Handlers;
 using Xilium.CefGlue.Common.Platform;
 using Xilium.CefGlue.WPF.Platform;
 
@@ -12,10 +13,19 @@ namespace Xilium.CefGlue.WPF
     /// </summary>
     public class WpfCefBrowser : BaseCefBrowser
     {
-        public WpfCefBrowser() : this(null) { }
+        static WpfCefBrowser()
+        {
+            // this will support macOS when running with Avalonia XPF
+            if (CefRuntime.Platform == CefRuntimePlatform.MacOS && !CefRuntimeLoader.IsLoaded)
+            {
+                CefRuntimeLoader.Load(BrowserProcessHandlerFactory.Current);
+            }
+        }
+        
+        public WpfCefBrowser() : this(null, null) { }
 
-        public WpfCefBrowser(Func<CefRequestContext> cefRequestContextFactory)
-            : base(cefRequestContextFactory)
+        public WpfCefBrowser(Func<CefRequestContext> cefRequestContextFactory, BrowserProcessHandler browserProcessHandler = null)
+            : base(cefRequestContextFactory, browserProcessHandler)
         {
             KeyboardNavigation.SetAcceptsReturn(this, true);
         }

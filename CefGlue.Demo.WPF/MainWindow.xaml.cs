@@ -19,13 +19,13 @@ namespace Xilium.CefGlue.Demo.WPF
 #endif
         }
 
-        private BrowserView ActiveBrowserView => (BrowserView) tabControl.SelectedContent;
+        private BrowserView ActiveBrowserView => (BrowserView)tabControl.SelectedContent;
 
         private void CreateNewTab()
         {
             var view = new BrowserView();
             var tab = new TabItem();
-            
+
             var headerPanel = new DockPanel();
             tab.Header = headerPanel;
 
@@ -35,14 +35,14 @@ namespace Xilium.CefGlue.Demo.WPF
                 Padding = new Thickness(2),
                 Margin = new Thickness(5, 0, 0, 0)
             };
-            closeButton.Click += delegate 
+            closeButton.Click += delegate
             {
                 view.Dispose();
-                tabControl.Items.Remove(tab); 
+                tabControl.Items.Remove(tab);
             };
             DockPanel.SetDock(closeButton, Dock.Right);
 
-            var tabTitle = new TextBlock() 
+            var tabTitle = new TextBlock()
             {
                 Text = "New Tab"
             };
@@ -91,6 +91,13 @@ namespace Xilium.CefGlue.Demo.WPF
         private void OnOpenDevToolsMenuItemClick(object sender, RoutedEventArgs e)
         {
             ActiveBrowserView.OpenDevTools();
+        }
+
+        private void OnWebsiteSnapshotMenuItemClick(object sender, RoutedEventArgs e)
+        {
+            var snapshotWindow = new SnapshotWindow();
+            snapshotWindow.Owner = this;
+            snapshotWindow.Show();
         }
     }
 }

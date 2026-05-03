@@ -22,7 +22,7 @@ namespace Xilium.CefGlue.Avalonia
             : base(cefRequestContextFactory)
         { }
 
-        internal override Common.Platform.IControl CreateControl()
+        internal override IControl CreateControl()
         {
             return new AvaloniaControl(this, VisualChildren);
         }
