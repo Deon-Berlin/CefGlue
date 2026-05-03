@@ -1,4 +1,4 @@
-name: Build CEF Redistribution Packages
+name: Publish CEF Runtime Packages
 
 on:
     workflow_dispatch:
@@ -26,6 +26,12 @@ jobs:
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
+
+            - name: Download CEF runtime
+              working-directory: CefRuntime
+              run: |
+                  chmod 755 make_cefredist_linux.sh
+                  ./make_cefredist_linux.sh linux-x64 ${{ github.event.inputs.cefbuildversion }}
 
             - name: Create NuGet package
               working-directory: CefRuntime
@@ -56,6 +62,15 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v4
 
+            - name: Install ARM64 cross tools
+              run: sudo apt-get install -y binutils-aarch64-linux-gnu
+
+            - name: Download CEF runtime
+              working-directory: CefRuntime
+              run: |
+                  chmod 755 make_cefredist_linux.sh
+                  ./make_cefredist_linux.sh linux-arm64 ${{ github.event.inputs.cefbuildversion }}
+
             - name: Create NuGet package
               working-directory: CefRuntime
               run: |
@@ -85,6 +100,12 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v4
 
+            - name: Download CEF runtime
+              working-directory: CefRuntime
+              run: |
+                  chmod 755 make_cefredist_osx.sh
+                  ./make_cefredist_osx.sh osx-x64 ${{ github.event.inputs.cefbuildversion }}
+
             - name: Create NuGet package
               working-directory: CefRuntime
               run: |
@@ -95,8 +116,8 @@ jobs:
                   echo "=== NuGet Package Contents ==="
                   unzip -l LocalPackages/*.nupkg | head -50
                   echo ""
-                  echo "Checking for libcef.dylib in package..."
-                  unzip -l LocalPackages/*.nupkg | grep libcef.dylib
+                  echo "Checking for Chromium Embedded Framework in package..."
+                  unzip -l LocalPackages/*.nupkg | grep "Chromium Embedded Framework"
 
             - name: Upload artifact
               uses: actions/upload-artifact@v4
@@ -114,6 +135,12 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v4
 
+            - name: Download CEF runtime
+              working-directory: CefRuntime
+              run: |
+                  chmod 755 make_cefredist_osx.sh
+                  ./make_cefredist_osx.sh osx-arm64 ${{ github.event.inputs.cefbuildversion }}
+
             - name: Create NuGet package
               working-directory: CefRuntime
               run: |
@@ -124,8 +151,8 @@ jobs:
                   echo "=== NuGet Package Contents ==="
                   unzip -l LocalPackages/*.nupkg | head -50
                   echo ""
-                  echo "Checking for libcef.dylib in package..."
-                  unzip -l LocalPackages/*.nupkg | grep libcef.dylib
+                  echo "Checking for Chromium Embedded Framework in package..."
+                  unzip -l LocalPackages/*.nupkg | grep "Chromium Embedded Framework"
 
             - name: Upload artifact
               uses: actions/upload-artifact@v4
