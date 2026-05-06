@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using Xilium.CefGlue.Common;
@@ -21,13 +22,14 @@ namespace Xilium.CefGlue.WPF
                 CefRuntimeLoader.Load(BrowserProcessHandlerFactory.Current);
             }
         }
-        
+
         public WpfCefBrowser() : this(null, null) { }
 
         public WpfCefBrowser(Func<CefRequestContext> cefRequestContextFactory, BrowserProcessHandler browserProcessHandler = null)
             : base(cefRequestContextFactory, browserProcessHandler)
         {
             KeyboardNavigation.SetAcceptsReturn(this, true);
+            AddressChanged += OnAdapterAddressChanged;
         }
 
         internal override IControl CreateControl()

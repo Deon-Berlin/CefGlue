@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace Xilium.CefGlue.Common
@@ -13,7 +14,7 @@ namespace Xilium.CefGlue.Common
 
         private static void OnAddressChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (d is BaseCefBrowser browser && e.NewValue is string address)
+            if (d is BaseCefBrowser browser && e.NewValue is string address && browser._adapter.Address != address)
             {
                 browser._adapter.Address = address;
             }
@@ -23,6 +24,17 @@ namespace Xilium.CefGlue.Common
         {
             get => (string)GetValue(AddressProperty);
             set => SetValue(AddressProperty, value);
+        }
+
+        protected void OnAdapterAddressChanged(object sender, string url)
+        {
+            Dispatcher.InvokeAsync(() =>
+            {
+                if ((string)GetValue(AddressProperty) != url)
+                {
+                    SetCurrentValue(AddressProperty, url);
+                }
+            });
         }
     }
 }
