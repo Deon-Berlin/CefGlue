@@ -1,10 +1,10 @@
-# EditorConfig: http://editorconfig.org
+﻿# EditorConfig: http://editorconfig.org
 root = false
 
 [*.cs]
 charset = utf-8-bom
-tab_width = 2
-indent_size = 2
+tab_width = 4
+indent_size = 4
 indent_style = space
 insert_final_newline = true
 

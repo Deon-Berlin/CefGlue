@@ -3,16 +3,6 @@
     <PropertyGroup>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     </PropertyGroup>
-    <ItemDefinitionGroup>
-    <!--
-            Disable transitive package references
-            https://docs.microsoft.com/en-us/nuget/consume-packages/package-references-in-project-files#controlling-dependency-assets
-            https://github.com/dotnet/sdk/issues/11803
-        -->
-        <PackageReference>
-            <PrivateAssets>$(PrivateAssets);compile</PrivateAssets>
-        </PackageReference>
-    </ItemDefinitionGroup>
     <ItemGroup>
         <PackageVersion Include="Avalonia" Version="$(AvaloniaVersion)" />
         <PackageVersion Include="Avalonia.Desktop" Version="$(AvaloniaVersion)" />
@@ -25,15 +15,15 @@
         <PackageVersion Include="System.Reactive.Linq" Version="6.1.0" />
         <PackageVersion Include="System.Runtime.Loader" Version="4.3.0" />
 
-        <PackageVersion Include="chromiumembeddedframework.runtime" Version="$(CefRedistVersion)" />
-        <PackageVersion Include="chromiumembeddedframework.runtime.win-x64" Version="$(CefRedistVersion)" />
-        <PackageVersion Include="chromiumembeddedframework.runtime.win-arm64" Version="$(CefRedistVersion)" />
+        <PackageVersion Include="chromiumembeddedframework.runtime" Version="$(CefVersion)" />
+        <PackageVersion Include="chromiumembeddedframework.runtime.win-x64" Version="$(CefVersion)" />
+        <PackageVersion Include="chromiumembeddedframework.runtime.win-arm64" Version="$(CefVersion)" />
 
-        <PackageVersion Include="cef.runtime.linux-x64" Version="$(CefRedistVersion)" />
-        <PackageVersion Include="cef.runtime.linux-arm64" Version="$(CefRedistVersion)" />
+        <PackageVersion Include="cef.runtime.linux-x64" Version="$(CefVersion)" />
+        <PackageVersion Include="cef.runtime.linux-arm64" Version="$(CefVersion)" />
         
-        <PackageVersion Include="cef.runtime.osx-x64" Version="$(CefRedistVersion)" />
-        <PackageVersion Include="cef.runtime.osx-arm64" Version="$(CefRedistVersion)" />
+        <PackageVersion Include="cef.runtime.osx-x64" Version="$(CefVersion)" />
+        <PackageVersion Include="cef.runtime.osx-arm64" Version="$(CefVersion)" />
 
         <PackageVersion Include="nunit" Version="3.12.0" />
         <PackageVersion Include="NUnit3TestAdapter" Version="3.17.0" />

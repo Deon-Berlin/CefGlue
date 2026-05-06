@@ -1,20 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project>
-    <!-- Import central CEF version configuration -->
-    <Import Project="$(MSBuildThisFileDirectory)\CefVersion.props" />
+
+  <!-- Import central CEF version configuration -->
+    <Import Project="$(MSBuildThisFileDirectory)\CefVersion.props" Condition="'$(CefVersion)' == ''" />
 
     <PropertyGroup>
         <DotnetVersion>net10.0</DotnetVersion>
         <LangVersion>latest</LangVersion>
         <AvaloniaVersion>11.3.14</AvaloniaVersion>
-        <CefRedistVersion>$(CefVersion)</CefRedistVersion>
         <CefUseCustomSubProcess>true</CefUseCustomSubProcess>
         <CefGluePackageNameSuffix>Next.</CefGluePackageNameSuffix>
         <CefGluePackageNamePrefix>CefGlue.$(CefGluePackageNameSuffix)</CefGluePackageNamePrefix>
     </PropertyGroup>
     
     <PropertyGroup>
-        <PackageOutputPath>$(MSBuildProjectDirectory)\Nuget\output</PackageOutputPath>
+        <PackageOutputPath>$(MSBuildThisFileDirectory)Nuget\output</PackageOutputPath>
         <VersionPrefix>$(CefGlueVersion)</VersionPrefix>
         <Authors>XiliumHQ,OutSystems,DEON</Authors>
         <Product>CefGlue</Product>

@@ -1,9 +1,4 @@
 ﻿<Project>
-  <PropertyGroup>
-    <!-- Add supported runtime identifiers to make bundle work properly -->
-    <RuntimeIdentifiers>osx-x64;osx-arm64;win-x64;win-arm64;linux-x64;linux-arm64</RuntimeIdentifiers>
-  </PropertyGroup>
-
   <!-- User-configurable properties with defaults -->
   <PropertyGroup>
     <CefGlueUseCustomBrowserProcess Condition="'$(CefGlueUseCustomBrowserProcess)' == ''">false</CefGlueUseCustomBrowserProcess>
@@ -12,18 +7,21 @@
 
   <!-- Determine target platform/RID -->
   <PropertyGroup Condition="'$(RuntimeIdentifier)' == '' and $([MSBuild]::IsOSPlatform('Windows'))">
+    <RuntimeIdentifiers Condition="'$(RuntimeIdentifiers)' == ''">win-x64;win-arm64</RuntimeIdentifiers>
     <CefGlueTargetPlatform Condition="'$(Platform)' == 'x64'">win-x64</CefGlueTargetPlatform>
     <CefGlueTargetPlatform Condition="'$(Platform)' == 'ARM64'">win-arm64</CefGlueTargetPlatform>
     <CefGlueTargetPlatform Condition="'$(CefGlueTargetPlatform)' == ''">win-x64</CefGlueTargetPlatform> <!-- fallback -->
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(RuntimeIdentifier)' == '' and $([MSBuild]::IsOSPlatform('Linux'))">
+    <RuntimeIdentifiers Condition="'$(RuntimeIdentifiers)' == ''">linux-x64;linux-arm64</RuntimeIdentifiers>
     <CefGlueTargetPlatform Condition="'$(Platform)' == 'x64'">linux-x64</CefGlueTargetPlatform>
     <CefGlueTargetPlatform Condition="'$(Platform)' == 'ARM64'">linux-arm64</CefGlueTargetPlatform>
     <CefGlueTargetPlatform Condition="'$(CefGlueTargetPlatform)' == ''">linux-x64</CefGlueTargetPlatform> <!-- fallback -->
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(RuntimeIdentifier)' == '' and $([MSBuild]::IsOSPlatform('OSX'))">
+    <RuntimeIdentifiers Condition="'$(RuntimeIdentifiers)' == ''">osx-x64;osx-arm64</RuntimeIdentifiers>
     <CefGlueTargetPlatform Condition="'$(Platform)' == 'x64'">osx-x64</CefGlueTargetPlatform>
     <CefGlueTargetPlatform Condition="'$(Platform)' == 'ARM64'">osx-arm64</CefGlueTargetPlatform>
     <CefGlueTargetPlatform Condition="'$(CefGlueTargetPlatform)' == ''">osx-arm64</CefGlueTargetPlatform> <!-- fallback -->
