@@ -27,12 +27,12 @@ jobs:
             - name: Determine version suffix
               id: version
               run: |
-                  if [ "${{ github.ref_name }}" != "main" ]; then
+                  if [[ "${{ github.ref_name }}" =~ ^release/v[0-9]+$ ]]; then
+                    echo "suffix=" >> $GITHUB_OUTPUT
+                  else
                     BRANCH=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9]/-/g' | tr '[:upper:]' '[:lower:]' | cut -c1-30)
                     COMMITS=$(git rev-list --count HEAD)
-                    echo "suffix=${BRANCH}.${COMMITS}" >> $GITHUB_OUTPUT
-                  else
-                    echo "suffix=" >> $GITHUB_OUTPUT
+                    echo "suffix=${BRANCH}-${COMMITS}" >> $GITHUB_OUTPUT
                   fi
 
             - name: Restore dependencies
