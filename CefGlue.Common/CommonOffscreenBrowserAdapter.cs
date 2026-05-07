@@ -318,6 +318,8 @@ namespace Xilium.CefGlue.Common
 
         #region IOffscreenCefBrowserHost
 
+        public event EventHandler<PaintEventArgs> Paint;
+
         void IOffscreenCefBrowserHost.GetViewRect(out CefRectangle rect)
         {
             rect = GetViewRect();
@@ -389,23 +391,17 @@ namespace Xilium.CefGlue.Common
                 return;
             }
 
-            OffScreenRenderSurface renderHandler;
-            if (isPopup)
-            {
-                renderHandler = Popup.RenderSurface;
-            }
-            else
-            {
-                renderHandler = Control.RenderSurface;
-            }
+            var renderHandler = isPopup ? Popup.RenderSurface : Control.RenderSurface;
 
-            const string ScopeName = nameof(IOffscreenCefBrowserHost.HandleViewPaint);
+            const string scopeName = nameof(IOffscreenCefBrowserHost.HandleViewPaint);
 
-            WithErrorHandling(ScopeName, () =>
+            WithErrorHandling(scopeName, () =>
             {
                 renderHandler?.Render(buffer, width, height, dirtyRects)
-                              .ContinueWith(t => HandleException(ScopeName, t.Exception), TaskContinuationOptions.OnlyOnFaulted);
+                              .ContinueWith(t => HandleException(scopeName, t.Exception), TaskContinuationOptions.OnlyOnFaulted);
             });
+
+            Paint?.Invoke(this, new PaintEventArgs(buffer, width, height, dirtyRects, isPopup));
         }
 
         void IOffscreenCefBrowserHost.HandleStartDragging(CefBrowser browser, CefDragData dragData, CefDragOperationsMask allowedOps, int x, int y)

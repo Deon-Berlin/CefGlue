@@ -33,7 +33,10 @@ namespace Xilium.CefGlue.Common
 
             if (CefRuntimeLoader.IsOSREnabled)
             {
-                _adapter = new CommonOffscreenBrowserAdapter(this, nameof(BaseCefBrowser), CreateOffScreenControlHost(), CreatePopupHost(), _logger, cefRequestContextFactory?.Invoke());
+                 var offscreen = new CommonOffscreenBrowserAdapter(this, nameof(BaseCefBrowser), CreateOffScreenControlHost(), CreatePopupHost(), _logger, cefRequestContextFactory?.Invoke());
+                 offscreen.Paint += OffscreenHostOnPaint;
+
+                 _adapter = offscreen;
             } 
             else
             {
@@ -43,7 +46,20 @@ namespace Xilium.CefGlue.Common
 
         ~BaseCefBrowser()
         {
+            if (CefRuntimeLoader.IsOSREnabled && _adapter is IOffscreenCefBrowserHost offscreenHost)
+            {
+                offscreenHost.Paint += OffscreenHostOnPaint;
+            }
+
             Dispose(false);
+        }
+
+        private void OffscreenHostOnPaint(object sender, PaintEventArgs e) =>
+            OnPaint(e.IsPopup, e.Buffer, e.Width, e.Height, e.DirtyRects);
+
+        protected virtual void OnPaint(bool isPopup, IntPtr buffer, int width, int height, CefRectangle[] dirtyRects)
+        {
+            // can be overridden by offscreen browser implementations to react on paint events.
         }
 
         public void Dispose()
