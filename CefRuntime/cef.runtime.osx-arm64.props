@@ -13,7 +13,10 @@
     <PropertyGroup>
       <_CefClientFrameworks>$(MSBuildThisFileDirectory)../CEF/$(RuntimeIdentifier)</_CefClientFrameworks>
       <_CefDestFrameworks>$(_AppBundlePath)Contents/Frameworks</_CefDestFrameworks>
-      
+
+      <!-- set default values from net-macos bundling -->
+      <CFBundleName Condition="'$(CFBundleName)' == ''">$(_AppBundleName)</CFBundleName>
+      <CFBundleIdentifier Condition="'$(CFBundleIdentifier)' == ''">$(ApplicationId)</CFBundleIdentifier>
       <CefBundleCodesignKey Condition="'$(CefBundleCodesignKey)' == ''">$(CodesignKey)</CefBundleCodesignKey>
     </PropertyGroup>
         
