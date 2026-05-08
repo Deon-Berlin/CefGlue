@@ -216,8 +216,9 @@ namespace Xilium.CefGlue.WPF.Platform
                 }
             }
         }
-        
-        protected virtual float GetDeviceScaleFactor(PresentationSource source) => (float)(source?.CompositionTarget?.TransformToDevice.M11 ?? 1d);
+
+        protected virtual float GetDeviceScaleFactor(PresentationSource source) =>
+            DeviceScaleHelperFactory.Current.GetDeviceScaleFactor(source);
 
         protected virtual IInputElement MousePositionReferential => _control;
 
