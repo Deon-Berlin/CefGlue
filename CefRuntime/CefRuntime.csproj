@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
-   
+
+  <Import Project="../CefVersion.props" />
+
+  <!-- override the value for cef version from pipeline parameter -->
   <PropertyGroup Condition="$(CefBuildVersion) != ''">
     <CefVersion>$(CefBuildVersion.Split('+')[0])</CefVersion>
   </PropertyGroup>
-
-  <!-- use the value from the repo if not specified -->
-  <Import Project="../CefVersion.props" Condition="$(CefVersion) == ''" />
   
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>

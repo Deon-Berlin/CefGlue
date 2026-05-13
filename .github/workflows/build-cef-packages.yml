@@ -4,9 +4,9 @@ on:
     workflow_dispatch:
         inputs:
             cefbuildversion:
-                description: "CEF build version"
-                required: true
-                default: "146.0.10+g8219561+chromium-146.0.7680.179"
+                description: "CEF version (i.e. 146.0.10+g8219561+chromium-146.0.7680.179)"
+                required: false
+                default: ""
             packages:
                 description: "Packages to build"
                 required: true
