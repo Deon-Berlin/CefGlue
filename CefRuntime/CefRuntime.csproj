@@ -23,6 +23,7 @@
   <PropertyGroup>
     <PackageId>cef.runtime.$(RuntimeIdentifier)</PackageId>
     <PackageVersion>$(CefVersion)</PackageVersion>
+    <PackageVersion Condition="'$(CefRuntimePackageVersion)' != ''">$(CefRuntimePackageVersion)</PackageVersion>
     <Authors>The Chromium Embedded Framework Authors</Authors>
     <Copyright>Copyright © 2025</Copyright>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
@@ -39,6 +40,8 @@
     <None Include="LICENSE.txt" Pack="true" PackagePath=""/>
     <None Include="cef128x128.png" Pack="true" PackagePath="images"/>
     <None Include="deploy-cef-framework.sh" Pack="true" PackagePath="CEF/" Condition="$(RuntimeIdentifier.StartsWith('osx-'))" />
+    <None Include="cef.entitlements" Pack="true" PackagePath="CEF/" Condition="$(RuntimeIdentifier.StartsWith('osx-'))" />
+    <None Include="app.icns" Pack="true" PackagePath="CEF/" Condition="$(RuntimeIdentifier.StartsWith('osx-'))" />
     <None Include="cef.runtime.$(RuntimeIdentifier).props" Pack="true" PackagePath="build" />
     <None Include="cef.runtime.$(RuntimeIdentifier).props" Pack="true" PackagePath="buildTransitive" />
   </ItemGroup>

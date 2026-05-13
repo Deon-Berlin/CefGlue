@@ -8,7 +8,7 @@
     <CefRedistLinuxX64 Include="@(_CefRuntimeLinuxX64Additional)" />
   </ItemGroup>
 
-  <Target Name="CefRedistLinuxX64CopyResources">
+  <Target Name="CefRedistLinuxX64CopyResources" AfterTargets="Build" Condition="'$(RuntimeIdentifier)' == 'linux-x64' AND '$(OutputType)' == 'Exe'">
     <PropertyGroup>
       <CefRedistLinuxX64TargetDir Condition="'$(CefRedistLinuxX64TargetDir)' == ''">$(TargetDir)</CefRedistLinuxX64TargetDir>
     </PropertyGroup>

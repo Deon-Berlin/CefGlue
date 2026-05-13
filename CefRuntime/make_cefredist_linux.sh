@@ -23,7 +23,7 @@ if [ ! -d "$BASE" ]; then
     mkdir "$BASE"
 fi
 
-TMP="${BASE}/tmp-$1"
+TMP="${BASE}/tmp-$1-$CEF_VERSION"
 
 if [ "$1" == "linux-x64" ]; then
     ARCH="linux64"
@@ -53,6 +53,8 @@ if [ ! -d "$CEFBINARIES" ]; then
     echo "Extracting CEF binaries v${CEF_VERSION}-${ARCH}"
     mkdir "$CEFBINARIES"
     tar -jxvf "$CEFZIP" -C "$CEFBINARIES"
+else
+    echo "CEF binaries v${CEF_VERSION}-${ARCH} already extracted"
 fi
 
 RELEASE_DIR="$(find "$CEFBINARIES" -name "Release" -type d)"

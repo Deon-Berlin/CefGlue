@@ -2,6 +2,7 @@
 <Project>
     <PropertyGroup>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+        <CefRuntimePackageVersion Condition="'$(CefRuntimePackageVersion)' == ''">$(CefVersion)</CefRuntimePackageVersion>
     </PropertyGroup>
     <ItemGroup>
         <PackageVersion Include="Avalonia" Version="$(AvaloniaVersion)" />
@@ -19,11 +20,11 @@
         <PackageVersion Include="chromiumembeddedframework.runtime.win-x64" Version="$(CefVersion)" />
         <PackageVersion Include="chromiumembeddedframework.runtime.win-arm64" Version="$(CefVersion)" />
 
-        <PackageVersion Include="cef.runtime.linux-x64" Version="$(CefVersion)" />
-        <PackageVersion Include="cef.runtime.linux-arm64" Version="$(CefVersion)" />
+        <PackageVersion Include="cef.runtime.linux-x64" Version="$(CefRuntimePackageVersion)" />
+        <PackageVersion Include="cef.runtime.linux-arm64" Version="$(CefRuntimePackageVersion)" />
         
-        <PackageVersion Include="cef.runtime.osx-x64" Version="$(CefVersion)" />
-        <PackageVersion Include="cef.runtime.osx-arm64" Version="$(CefVersion)" />
+        <PackageVersion Include="cef.runtime.osx-x64" Version="$(CefRuntimePackageVersion)" />
+        <PackageVersion Include="cef.runtime.osx-arm64" Version="$(CefRuntimePackageVersion)" />
 
         <PackageVersion Include="nunit" Version="3.12.0" />
         <PackageVersion Include="NUnit3TestAdapter" Version="3.17.0" />

@@ -3,6 +3,8 @@
   <PropertyGroup>
     <_CefDefaultCopyToBundleAfterTarget>_LinkNativeExecutable</_CefDefaultCopyToBundleAfterTarget>
     <_CefFrameworkBundleDepoyScript>$(MSBuildThisFileDirectory)../CEF/deploy-cef-framework.sh</_CefFrameworkBundleDepoyScript>
+    <_CefDefaultEntitlements>$(MSBuildThisFileDirectory)../CEF/cef.entitlements</_CefDefaultEntitlements>
+    <_CefDefaultAlertAppIcons>$(MSBuildThisFileDirectory)../CEF/app.icns</_CefDefaultAlertAppIcons>
   </PropertyGroup>
 
   <!-- Publish CEF Framework with helper apps to the app bundle created when bulding netX.0-macos target framework projects -->
@@ -18,6 +20,9 @@
       <CFBundleName Condition="'$(CFBundleName)' == ''">$(_AppBundleName)</CFBundleName>
       <CFBundleIdentifier Condition="'$(CFBundleIdentifier)' == ''">$(ApplicationId)</CFBundleIdentifier>
       <CefBundleCodesignKey Condition="'$(CefBundleCodesignKey)' == ''">$(CodesignKey)</CefBundleCodesignKey>
+      <CefBundleCodesignKey Condition="'$(CefBundleCodesignKey)' == ''">-</CefBundleCodesignKey>
+      <CefBundleEntitlementsFile Condition="'$(CefBundleEntitlementsFile)' == ''">$(_CefDefaultEntitlements)</CefBundleEntitlementsFile>
+      <CefBundleAppIcons Condition="'$(CefBundleAppIcons)' == ''">$(_CefDefaultAlertAppIcons)</CefBundleAppIcons>
     </PropertyGroup>
         
     <Message Importance="high" Text="Adding CEF Framework to AppBundle $(_AppBundlePath) with RuntimeIdentifier $(RuntimeIdentifier)" />
@@ -30,7 +35,8 @@
           &quot;$(CFBundleName)&quot; \
           &quot;$(CFBundleIdentifier)&quot; \
           &quot;$(CefBundleCodesignKey)&quot; \
-          &quot;$(CefBundleEntitlementsFile)&quot;" />
+          &quot;$(CefBundleEntitlementsFile)&quot; \
+          &quot;$(CefBundleAppIcons)&quot;" />
 
   </Target>
   
@@ -59,21 +65,14 @@
     <Copy SourceFiles="@(_CefRuntimeOSXArm64Resources)" DestinationFiles="@(_CefRuntimeOSXArm64Resources->'$(CefRedistOSXArm64ResourceTargetDir)\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
   </Target>
 
-  <PropertyGroup>
-    <!-- Override with your Team ID or full certificate name -->
-    <CefBundleCodesignKey Condition="'$(CefBundleCodesignKey)' == ''">-</CefBundleCodesignKey>
-  </PropertyGroup>
-
   <Target Name="ResignBundleAfterCefCopy"
           Condition="'$(_AppBundlePath)' != '' AND $([MSBuild]::IsOSPlatform('OSX'))">
-    <Message Importance="high" Text="Re-signing bundle with identity: $(CefBundleCodesignKey)" />
-    <!-- Sign all CEF dylibs individually first; -deep does not re-sign flat dylibs in MonoBundle -->
-    <Exec Condition="'$(CefBundleCodesignKey)' != '-'"
-          Command="find &quot;$(_AppBundlePath)Contents/MonoBundle&quot; -name '*.dylib' -exec codesign --force --sign &quot;$(CefBundleCodesignKey)&quot; {} \;" />
+    <Message Importance="high" Text="Re-signing the application bundle with identity: $(CefBundleCodesignKey)" />
+    
     <!-- Adhoc signing (-) does not support -options runtime; Developer ID requires it for SecCodeCopySelf on macOS 15 -->
-    <Exec Condition="'$(CefBundleCodesignKey)' == '-' OR '$(CefBundleEntitlementsFile)' == ''"
-          Command="codesign --force --sign &quot;$(CefBundleCodesignKey)&quot; &quot;$(_AppBundlePath)&quot;" />
-    <Exec Condition="'$(CefBundleCodesignKey)' != '-' AND '$(CefBundleEntitlementsFile)' != ''"
-          Command="codesign --force --sign &quot;$(CefBundleCodesignKey)&quot; --options runtime --entitlements &quot;$(CefBundleEntitlementsFile)&quot; &quot;$(_AppBundlePath)&quot;" />
+    <Exec Condition="'$(CefBundleCodesignKey)' == '-' OR '$(CodesignEntitlements)' == ''"
+          Command="codesign --force --timestamp --sign &quot;$(CefBundleCodesignKey)&quot; &quot;$(_AppBundlePath)&quot;" />
+    <Exec Condition="'$(CefBundleCodesignKey)' != '-' AND '$(CodesignEntitlements)' != ''"
+          Command="codesign --force --timestamp --options runtime --entitlements &quot;$(CodesignEntitlements)&quot; --sign &quot;$(CefBundleCodesignKey)&quot; &quot;$(_AppBundlePath)&quot;" />
   </Target>
 </Project>

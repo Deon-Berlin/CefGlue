@@ -6,7 +6,7 @@
 #
 # Usage:
 #   deploy-cef-framework.sh <SRC_FRAMEWORKS> <DST_FRAMEWORKS> <APP_NAME> \
-#                            <BUNDLE_ID> <CODESIGN_KEY> [ENTITLEMENTS]
+#                            <BUNDLE_ID> <CODESIGN_KEY> <ENTITLEMENTS> [APP_ICNS]
 #
 # Arguments:
 #   SRC_FRAMEWORKS  Path to the source cefclient.app/Contents/Frameworks directory
@@ -14,7 +14,8 @@
 #   APP_NAME        CFBundleName of the host app (e.g. CefGlue.Demo.Avalonia)
 #   BUNDLE_ID       CFBundleIdentifier of the host app (e.g. com.example)
 #   CODESIGN_KEY    Codesign identity: "-" for ad-hoc, or a Team ID / cert name
-#   ENTITLEMENTS    (optional) Path to .entitlements plist for hardened-runtime signing
+#   ENTITLEMENTS    Path to .entitlements plist for hardened-runtime signing
+#   APP_ICNS        (optional) Path to an .icns file used as the Alerts helper bundle icon
 
 set -euo pipefail
 
@@ -24,6 +25,7 @@ APP_NAME="$3"
 BUNDLE_ID="$4"
 CODESIGN_KEY="${5:-}"
 ENTITLEMENTS="$6"
+APP_ICNS="${7:-}"
 
 PLIST=/usr/libexec/PlistBuddy
 
@@ -76,6 +78,14 @@ for VARIANT in "" " (Renderer)" " (GPU)" " (Plugin)" " (Alerts)"; do
   for DT_KEY in DTCompiler DTSDKBuild DTSDKName DTXcode DTXcodeBuild; do
     "${PLIST}" -c "Delete :${DT_KEY}" "${PLIST_FILE}" 2>/dev/null || true
   done
+
+  if [ "${VARIANT}" = " (Alerts)" ] && [ -n "${APP_ICNS}" ]; then
+    RESOURCES_DIR="${DST_APP}/Contents/Resources"
+    mkdir -p "${RESOURCES_DIR}"
+    cp "${APP_ICNS}" "${RESOURCES_DIR}/app.icns"
+    "${PLIST}" -c "Delete :CFBundleIconFile" "${PLIST_FILE}" 2>/dev/null || true
+    "${PLIST}" -c "Add :CFBundleIconFile string app.icns" "${PLIST_FILE}"
+  fi
 done
 
 # ---------------------------------------------------------------------------
@@ -84,25 +94,19 @@ done
 # ---------------------------------------------------------------------------
 echo "Signing CEF Framework libraries..."
 find "${DST}/Chromium Embedded Framework.framework/Libraries" -name '*.dylib' \
-  -exec codesign --force --sign "${CODESIGN_KEY}" {} \;
+  -exec codesign --force --timestamp --options=runtime --sign "${CODESIGN_KEY}" {} \;
 
 echo "Signing Chromium Embedded Framework..."
-codesign --force --sign "${CODESIGN_KEY}" "${DST}/Chromium Embedded Framework.framework"
+codesign --force --timestamp --options=runtime --sign "${CODESIGN_KEY}" "${DST}/Chromium Embedded Framework.framework/Chromium Embedded Framework"
+codesign --force --timestamp --options=runtime --sign "${CODESIGN_KEY}" "${DST}/Chromium Embedded Framework.framework"
 
 for VARIANT in "" " (Renderer)" " (GPU)" " (Plugin)" " (Alerts)"; do
   APP="${DST}/${APP_NAME} Helper${VARIANT}.app"
   EXE="${APP}/Contents/MacOS/${APP_NAME} Helper${VARIANT}"
   echo "Signing helper: ${APP_NAME} Helper${VARIANT}"
 
-  codesign --force --sign "${CODESIGN_KEY}" "${EXE}"
-
-  if [ "${CODESIGN_KEY}" = "-" ]; then
-    codesign --force --sign "${CODESIGN_KEY}" "${APP}"
-  elif [ -n "${ENTITLEMENTS}" ]; then
-    codesign --force --sign "${CODESIGN_KEY}" --options runtime --entitlements "${ENTITLEMENTS}" "${APP}"
-  else
-    codesign --force --sign "${CODESIGN_KEY}" --options runtime "${APP}"
-  fi
+  codesign --force --timestamp --options=runtime --entitlements "${ENTITLEMENTS}" --sign "${CODESIGN_KEY}" "${EXE}"
+  codesign --force --timestamp --options=runtime --entitlements "${ENTITLEMENTS}" --sign "${CODESIGN_KEY}" "${APP}"
 done
 
 echo "CEF Framework deployment complete."

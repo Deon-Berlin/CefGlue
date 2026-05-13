@@ -1,12 +1,8 @@
 ﻿<Project>
 
-  <PropertyGroup>
-    <UseEditBin Condition="'$(UseEditBin)' == '' AND $([MSBuild]::IsOSPlatform('Windows'))">true</UseEditBin>
-  </PropertyGroup>
-
   <!-- Copy CEF DLLs and resources on Windows, on macOS and linux this happening automatically -->
   <Target Name="CefRedistCopyWindowsResources" AfterTargets="Build" Condition="'$(MSBuildRestoreSessionId)' == '' AND $([MSBuild]::IsOSPlatform('Windows')) AND $(OutputType.Contains('Exe'))">
-    <Message Importance="high" Text="Copying CEF resources for Windows $(RuntimeIdentifier) $(VcvarsFile) $(IsEditbinEnabled)... $(DevEnvDir)" />
+    <Message Importance="high" Text="Copying CEF resources for Windows $(RuntimeIdentifier) ..." />
     
     <CallTarget Targets="CefRedist64CopyResources" Condition="'$(RuntimeIdentifier)' == 'win-x64' OR '$(RuntimeIdentifier)' == ''" />
     <CallTarget Targets="CefRedistArm64CopyResources" Condition="'$(RuntimeIdentifier)' == 'win-arm64'" />
@@ -33,7 +29,7 @@
   </Target>
 
   <Target Name="Editbin" AfterTargets="Compile" DependsOnTargets="ResolveVcvarsFile"
-          Condition="'$(MSBuildRestoreSessionId)' == '' AND '$(UseEditBin)' == 'true' AND $([MSBuild]::IsOSPlatform('Windows')) AND '$(OutputType)' == 'WinExe'">
+          Condition="'$(MSBuildRestoreSessionId)' == '' AND '$(IsEditbinEnabled)' == 'true' AND $([MSBuild]::IsOSPlatform('Windows')) AND '$(OutputType)' == 'WinExe'">
     <!--
       Quick explanation: This target runs after compile, and currently 3 more times for each MSBuild command executed in the next target "PublishApp".
       We just want this target to be executed for windows specs and when passed the VcvarsFile location.

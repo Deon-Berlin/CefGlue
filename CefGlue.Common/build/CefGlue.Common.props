@@ -2,7 +2,7 @@
   <!-- User-configurable properties with defaults -->
   <PropertyGroup>
     <CefGlueUseCustomBrowserProcess Condition="'$(CefGlueUseCustomBrowserProcess)' == ''">false</CefGlueUseCustomBrowserProcess>
-    <IsEditbinEnabled>True</IsEditbinEnabled>
+    <IsEditbinEnabled Condition="'$(IsEditbinEnabled)' == '' AND $([MSBuild]::IsOSPlatform('Windows'))">True</IsEditbinEnabled>
   </PropertyGroup>
 
   <!-- Determine target platform/RID -->
