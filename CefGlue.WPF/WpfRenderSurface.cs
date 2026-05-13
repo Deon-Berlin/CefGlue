@@ -6,6 +6,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Xilium.CefGlue.Common.Helpers;
+using Xilium.CefGlue.WPF.Platform;
 
 namespace Xilium.CefGlue.WPF
 {
@@ -33,7 +34,7 @@ namespace Xilium.CefGlue.WPF
 
         protected override void CreateBitmap(int width, int height)
         {
-            _bitmap = new WriteableBitmap(width, height, Dpi, Dpi, PixelFormat, null);
+            _bitmap = PlatformHelper.CreateBitmap.Invoke(width, height, Dpi, PixelFormat);
             Image.Source = _bitmap;
         }
 

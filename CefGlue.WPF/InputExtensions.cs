@@ -1,6 +1,7 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
+using Xilium.CefGlue.WPF.Platform;
 
 namespace Xilium.CefGlue.WPF
 {
@@ -63,7 +64,7 @@ namespace Xilium.CefGlue.WPF
             return new CefKeyEvent()
             {
                 EventType = isKeyUp ? CefKeyEventType.KeyUp : CefKeyEventType.RawKeyDown,
-                WindowsKeyCode = KeyInterop.VirtualKeyFromKey(eventArgs.Key == Key.System ? eventArgs.SystemKey : eventArgs.Key),
+                WindowsKeyCode = PlatformHelper.GetKeyCode.Invoke(eventArgs),
                 NativeKeyCode = 0,
                 IsSystemKey = eventArgs.Key == Key.System,
                 Modifiers = modifiers

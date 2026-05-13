@@ -218,7 +218,7 @@ namespace Xilium.CefGlue.WPF.Platform
         }
 
         protected virtual float GetDeviceScaleFactor(PresentationSource source) =>
-            DeviceScaleHelperFactory.Current.GetDeviceScaleFactor(source);
+            PlatformHelper.GetDeviceScaleFactor.Invoke(source);
 
         protected virtual IInputElement MousePositionReferential => _control;
 
@@ -241,7 +241,7 @@ namespace Xilium.CefGlue.WPF.Platform
                 DispatcherPriority.Normal,
                 new Action(() =>
                 {
-                    var cursor = CefCursorFactory.Current?.Create(cursorHandle, cursorType) ?? Cursors.Arrow;
+                    var cursor = PlatformHelper.GetCursor?.Invoke(cursorHandle, cursorType) ?? Cursors.Arrow;
                     _control.Cursor = cursor;
                 }));
 
