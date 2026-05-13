@@ -22,8 +22,8 @@
   
   <PropertyGroup>
     <PackageId>cef.runtime.$(RuntimeIdentifier)</PackageId>
-    <PackageVersion>$(CefVersion)</PackageVersion>
-    <PackageVersion Condition="'$(CefRuntimePackageVersion)' != ''">$(CefRuntimePackageVersion)</PackageVersion>
+    <VersionPrefix Condition="'$(CefRuntimePackageVersion)' != ''">$(CefRuntimePackageVersion)</VersionPrefix>
+    <VersionPrefix Condition="'$(VersionPrefix)' == ''">$(CefVersion)</VersionPrefix>
     <Authors>The Chromium Embedded Framework Authors</Authors>
     <Copyright>Copyright © 2025</Copyright>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
