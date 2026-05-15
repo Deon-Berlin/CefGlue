@@ -99,7 +99,7 @@ namespace Xilium.CefGlue.Common
         {
             var _handled = false;
 
-            WithErrorHandling(nameof(HandleMouseWheel), () =>
+            WithErrorHandling(nameof(HandleTextInput), () =>
             {
                 if (BrowserHost != null)
                 {
