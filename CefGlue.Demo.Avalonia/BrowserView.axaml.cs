@@ -33,6 +33,12 @@ namespace Xilium.CefGlue.Demo.Avalonia
             browserWrapper.Child = browser;
         }
 
+        protected override void OnPointerPressed(PointerPressedEventArgs e)
+        {
+            base.OnPointerPressed(e);
+            browser.Focus(NavigationMethod.Pointer);
+        }
+
         static Task<object> AsyncCallNativeMethod(Func<object> nativeMethod)
         {
             return Task.Run(() =>

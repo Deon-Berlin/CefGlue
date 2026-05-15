@@ -1,4 +1,4 @@
-# Repository/Project Specific
+﻿# Repository/Project Specific
 /src.g/
 
 # Repository/Project Shared
@@ -21,7 +21,7 @@
 *.user
 *.userosscache
 *.sln.docstates
-launchSettings.json
+#launchSettings.json
 
 # IDE: Visual Studio Code
 !.vscode/

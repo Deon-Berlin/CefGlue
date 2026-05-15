@@ -1,0 +1,11 @@
+﻿{
+  "profiles": {
+    "WPF Demo": {
+      "commandName": "Project"
+    },
+    "WPF Demo OSR": {
+      "commandName": "Project",
+      "commandLineArgs": "-osr"
+    }
+  }
+}

@@ -12,10 +12,6 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
     
-  <PropertyGroup Condition="'$(Configuration)'=='Debug_WindowlessRender'">
-    <DefineConstants>$(DefineConstants);WINDOWLESS</DefineConstants>
-  </PropertyGroup>
-
   <PropertyGroup>
     <CFBundleName>Xilium.CefGlue.Demo.Avalonia</CFBundleName> <!-- Also defines .app file name -->
     <CFBundleDisplayName>CefGlueDemoAvalonia</CFBundleDisplayName>

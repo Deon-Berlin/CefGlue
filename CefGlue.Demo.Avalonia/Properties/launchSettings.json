@@ -1,0 +1,11 @@
+﻿{
+  "profiles": {
+    "Avalonia Demo": {
+      "commandName": "Project"
+    },
+    "Avalonia Demo OSR": {
+      "commandName": "Project",
+      "commandLineArgs": "-osr"
+    }
+  }
+}

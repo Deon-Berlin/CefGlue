@@ -23,6 +23,8 @@ namespace Xilium.CefGlue.Demo.Avalonia
 
             var mainMenu = this.FindControl<Menu>("mainMenu");
             mainMenu.AttachedToVisualTree += MenuAttached;
+
+            if (Program.IsOSR) Title += " - OSR mode";
         }
 
         private void MenuAttached(object sender, VisualTreeAttachmentEventArgs e)
