@@ -870,5 +870,134 @@ namespace Xilium.CefGlue.Avalonia
                     return 0;
             }
         }
+
+        /// <summary>
+        /// Maps an Avalonia PhysicalKey to a macOS NSEvent.keyCode integer.
+        /// On macOS, CEF interprets windows_key_code and native_key_code as the macOS hardware key code,
+        /// not as a Windows Virtual Key code.
+        /// </summary>
+        internal static int MacOSKeyCodeFromPhysicalKey(PhysicalKey physicalKey)
+        {
+            switch (physicalKey)
+            {
+                case PhysicalKey.A: return 0;
+                case PhysicalKey.S: return 1;
+                case PhysicalKey.D: return 2;
+                case PhysicalKey.F: return 3;
+                case PhysicalKey.H: return 4;
+                case PhysicalKey.G: return 5;
+                case PhysicalKey.Z: return 6;
+                case PhysicalKey.X: return 7;
+                case PhysicalKey.C: return 8;
+                case PhysicalKey.V: return 9;
+                case PhysicalKey.IntlBackslash: return 10;
+                case PhysicalKey.B: return 11;
+                case PhysicalKey.Q: return 12;
+                case PhysicalKey.W: return 13;
+                case PhysicalKey.E: return 14;
+                case PhysicalKey.R: return 15;
+                case PhysicalKey.Y: return 16;
+                case PhysicalKey.T: return 17;
+                case PhysicalKey.Digit1: return 18;
+                case PhysicalKey.Digit2: return 19;
+                case PhysicalKey.Digit3: return 20;
+                case PhysicalKey.Digit4: return 21;
+                case PhysicalKey.Digit6: return 22;
+                case PhysicalKey.Digit5: return 23;
+                case PhysicalKey.Equal: return 24;
+                case PhysicalKey.Digit9: return 25;
+                case PhysicalKey.Digit7: return 26;
+                case PhysicalKey.Minus: return 27;
+                case PhysicalKey.Digit8: return 28;
+                case PhysicalKey.Digit0: return 29;
+                case PhysicalKey.BracketRight: return 30;
+                case PhysicalKey.O: return 31;
+                case PhysicalKey.U: return 32;
+                case PhysicalKey.BracketLeft: return 33;
+                case PhysicalKey.I: return 34;
+                case PhysicalKey.P: return 35;
+                case PhysicalKey.Enter: return 36;
+                case PhysicalKey.L: return 37;
+                case PhysicalKey.J: return 38;
+                case PhysicalKey.Quote: return 39;
+                case PhysicalKey.K: return 40;
+                case PhysicalKey.Semicolon: return 41;
+                case PhysicalKey.Backslash: return 42;
+                case PhysicalKey.Comma: return 43;
+                case PhysicalKey.Slash: return 44;
+                case PhysicalKey.N: return 45;
+                case PhysicalKey.M: return 46;
+                case PhysicalKey.Period: return 47;
+                case PhysicalKey.Tab: return 48;
+                case PhysicalKey.Space: return 49;
+                case PhysicalKey.Backquote: return 50;
+                case PhysicalKey.Backspace: return 51;
+                case PhysicalKey.Escape: return 53;
+                case PhysicalKey.MetaRight: return 54;
+                case PhysicalKey.MetaLeft: return 55;
+                case PhysicalKey.ShiftLeft: return 56;
+                case PhysicalKey.CapsLock: return 57;
+                case PhysicalKey.AltLeft: return 58;
+                case PhysicalKey.ControlLeft: return 59;
+                case PhysicalKey.ShiftRight: return 60;
+                case PhysicalKey.AltRight: return 61;
+                case PhysicalKey.ControlRight: return 62;
+                case PhysicalKey.F17: return 64;
+                case PhysicalKey.NumPadDecimal: return 65;
+                case PhysicalKey.NumPadMultiply: return 67;
+                case PhysicalKey.NumPadAdd: return 69;
+                case PhysicalKey.NumLock: return 71; // NumpadClear on Apple keyboards
+                case PhysicalKey.AudioVolumeUp: return 72;
+                case PhysicalKey.AudioVolumeDown: return 73;
+                case PhysicalKey.AudioVolumeMute: return 74;
+                case PhysicalKey.NumPadDivide: return 75;
+                case PhysicalKey.NumPadEnter: return 76;
+                case PhysicalKey.NumPadSubtract: return 78;
+                case PhysicalKey.F18: return 79;
+                case PhysicalKey.F19: return 80;
+                case PhysicalKey.NumPadEqual: return 81;
+                case PhysicalKey.NumPad0: return 82;
+                case PhysicalKey.NumPad1: return 83;
+                case PhysicalKey.NumPad2: return 84;
+                case PhysicalKey.NumPad3: return 85;
+                case PhysicalKey.NumPad4: return 86;
+                case PhysicalKey.NumPad5: return 87;
+                case PhysicalKey.NumPad6: return 88;
+                case PhysicalKey.NumPad7: return 89;
+                case PhysicalKey.NumPad8: return 91;
+                case PhysicalKey.NumPad9: return 92;
+                case PhysicalKey.IntlYen: return 93;
+                case PhysicalKey.IntlRo: return 94;
+                case PhysicalKey.NumPadComma: return 95;
+                case PhysicalKey.F5: return 96;
+                case PhysicalKey.F6: return 97;
+                case PhysicalKey.F7: return 98;
+                case PhysicalKey.F3: return 99;
+                case PhysicalKey.F8: return 100;
+                case PhysicalKey.F9: return 101;
+                case PhysicalKey.F11: return 103;
+                case PhysicalKey.F13: return 105;
+                case PhysicalKey.F16: return 106;
+                case PhysicalKey.F14: return 107;
+                case PhysicalKey.F10: return 109;
+                case PhysicalKey.ContextMenu: return 110;
+                case PhysicalKey.F12: return 111;
+                case PhysicalKey.F15: return 113;
+                case PhysicalKey.Insert: return 114; // Help key on Apple keyboards
+                case PhysicalKey.Home: return 115;
+                case PhysicalKey.PageUp: return 116;
+                case PhysicalKey.Delete: return 117; // Forward delete
+                case PhysicalKey.F4: return 118;
+                case PhysicalKey.End: return 119;
+                case PhysicalKey.F2: return 120;
+                case PhysicalKey.PageDown: return 121;
+                case PhysicalKey.F1: return 122;
+                case PhysicalKey.ArrowLeft: return 123;
+                case PhysicalKey.ArrowRight: return 124;
+                case PhysicalKey.ArrowDown: return 125;
+                case PhysicalKey.ArrowUp: return 126;
+                default: return 0;
+            }
+        }
     }
 }

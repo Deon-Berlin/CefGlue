@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
@@ -61,14 +62,28 @@ namespace Xilium.CefGlue.WPF
         public static CefKeyEvent AsCefKeyEvent(this KeyEventArgs eventArgs, bool isKeyUp)
         {
             var modifiers = eventArgs.KeyboardDevice.Modifiers.AsCefKeyboardModifiers();
-            return new CefKeyEvent()
+            var e = new CefKeyEvent
             {
                 EventType = isKeyUp ? CefKeyEventType.KeyUp : CefKeyEventType.RawKeyDown,
                 WindowsKeyCode = PlatformHelper.GetKeyCode.Invoke(eventArgs),
-                NativeKeyCode = 0,
+                NativeKeyCode = PlatformHelper.GetNativeKeyCode.Invoke(eventArgs),
                 IsSystemKey = eventArgs.Key == Key.System,
-                Modifiers = modifiers
+                Modifiers = modifiers,
             };
+
+            if (!OperatingSystem.IsMacOS()) return e;
+            
+            // On macOS, KEYEVENT_KEYDOWN is required, so Blink tracks the key press state.
+            // With KEYEVENT_RAWKEYDOWN, an unmatched KEYEVENT_KEYUP causes Blink to synthesize
+            // a spurious kKeyDown before the keyup, producing a second JS "keydown" event.
+            e.EventType = isKeyUp ? CefKeyEventType.KeyUp :  CefKeyEventType.KeyDown;
+                
+            // Character needs to be sent to correctly interpret key up events
+            var ch = PlatformHelper.GetMacOSCharacter.Invoke(eventArgs);
+            e.Character = ch;
+            e.UnmodifiedCharacter = ch;
+
+            return e;
         }
 
         /// <summary>
@@ -88,6 +103,9 @@ namespace Xilium.CefGlue.WPF
 
             if (keyboardModifiers.HasFlag(ModifierKeys.Shift))
                 modifiers |= CefEventFlags.ShiftDown;
+
+            if (keyboardModifiers.HasFlag(ModifierKeys.Windows) && OperatingSystem.IsMacOS())
+                modifiers |= CefEventFlags.CommandDown;
 
             return modifiers;
         }
