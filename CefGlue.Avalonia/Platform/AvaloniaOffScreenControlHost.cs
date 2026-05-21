@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Collections;
@@ -42,8 +42,9 @@ namespace Xilium.CefGlue.Avalonia.Platform
         public event Action<CefMouseEvent, CefDragOperationsMask> Drop;
         public event Action<float> ScreenInfoChanged;
         public event Action<bool> VisibilityChanged;
+        
 
-        public AvaloniaOffScreenControlHost(Control control, IAvaloniaList<Visual> visualChildren) :
+        public AvaloniaOffScreenControlHost(Control control, IAvaloniaList<Visual> visualChildren, IOffScreenKeyboardHandler keyboardHandler) :
             base(control, visualChildren)
         {
             DragDrop.SetAllowDrop(control, true);
@@ -66,10 +67,6 @@ namespace Xilium.CefGlue.Avalonia.Platform
             control.AddHandler(DragDrop.DragOverEvent, OnDragOver);
             control.AddHandler(DragDrop.DropEvent, OnDrop);
 
-            control.KeyDown += OnKeyDown;
-            control.KeyUp += OnKeyUp;
-            control.TextInput += OnTextInput;
-
             var image = CreateImage();
             var viewbox = new Viewbox()
             {
@@ -79,40 +76,11 @@ namespace Xilium.CefGlue.Avalonia.Platform
             };
             SetContent(viewbox);
             RenderSurface = new AvaloniaRenderSurface(image);
+            KeyboardHandler = keyboardHandler;
         }
 
         public OffScreenRenderSurface RenderSurface { get; }
-
-        private void OnTextInput(object sender, TextInputEventArgs e)
-        {
-            var handled = false;
-            TextInput?.Invoke(e.Text, out handled);
-            e.Handled = handled;
-        }
-
-        private void OnKeyUp(object sender, KeyEventArgs e)
-        {
-            var handled = false;
-            KeyUp?.Invoke(e.AsCefKeyEvent(true), out handled);
-            e.Handled = handled;
-        }
-
-        private void OnKeyDown(object sender, KeyEventArgs e)
-        {
-            var handled = false;
-            KeyDown?.Invoke(e.AsCefKeyEvent(false), out handled);
-
-            var key = e.Key;
-            if (key == Key.Tab  // Avoid tabbing out the web browser control
-                || key == Key.Home || key == Key.End // Prevent keyboard navigation using home and end keys
-                || key == Key.Up || key == Key.Down || key == Key.Left || key == Key.Right // Prevent keyboard navigation using arrows
-            )
-            {
-                handled = true;
-            }
-
-            e.Handled = handled;
-        }
+        public IOffScreenKeyboardHandler KeyboardHandler { get; }
 
         private void OnDrop(object sender, DragEventArgs e)
         {

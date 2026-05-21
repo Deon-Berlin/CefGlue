@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -6,27 +6,21 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Xilium.CefGlue.Common.Helpers;
-using Xilium.CefGlue.WPF.Platform;
 
 namespace Xilium.CefGlue.WPF
 {
     /// <summary>
     /// The WPF builtin surface 
     /// </summary>
-    internal class WpfRenderSurface : OffScreenRenderSurface
+    public class WpfRenderSurface(Image image) : OffScreenRenderSurface
     {
         private WriteableBitmap _bitmap;
 
-        public WpfRenderSurface(Image image)
-        {
-            Image = image;
-        }
-
-        public Image Image { get; }
+        public Image Image { get; } = image;
 
         public override bool AllowsTransparency => true;
 
-        private PixelFormat PixelFormat => AllowsTransparency ? PixelFormats.Bgra32 : PixelFormats.Bgr32;
+        protected PixelFormat PixelFormat => AllowsTransparency ? PixelFormats.Bgra32 : PixelFormats.Bgr32;
 
         protected override int BytesPerPixel => PixelFormat.BitsPerPixel / 8;
 
@@ -34,7 +28,7 @@ namespace Xilium.CefGlue.WPF
 
         protected override void CreateBitmap(int width, int height)
         {
-            _bitmap = PlatformHelper.CreateBitmap.Invoke(width, height, Dpi, PixelFormat);
+            _bitmap = new WriteableBitmap(width, height, Dpi, Dpi, PixelFormat, null);
             Image.Source = _bitmap;
         }
 

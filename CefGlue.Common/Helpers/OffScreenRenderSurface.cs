@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO.MemoryMappedFiles;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Xilium.CefGlue.Common.Helpers
@@ -7,14 +8,14 @@ namespace Xilium.CefGlue.Common.Helpers
     /// <summary>
     /// Render surface that supports rendering into the browser contents into and image.
     /// </summary>
-    internal abstract class OffScreenRenderSurface : IDisposable
+    public abstract class OffScreenRenderSurface : IDisposable
     {
         protected const int DefaultDpi = 96;
 
         private int _width;
         private int _height;
 
-        private readonly object _renderLock = new object();
+        private readonly Lock _renderLock = new();
 
         private MemoryMappedFile _mappedFile;
         private MemoryMappedViewAccessor _viewAccessor;

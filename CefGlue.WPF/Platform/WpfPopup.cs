@@ -1,8 +1,9 @@
-using System;
+﻿using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Threading;
+using Xilium.CefGlue.Common.Helpers;
 using Xilium.CefGlue.Common.Platform;
 
 namespace Xilium.CefGlue.WPF.Platform
@@ -10,12 +11,9 @@ namespace Xilium.CefGlue.WPF.Platform
     /// <summary>
     /// The WPF popup wrapper.
     /// </summary>
-    internal class WpfPopup : WpfOffScreenControlHost, IOffScreenPopupHost
+    internal class WpfPopup(Popup popup, IOffScreenKeyboardHandler keyboardHandler, Func<Image, OffScreenRenderSurface> renderSurfaceFactory)
+        : WpfOffScreenControlHost(popup, keyboardHandler, renderSurfaceFactory), IOffScreenPopupHost
     {
-        public WpfPopup(Popup popup) : base(popup)
-        {
-        }
-
         private Popup Popup => (Popup) base._control;
 
         protected override IInputElement MousePositionReferential => Popup.PlacementTarget;

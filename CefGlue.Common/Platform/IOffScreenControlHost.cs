@@ -4,16 +4,9 @@ using Xilium.CefGlue.Common.Helpers;
 
 namespace Xilium.CefGlue.Common.Platform
 {
-    public delegate void KeyEventHandler(CefKeyEvent e, out bool handled);
-    public delegate void TextInputEventHandler(string text, out bool handled);
-
     internal interface IOffScreenControlHost : IControl
     {
         event Action LostFocus;
-
-        event KeyEventHandler KeyDown;
-        event KeyEventHandler KeyUp;
-        event TextInputEventHandler TextInput;
 
         event Action<IOffScreenControlHost, CefMouseEvent, CefMouseButtonType, int> MouseButtonPressed;
         event Action<CefMouseEvent, CefMouseButtonType> MouseButtonReleased;
@@ -36,5 +29,7 @@ namespace Xilium.CefGlue.Common.Platform
         void UpdateDragCursor(CefDragOperationsMask allowedOps);
 
         OffScreenRenderSurface RenderSurface { get; }
+
+        IOffScreenKeyboardHandler KeyboardHandler { get; }
     }
 }

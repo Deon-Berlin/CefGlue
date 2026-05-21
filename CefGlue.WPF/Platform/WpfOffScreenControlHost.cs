@@ -24,9 +24,7 @@ namespace Xilium.CefGlue.WPF.Platform
         private Point _browserScreenLocation;
 
         public event Action LostFocus;
-        public event Common.Platform.KeyEventHandler KeyDown;
-        public event Common.Platform.KeyEventHandler KeyUp;
-        public event TextInputEventHandler TextInput;
+        
         public event Action<IOffScreenControlHost, CefMouseEvent, CefMouseButtonType, int> MouseButtonPressed;
         public event Action<CefMouseEvent, CefMouseButtonType> MouseButtonReleased;
         public event Action<CefMouseEvent> MouseLeave;
@@ -39,7 +37,7 @@ namespace Xilium.CefGlue.WPF.Platform
         public event Action<float> ScreenInfoChanged;
         public event Action<bool> VisibilityChanged;
 
-        public WpfOffScreenControlHost(FrameworkElement control) : base(control)
+        public WpfOffScreenControlHost(FrameworkElement control, IOffScreenKeyboardHandler keyboardHandler, Func<Image, OffScreenRenderSurface> renderSurfaceFactory) : base(control)
         {
             control.AllowDrop = true;
 
@@ -60,11 +58,6 @@ namespace Xilium.CefGlue.WPF.Platform
             control.Loaded += OnLoaded;
             control.Unloaded += OnUnloaded;
 
-            control.KeyDown += OnKeyDown;
-            control.KeyUp += OnKeyUp;
-
-            control.TextInput += OnTextInput;
-
             _tooltip = new ToolTip();
             _tooltip.StaysOpen = true;
             _tooltip.Visibility = Visibility.Collapsed;
@@ -75,41 +68,12 @@ namespace Xilium.CefGlue.WPF.Platform
 
             var image = CreateImage();
             SetContent(image);
-            RenderSurface = new WpfRenderSurface(image);
+            RenderSurface = renderSurfaceFactory.Invoke(image);
+            KeyboardHandler = keyboardHandler;
         }
 
         public OffScreenRenderSurface RenderSurface { get; }
-
-        private void OnTextInput(object sender, TextCompositionEventArgs e)
-        {
-            var handled = false;
-            TextInput?.Invoke(e.Text, out handled);
-            e.Handled = handled;
-        }
-
-        private void OnKeyUp(object sender, KeyEventArgs e)
-        {
-            var handled = false;
-            KeyUp?.Invoke(e.AsCefKeyEvent(true), out handled);
-            e.Handled = handled;
-        }
-
-        private void OnKeyDown(object sender, KeyEventArgs e)
-        {
-            var handled = false;
-            KeyDown?.Invoke(e.AsCefKeyEvent(false), out handled);
-
-            var key = e.Key;
-            if (key == Key.Tab  // Avoid tabbing out the web browser control
-                || key == Key.Home || key == Key.End // Prevent keyboard navigation using home and end keys
-                || key == Key.Up || key == Key.Down || key == Key.Left || key == Key.Right // Prevent keyboard navigation using arrows
-            )
-            {
-                handled = true;
-            }
-
-            e.Handled = handled;
-        }
+        public IOffScreenKeyboardHandler KeyboardHandler { get; }
 
         private void OnDrop(object sender, DragEventArgs e)
         {

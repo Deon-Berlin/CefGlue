@@ -256,10 +256,9 @@ namespace Xilium.CefGlue.Common
             control.MouseButtonReleased += HandleMouseButtonUp;
             control.MouseWheelChanged += HandleMouseWheel;
 
-            control.KeyDown += HandleKeyPress;
-            control.KeyUp += HandleKeyPress;
-
-            control.TextInput += HandleTextInput;
+            control.KeyboardHandler.KeyDown += HandleKeyPress;
+            control.KeyboardHandler.KeyUp += HandleKeyPress;
+            control.KeyboardHandler.TextInput += HandleTextInput;
 
             control.DragEnter += HandleDragEnter;
             control.DragOver += HandleDragOver;

@@ -29,7 +29,12 @@ namespace Xilium.CefGlue.Avalonia
 
         internal override IOffScreenControlHost CreateOffScreenControlHost()
         {
-            return new AvaloniaOffScreenControlHost(this, VisualChildren);
+            return new AvaloniaOffScreenControlHost(this, VisualChildren, CreateOffScreenKeyboardHandler());
+        }
+
+        public override IOffScreenKeyboardHandler CreateOffScreenKeyboardHandler()
+        {
+            return new AvaloniaOffScreenKeyboardHandler(this);
         }
 
         internal override IOffScreenPopupHost CreatePopupHost()
@@ -38,7 +43,7 @@ namespace Xilium.CefGlue.Avalonia
             {
                 PlacementTarget = this
             };
-            return new AvaloniaPopup(popup, popup.VisualChildren);
+            return new AvaloniaPopup(popup, popup.VisualChildren, CreateOffScreenKeyboardHandler());
         }
     }
 }

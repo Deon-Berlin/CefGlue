@@ -94,6 +94,13 @@ namespace Xilium.CefGlue.Common
         internal abstract IOffScreenControlHost CreateOffScreenControlHost();
 
         /// <summary>
+        /// Creates a new handler for managing off-screen keyboard interactions.
+        /// </summary>
+        /// <returns>An object that implements the <see cref="IOffScreenKeyboardHandler"/> interface for handling off-screen
+        /// keyboard input.</returns>
+        public abstract IOffScreenKeyboardHandler CreateOffScreenKeyboardHandler();
+
+        /// <summary>
         /// Event fired when the browser is initialized.
         /// </summary>
         public event Action BrowserInitialized { add => _adapter.Initialized += value; remove => _adapter.Initialized -= value; }

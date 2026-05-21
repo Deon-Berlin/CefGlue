@@ -14,8 +14,8 @@ namespace Xilium.CefGlue.Avalonia.Platform
     {
         private readonly ExtendedAvaloniaPopup _popup;
 
-        public AvaloniaPopup(ExtendedAvaloniaPopup popup, IAvaloniaList<Visual> visualChildren) : 
-            base(popup, visualChildren)
+        public AvaloniaPopup(ExtendedAvaloniaPopup popup, IAvaloniaList<Visual> visualChildren, IOffScreenKeyboardHandler keyboardHandler) : 
+            base(popup, visualChildren, keyboardHandler)
         {
             _popup = popup;
         }
