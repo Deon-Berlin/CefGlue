@@ -11,6 +11,7 @@ namespace Xilium.CefGlue
     /// destination. These constants match their equivalents in WebCore's
     /// DragActions.h and should not be renumbered.
     /// </summary>
+    [Flags]
     public enum CefDragOperationsMask : uint
     {
         None = 0,
