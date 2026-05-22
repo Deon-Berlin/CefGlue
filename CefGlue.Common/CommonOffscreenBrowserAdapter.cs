@@ -134,6 +134,23 @@ namespace Xilium.CefGlue.Common
             });
             handled = false;
         }
+        
+        private void HandleCopyToClipboard(bool cut)
+        {
+            WithErrorHandling(nameof(HandlePasteFromClipboard), () =>
+            {
+                if (cut) BrowserHost?.GetBrowser()?.GetFocusedFrame()?.Cut();
+                else BrowserHost?.GetBrowser()?.GetFocusedFrame()?.Copy();
+            });
+        }
+        
+        private void HandlePasteFromClipboard()
+        {
+            WithErrorHandling(nameof(HandlePasteFromClipboard), () =>
+            {
+                BrowserHost?.GetBrowser()?.GetFocusedFrame()?.Paste();
+            });
+        }
 
         private void HandleDragEnter(CefMouseEvent mouseEvent, CefDragData dragData, CefDragOperationsMask effects)
         {
@@ -259,6 +276,9 @@ namespace Xilium.CefGlue.Common
             control.KeyboardHandler.KeyDown += HandleKeyPress;
             control.KeyboardHandler.KeyUp += HandleKeyPress;
             control.KeyboardHandler.TextInput += HandleTextInput;
+            
+            control.KeyboardHandler.CopyToClipboard += HandleCopyToClipboard;
+            control.KeyboardHandler.PasteFromClipboard += HandlePasteFromClipboard;
 
             control.DragEnter += HandleDragEnter;
             control.DragOver += HandleDragOver;

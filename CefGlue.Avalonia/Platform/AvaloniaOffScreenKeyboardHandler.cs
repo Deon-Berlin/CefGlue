@@ -7,9 +7,13 @@ namespace Xilium.CefGlue.Avalonia.Platform
 {
     internal class AvaloniaOffScreenKeyboardHandler : IOffScreenKeyboardHandler
     {
+        private static readonly KeyModifiers ClipboardModifier = OperatingSystem.IsMacOS() ? KeyModifiers.Meta : KeyModifiers.Control;
+        
         public event KeyEventHandler KeyDown;
         public event KeyEventHandler KeyUp;
         public event TextInputEventHandler TextInput;
+        public event CopyToClipboardEventHandler CopyToClipboard;
+        public event PasteFromClipboardEventHandler PasteFromClipboard;
 
         public AvaloniaOffScreenKeyboardHandler(Control control)
         {
@@ -29,6 +33,25 @@ namespace Xilium.CefGlue.Avalonia.Platform
 
         private void OnKeyUp(object sender, KeyEventArgs e)
         {
+            if (e.KeyModifiers.HasFlag(ClipboardModifier))
+            {
+                switch (e.Key)
+                {
+                    case Key.C:
+                        CopyToClipboard?.Invoke(false);
+                        break;
+                    case Key.X:
+                        CopyToClipboard?.Invoke(true);
+                        break;
+                    case Key.V:
+                        PasteFromClipboard?.Invoke();
+                        break;
+                }
+                
+                e.Handled = true;
+                return;
+            }
+            
             var handled = false;
             KeyUp?.Invoke(e.AsCefKeyEvent(true), out handled);
             e.Handled = handled;

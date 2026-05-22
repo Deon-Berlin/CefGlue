@@ -10,6 +10,8 @@ namespace Xilium.CefGlue.WPF.Platform
         public event Common.Platform.KeyEventHandler KeyDown;
         public event Common.Platform.KeyEventHandler KeyUp;
         public event TextInputEventHandler TextInput;
+        public event CopyToClipboardEventHandler CopyToClipboard;
+        public event PasteFromClipboardEventHandler PasteFromClipboard;
 
         public WpfOffScreenKeyboardHandler(FrameworkElement control)
         {
@@ -29,6 +31,25 @@ namespace Xilium.CefGlue.WPF.Platform
 
         private void OnKeyUp(object sender, KeyEventArgs e)
         {
+            if (e.KeyboardDevice.Modifiers.HasFlag(ModifierKeys.Control))
+            {
+                switch (e.Key)
+                {
+                    case Key.C:
+                        CopyToClipboard?.Invoke(false);
+                        break;
+                    case Key.X:
+                        CopyToClipboard?.Invoke(true);
+                        break;
+                    case Key.V:
+                        PasteFromClipboard?.Invoke();
+                        break;
+                }
+                
+                e.Handled = true;
+                return;
+            }
+            
             var handled = false;
             KeyUp?.Invoke(e.AsCefKeyEvent(true), out handled);
             e.Handled = handled;
