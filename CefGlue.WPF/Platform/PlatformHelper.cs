@@ -27,14 +27,40 @@ public static class PlatformHelper
 
         return cursorType switch
         {
+            CefCursorType.None => Cursors.None,
             CefCursorType.Hand => Cursors.Hand,
             CefCursorType.IBeam => Cursors.IBeam,
-            CefCursorType.Cross => Cursors.Cross,
+            CefCursorType.Progress => Cursors.AppStarting,
             CefCursorType.Wait => Cursors.Wait,
+            CefCursorType.Help => Cursors.Help,
+            CefCursorType.Cross => Cursors.Cross,
+            CefCursorType.NoDrop => Cursors.No,
+            CefCursorType.NotAllowed => Cursors.No,
             CefCursorType.ColumnResize => Cursors.SizeWE,
             CefCursorType.RowResize => Cursors.SizeNS,
-            CefCursorType.Help => Cursors.Help,
-            _ => Cursors.Arrow
+            CefCursorType.EastWestResize => Cursors.SizeWE,
+            CefCursorType.NorthSouthResize => Cursors.SizeNS,
+            CefCursorType.NorthEastSouthWestResize => Cursors.SizeNESW,
+            CefCursorType.NorthWestSouthEastResize => Cursors.SizeNWSE,
+            // CefCursorType.Move => Cursors.SizeAll,
+            // CefCursorType.MiddlePanning => Cursors.SizeAll,
+            // CefCursorType.NorthEastPanning => Cursors.ScrollNE,
+            // CefCursorType.NorthEastResize => Cursors.ScrollNE,
+            // CefCursorType.NorthWestPanning => Cursors.ScrollNW,
+            // CefCursorType.NorthWestResize => Cursors.ScrollNW,
+            // CefCursorType.SouthEastPanning => Cursors.ScrollSE,
+            // CefCursorType.SouthEastResize => Cursors.ScrollSE,
+            // CefCursorType.SouthWestPanning => Cursors.ScrollSW,
+            // CefCursorType.SouthWestResize => Cursors.ScrollSW,
+            // CefCursorType.NorthResize => Cursors.ScrollN,
+            // CefCursorType.NorthPanning => Cursors.ScrollN,
+            // CefCursorType.EastResize => Cursors.ScrollE,
+            // CefCursorType.EastPanning => Cursors.ScrollE,
+            // CefCursorType.SouthResize => Cursors.ScrollS,
+            // CefCursorType.SouthPanning => Cursors.ScrollS,
+            // CefCursorType.WestResize => Cursors.ScrollW,
+            // CefCursorType.WestPanning => Cursors.ScrollW,
+            _ => Cursors.Arrow,
         };
     };
 }
