@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
@@ -40,12 +41,12 @@ namespace Xilium.CefGlue.WPF
 
         internal override IOffScreenControlHost CreateOffScreenControlHost()
         {
-            return new WpfOffScreenControlHost(this, CreateOffScreenKeyboardHandler(), CreateOffScreenRenderSurface);
+            return new WpfOffScreenControlHost(this, CreateOffScreenKeyboardHandler(this), CreateOffScreenRenderSurface);
         }
 
-        public override IOffScreenKeyboardHandler CreateOffScreenKeyboardHandler()
+        public override IOffScreenKeyboardHandler CreateOffScreenKeyboardHandler(object control)
         {
-            return new WpfOffScreenKeyboardHandler(this);
+            return new WpfOffScreenKeyboardHandler(control as FrameworkElement);
         }
 
         public virtual OffScreenRenderSurface CreateOffScreenRenderSurface(Image image)
@@ -61,7 +62,7 @@ namespace Xilium.CefGlue.WPF
                 Placement = PlacementMode.Relative,
             };
 
-            return new WpfPopup(popup, CreateOffScreenKeyboardHandler(), CreateOffScreenRenderSurface);
+            return new WpfPopup(popup, CreateOffScreenKeyboardHandler(popup), CreateOffScreenRenderSurface);
         }
     }
 }

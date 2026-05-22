@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Input;
 using Xilium.CefGlue.Common.Platform;
 
@@ -12,6 +13,8 @@ namespace Xilium.CefGlue.WPF.Platform
 
         public WpfOffScreenKeyboardHandler(FrameworkElement control)
         {
+            ArgumentNullException.ThrowIfNull(control);
+
             control.KeyDown += OnKeyDown;
             control.KeyUp += OnKeyUp;
             control.TextInput += OnTextInput;

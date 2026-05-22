@@ -1,4 +1,5 @@
 ﻿using System;
+using Avalonia.Controls;
 using Xilium.CefGlue.Avalonia.Platform;
 using Xilium.CefGlue.Common;
 using Xilium.CefGlue.Common.Platform;
@@ -8,7 +9,8 @@ namespace Xilium.CefGlue.Avalonia
     /// <summary>
     /// The Avalonia CEF browser.
     /// </summary>
-    public class AvaloniaCefBrowser : BaseCefBrowser
+    public class AvaloniaCefBrowser(Func<CefRequestContext> cefRequestContextFactory = null)
+        : BaseCefBrowser(cefRequestContextFactory)
     {
         static AvaloniaCefBrowser()
         {
@@ -18,10 +20,6 @@ namespace Xilium.CefGlue.Avalonia
             }
         }
 
-        public AvaloniaCefBrowser(Func<CefRequestContext> cefRequestContextFactory = null)
-            : base(cefRequestContextFactory)
-        { }
-
         internal override IControl CreateControl()
         {
             return new AvaloniaControl(this, VisualChildren);
@@ -29,12 +27,12 @@ namespace Xilium.CefGlue.Avalonia
 
         internal override IOffScreenControlHost CreateOffScreenControlHost()
         {
-            return new AvaloniaOffScreenControlHost(this, VisualChildren, CreateOffScreenKeyboardHandler());
+            return new AvaloniaOffScreenControlHost(this, VisualChildren, CreateOffScreenKeyboardHandler(this));
         }
 
-        public override IOffScreenKeyboardHandler CreateOffScreenKeyboardHandler()
+        public override IOffScreenKeyboardHandler CreateOffScreenKeyboardHandler(object control)
         {
-            return new AvaloniaOffScreenKeyboardHandler(this);
+            return new AvaloniaOffScreenKeyboardHandler(control as Control);
         }
 
         internal override IOffScreenPopupHost CreatePopupHost()
@@ -43,7 +41,7 @@ namespace Xilium.CefGlue.Avalonia
             {
                 PlacementTarget = this
             };
-            return new AvaloniaPopup(popup, popup.VisualChildren, CreateOffScreenKeyboardHandler());
+            return new AvaloniaPopup(popup, popup.VisualChildren, CreateOffScreenKeyboardHandler(popup));
         }
     }
 }

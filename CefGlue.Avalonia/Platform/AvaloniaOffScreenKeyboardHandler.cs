@@ -1,4 +1,5 @@
-﻿using Avalonia.Controls;
+﻿using System;
+using Avalonia.Controls;
 using Avalonia.Input;
 using Xilium.CefGlue.Common.Platform;
 
@@ -12,6 +13,8 @@ namespace Xilium.CefGlue.Avalonia.Platform
 
         public AvaloniaOffScreenKeyboardHandler(Control control)
         {
+            ArgumentNullException.ThrowIfNull(control);
+
             control.KeyDown += OnKeyDown;
             control.KeyUp += OnKeyUp;
             control.TextInput += OnTextInput;
