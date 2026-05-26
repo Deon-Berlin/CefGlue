@@ -207,5 +207,10 @@ namespace Xilium.CefGlue.Avalonia.Platform
         }
 
         public virtual void SetTooltip(string text) { }
+
+        public bool HasKeyboardFocus()
+        {
+            return Dispatcher.UIThread.Invoke(() => _control.IsKeyboardFocusWithin);
+        }
     }
 }

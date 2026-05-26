@@ -48,7 +48,7 @@ namespace Xilium.CefGlue.Common
         {
             if (CefRuntimeLoader.IsOSREnabled && _adapter is IOffscreenCefBrowserHost offscreenHost)
             {
-                offscreenHost.Paint += OffscreenHostOnPaint;
+                offscreenHost.Paint -= OffscreenHostOnPaint;
             }
 
             Dispose(false);

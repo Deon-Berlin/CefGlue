@@ -600,6 +600,8 @@ namespace Xilium.CefGlue.Common
 
         void ICefBrowserHost.HandleLoadEnd(CefBrowser browser, CefFrame frame, int httpStatusCode)
         {
+            // seams like we need to set focus back after navigation
+            if (Control.HasKeyboardFocus()) HandleGotFocus();
             LoadEnd?.Invoke(_eventsEmitter, new LoadEndEventArgs(frame, httpStatusCode));
         }
 

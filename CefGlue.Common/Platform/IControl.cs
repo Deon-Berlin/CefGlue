@@ -22,5 +22,7 @@ namespace Xilium.CefGlue.Common.Platform
         void DestroyRender();
 
         bool SetCursor(IntPtr cursorHandle, CefCursorType cursorType);
+
+        bool HasKeyboardFocus();
     }
 }

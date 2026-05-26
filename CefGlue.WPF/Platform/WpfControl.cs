@@ -125,6 +125,11 @@ namespace Xilium.CefGlue.WPF.Platform
             return false;
         }
 
+        public bool HasKeyboardFocus()
+        {
+            return _control.Dispatcher.CheckAccess() ? _control.IsKeyboardFocusWithin : _control.Dispatcher.Invoke(() => _control.IsKeyboardFocusWithin);
+        }
+
         public void InitializeRender(IntPtr browserHandle)
         {
             _control.Dispatcher.BeginInvoke(
