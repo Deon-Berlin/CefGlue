@@ -13,6 +13,7 @@ namespace Xilium.CefGlue.Common
         private static readonly TimeSpan ResizeDelay = TimeSpan.FromMilliseconds(50);
 
         private bool _isVisible = true;
+        private bool _ensuredFocus;
 
         private Func<CefRectangle> _getViewRectOverride;
 
@@ -46,6 +47,16 @@ namespace Xilium.CefGlue.Common
             { 
                 BrowserHost?.SetFocus(false);
             });
+
+            _ensuredFocus = false;
+        }
+
+        protected void EnsureFocus()
+        {
+            if (_ensuredFocus) return;
+
+            HandleGotFocus();
+            _ensuredFocus = true;
         }
 
         private void HandleMouseMove(CefMouseEvent mouseEvent)
@@ -69,6 +80,7 @@ namespace Xilium.CefGlue.Common
             WithErrorHandling(nameof(HandleMouseButtonDown), () =>
             {
                 control.Focus();
+                EnsureFocus();
                 if (BrowserHost != null)
                 {
                     SendMouseClickEvent(mouseEvent, mouseButton, false, clickCount);
@@ -99,6 +111,8 @@ namespace Xilium.CefGlue.Common
         {
             var _handled = false;
 
+            EnsureFocus();
+
             WithErrorHandling(nameof(HandleTextInput), () =>
             {
                 if (BrowserHost != null)
@@ -124,6 +138,8 @@ namespace Xilium.CefGlue.Common
 
         private void HandleKeyPress(CefKeyEvent keyEvent, out bool handled)
         {
+            EnsureFocus();
+
             WithErrorHandling(nameof(HandleKeyPress), () =>
             {
                 if (BrowserHost != null)
