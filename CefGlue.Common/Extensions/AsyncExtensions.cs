@@ -71,13 +71,27 @@ namespace Xilium.CefGlue.Common.Extensions
                     Value = cookie.Value,
                     Domain = cookie.Domain,
                     Path = cookie.Path,
-                    Expires = cookie.Expires.HasValue ? DateTimeOffset.FromUnixTimeSeconds(cookie.Expires.Value.Ticks).DateTime : DateTime.MaxValue,
+                    Expires = cookie.Expires.ToDateTime(),
                     Secure = cookie.Secure,
                     HttpOnly = cookie.HttpOnly
                 };
             }
         }
 
+        extension(CefBaseTime? baseTime)
+        {
+            public DateTime ToDateTime()
+            {
+                if (baseTime.HasValue && baseTime.Value.UtcExplode(out var exploded))
+                { 
+                    return exploded.ToDateTime();
+                }
+                
+                return DateTime.MaxValue;
+            }
+        }
+            
+        
         extension(CefFrame frame)
         {
             public Task<string> GetSourceAsync()

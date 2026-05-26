@@ -59,7 +59,6 @@
             Millisecond = value.Millisecond;
         }
 
-        [Obsolete("Avoid use this method. All date manipulations should be in CefBaseTime.")]
         public DateTime ToDateTime()
         {
             if (Year > 9999) return s_maxDateTime;
@@ -75,7 +74,6 @@
                 );
         }
 
-        [Obsolete("Avoid use this method. All date manipulations should be in CefBaseTime.")]
         public static unsafe DateTime ToDateTime(CefTime* ptr)
         {
             var year = ptr->Year;
