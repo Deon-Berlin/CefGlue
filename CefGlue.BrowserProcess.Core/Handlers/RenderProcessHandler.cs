@@ -1,4 +1,5 @@
 ﻿using System;
+using Xilium.CefGlue.BrowserProcess.FrameDelivery;
 using Xilium.CefGlue.BrowserProcess.JavascriptExecution;
 using Xilium.CefGlue.BrowserProcess.ObjectBinding;
 using Xilium.CefGlue.Common.Shared.Helpers;
@@ -12,7 +13,9 @@ namespace Xilium.CefGlue.BrowserProcess.Handlers
         private string _crashPipeName;
         private JavascriptExecutionEngineRenderSide _javascriptExecutionEngine;
         private JavascriptToNativeDispatcherRenderSide _javascriptToNativeDispatcher;
-        
+        private FrameDeliveryRenderSide _frameDelivery;
+        private readonly Input.InputChannelRenderSide _inputChannel = new();
+
         private readonly MessageDispatcher _messageDispatcher = new MessageDispatcher();
 
         public RenderProcessHandler()
@@ -25,6 +28,7 @@ namespace Xilium.CefGlue.BrowserProcess.Handlers
             base.OnWebKitInitialized();
             _javascriptExecutionEngine = new JavascriptExecutionEngineRenderSide(_messageDispatcher);
             _javascriptToNativeDispatcher = new JavascriptToNativeDispatcherRenderSide(_messageDispatcher);
+            _frameDelivery = new FrameDeliveryRenderSide(_messageDispatcher);
         }
 
         protected override bool OnProcessMessageReceived(CefBrowser browser, CefFrame frame, CefProcessId sourceProcess, CefProcessMessage message)
@@ -52,6 +56,7 @@ namespace Xilium.CefGlue.BrowserProcess.Handlers
                 {
                     base.OnContextCreated(browser, frame, context);
                     _javascriptToNativeDispatcher.HandleContextCreated(context, frame.IsMain);
+                    if (frame.IsMain) _inputChannel.Install(context);
 
                     var message = new Messages.JsContextCreated();
                     var cefMessage = message.ToCefProcessMessage();

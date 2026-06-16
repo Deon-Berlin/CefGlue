@@ -323,6 +323,52 @@ namespace Xilium.CefGlue.Common.Shared.RendererProcessCommunication
             }
         }
 
+        public struct OsrFrame
+        {
+            public const string Name = nameof(OsrFrame);
+
+            public int BrowserId;
+            public string MapName;
+            public int Width;
+            public int Height;
+            public int Stride;
+            public int HeaderSize;
+            public int ActiveOffset;
+
+            public CefProcessMessage ToCefProcessMessage()
+            {
+                var message = CefProcessMessage.Create(Name);
+                using (var arguments = message.Arguments)
+                {
+                    arguments.SetInt(0, BrowserId);
+                    arguments.SetString(1, MapName);
+                    arguments.SetInt(2, Width);
+                    arguments.SetInt(3, Height);
+                    arguments.SetInt(4, Stride);
+                    arguments.SetInt(5, HeaderSize);
+                    arguments.SetInt(6, ActiveOffset);
+                }
+                return message;
+            }
+
+            public static OsrFrame FromCefMessage(CefProcessMessage message)
+            {
+                using (var arguments = message.Arguments)
+                {
+                    return new OsrFrame()
+                    {
+                        BrowserId = arguments.GetInt(0),
+                        MapName = arguments.GetString(1),
+                        Width = arguments.GetInt(2),
+                        Height = arguments.GetInt(3),
+                        Stride = arguments.GetInt(4),
+                        HeaderSize = arguments.GetInt(5),
+                        ActiveOffset = arguments.GetInt(6)
+                    };
+                }
+            }
+        }
+
         public struct UnhandledException
         {
             public const string Name = nameof(UnhandledException);
