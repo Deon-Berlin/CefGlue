@@ -29,11 +29,17 @@ namespace Xilium.CefGlue.BrowserProcess.FrameDelivery
             if (size <= OsrSharedFrameHeader.HeaderSize) return;
 
             byte* basePtr = (byte*)region.Memory();
+            if (basePtr == null) return;
             var headerSpan = new ReadOnlySpan<byte>(basePtr, OsrSharedFrameHeader.HeaderSize);
             var header = OsrSharedFrameHeader.Read(headerSpan);
 
+            // Only the CPU RGBA frame kind is handled here; a future accelerated kind (e.g. an
+            // IOSurface/shared-texture handle) is delivered through a different path, so ignore it.
+            if (header.Kind != 0) return;
+
             long pixelBytes = (long)header.Stride * header.Height;
             if (header.Width <= 0 || header.Height <= 0 || pixelBytes <= 0) return;
+            if (header.Stride < header.Width * 4) return; // tight RGBA rows expected; reject malformed stride
             if (OsrSharedFrameHeader.HeaderSize + pixelBytes > size) return;
 
             IntPtr pixelPtr = (IntPtr)(basePtr + OsrSharedFrameHeader.HeaderSize);
