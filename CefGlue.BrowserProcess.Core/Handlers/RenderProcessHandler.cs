@@ -14,6 +14,7 @@ namespace Xilium.CefGlue.BrowserProcess.Handlers
         private JavascriptExecutionEngineRenderSide _javascriptExecutionEngine;
         private JavascriptToNativeDispatcherRenderSide _javascriptToNativeDispatcher;
         private FrameDeliveryRenderSide _frameDelivery;
+        private FrameDelivery.SharedFrameDeliveryRenderSide _sharedFrameDelivery;
         private readonly Input.InputChannelRenderSide _inputChannel = new();
 
         private readonly MessageDispatcher _messageDispatcher = new MessageDispatcher();
@@ -29,6 +30,7 @@ namespace Xilium.CefGlue.BrowserProcess.Handlers
             _javascriptExecutionEngine = new JavascriptExecutionEngineRenderSide(_messageDispatcher);
             _javascriptToNativeDispatcher = new JavascriptToNativeDispatcherRenderSide(_messageDispatcher);
             _frameDelivery = new FrameDeliveryRenderSide(_messageDispatcher);
+            _sharedFrameDelivery = new FrameDelivery.SharedFrameDeliveryRenderSide(_messageDispatcher);
         }
 
         protected override bool OnProcessMessageReceived(CefBrowser browser, CefFrame frame, CefProcessId sourceProcess, CefProcessMessage message)
