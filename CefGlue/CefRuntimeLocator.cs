@@ -88,6 +88,18 @@ public static class CefRuntimeLocator
         yield return Path.Combine(contentDir, "Frameworks", "Chromium Embedded Framework.framework");
         yield return Path.Combine(contentDir, "Frameworks", "Chromium Embedded Framework.framework", "Libraries");
         yield return Path.Combine(contentDir, "Frameworks", "Chromium Embedded Framework.framework", "Resources");
+
+        // Nested CEF helper bundle (<App>.app/Contents/Frameworks/<Helper>.app): the framework lives in
+        // the ENCLOSING app's Frameworks dir, not the helper's own. Resolve it there so helpers can share
+        // the single framework without an out-of-bundle symlink (which codesign/notarization reject).
+        var enclosingFrameworks = Directory.GetParent(contentDir)?.Parent?.FullName;
+        if (enclosingFrameworks != null && Path.GetFileName(enclosingFrameworks) == "Frameworks")
+        {
+            var fw = Path.Combine(enclosingFrameworks, "Chromium Embedded Framework.framework");
+            yield return fw;
+            yield return Path.Combine(fw, "Libraries");
+            yield return Path.Combine(fw, "Resources");
+        }
     }
     
     private static string GetRootPath()
