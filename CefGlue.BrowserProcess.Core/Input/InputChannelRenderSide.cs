@@ -3,14 +3,14 @@
 namespace Xilium.CefGlue.BrowserProcess.Input
 {
     /// <summary>
-    /// Injects <c>window.__hrcSendInput(json)</c> into the page. When JS calls it, the JSON input
-    /// payload is posted to the browser process as a "__hrcInput" message (arg 0 = json), where the
+    /// Injects <c>window.__cefSendInput(json)</c> into the page. When JS calls it, the JSON input
+    /// payload is posted to the browser process as a "__cefInput" message (arg 0 = json), where the
     /// app routes it to the target offscreen browser. Mirror of the frame-delivery channel.
     /// </summary>
     internal sealed class InputChannelRenderSide : CefV8Handler
     {
-        public const string FunctionName = "__hrcSendInput";
-        public const string MessageName = "__hrcInput";
+        public const string FunctionName = "__cefSendInput";
+        public const string MessageName = "__cefInput";
 
         /// <summary>Install the global function into a (main-frame) V8 context.</summary>
         public void Install(CefV8Context context)

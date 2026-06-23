@@ -8,11 +8,11 @@ namespace Xilium.CefGlue.BrowserProcess.FrameDelivery
     /// <summary>
     /// Render-side receiver for <see cref="Messages.OsrFrame"/>. Opens the named shared-memory
     /// region, reads the active double-buffer slot, copies it into a JS ArrayBuffer, and calls
-    /// the page's <c>window.__hrcOnFrame(browserId, width, height, buffer)</c> if present.
+    /// the page's <c>window.__cefOnFrame(browserId, width, height, buffer)</c> if present.
     /// </summary>
     internal sealed unsafe class FrameDeliveryRenderSide
     {
-        private const string JsCallbackName = "__hrcOnFrame";
+        private const string JsCallbackName = "__cefOnFrame";
 
         public FrameDeliveryRenderSide(MessageDispatcher dispatcher)
         {

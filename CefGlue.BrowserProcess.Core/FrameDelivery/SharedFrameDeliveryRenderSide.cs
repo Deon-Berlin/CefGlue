@@ -5,15 +5,15 @@ using Xilium.CefGlue.Common.Shared.Helpers;
 namespace Xilium.CefGlue.BrowserProcess.FrameDelivery
 {
     /// <summary>
-    /// Render-side receiver for the "hrcOsrFrame" shared-memory frame message. Reads the region,
+    /// Render-side receiver for the "cefOsrFrame" shared-memory frame message. Reads the region,
     /// parses <see cref="OsrSharedFrameHeader"/>, copies the RGBA pixels into a JS ArrayBuffer, and
-    /// calls <c>window.__hrcOnFrame(browserId, width, height, buffer)</c> if present. Cross-platform
+    /// calls <c>window.__cefOnFrame(browserId, width, height, buffer)</c> if present. Cross-platform
     /// (no named MMF): the region travels with the message and CEF manages its lifetime.
     /// </summary>
     internal sealed unsafe class SharedFrameDeliveryRenderSide
     {
-        public const string MessageName = "hrcOsrFrame";
-        private const string JsCallbackName = "__hrcOnFrame";
+        public const string MessageName = "cefOsrFrame";
+        private const string JsCallbackName = "__cefOnFrame";
 
         public SharedFrameDeliveryRenderSide(MessageDispatcher dispatcher)
         {
