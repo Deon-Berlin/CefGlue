@@ -44,12 +44,6 @@ public static class CefSubProcess
             var mainArgs = new CefMainArgs(new[] { "BrowserProcess" }.Concat(args).ToArray());
             var exitCode = CefRuntime.ExecuteProcess(mainArgs, new RendererCefApp(customSchemes), IntPtr.Zero);
 
-            // Log exit code for diagnostics - STATUS_STACK_BUFFER_OVERRUN = 0xC0000409 = 3221226505
-            File.AppendAllText(
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "logs", "stack.log"),
-                $"ExecuteProcess returned: 0x{(uint)exitCode:X8} ({exitCode}) [pid={Environment.ProcessId}, type={GetArgumentValue(args, "type") ?? "browser"}]{Environment.NewLine}");
-
-
             if (exitCode != -1)
             {
                 Environment.Exit(exitCode);
