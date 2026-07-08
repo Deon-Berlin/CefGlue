@@ -10,7 +10,7 @@
         <PackageVersion Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
         <PackageVersion Include="Avalonia.Themes.Simple" Version="$(AvaloniaVersion)" />
 
-        <PackageVersion Include="ReactiveUI.Avalonia" Version="11.4.12" />
+        <PackageVersion Include="ReactiveUI.Avalonia" Version="11.4.13" />
       
         <PackageVersion Include="Dotnet.Bundle" Version="0.9.13" />
         <PackageVersion Include="System.Reactive.Linq" Version="6.1.0" />

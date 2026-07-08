@@ -7,7 +7,7 @@
     <PropertyGroup>
         <DotnetVersion>net10.0</DotnetVersion>
         <LangVersion>latest</LangVersion>
-        <AvaloniaVersion>11.3.14</AvaloniaVersion>
+        <AvaloniaVersion>11.3.17</AvaloniaVersion>
         <CefUseCustomSubProcess>true</CefUseCustomSubProcess>
         <CefGluePackageNameSuffix>Next.</CefGluePackageNameSuffix>
         <CefGluePackageNamePrefix>CefGlue.$(CefGluePackageNameSuffix)</CefGluePackageNamePrefix>
