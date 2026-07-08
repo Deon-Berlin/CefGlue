@@ -21,14 +21,16 @@ CefGlue is a .NET binding for The Chromium Embedded Framework (CEF). It allows y
 
 ### Why This Fork?
 
-At the time of this fork, the official NuGet packages for the following CEF redistributables were not yet available for version 149.0.6:
+At the time of this fork, the official NuGet packages for the following CEF redistributables were not yet available for version 149.0.6, so this fork builds and publishes them:
 
-- `cef.runtime.linux-x64`
-- `cef.runtime.linux-arm64`
-- `cef.runtime.osx-x64`
-- `cef.runtime.osx-arm64`
+| Package | Version | Platform |
+|---------|---------|----------|
+| [cef.runtime.linux-x64](https://www.nuget.org/packages/cef.runtime.linux-x64) | [![NuGet](https://img.shields.io/nuget/v/cef.runtime.linux-x64?logo=nuget)](https://www.nuget.org/packages/cef.runtime.linux-x64) | Linux x64 |
+| [cef.runtime.linux-arm64](https://www.nuget.org/packages/cef.runtime.linux-arm64) | [![NuGet](https://img.shields.io/nuget/v/cef.runtime.linux-arm64?logo=nuget)](https://www.nuget.org/packages/cef.runtime.linux-arm64) | Linux ARM64 |
+| [cef.runtime.osx-x64](https://www.nuget.org/packages/cef.runtime.osx-x64) | [![NuGet](https://img.shields.io/nuget/v/cef.runtime.osx-x64?logo=nuget)](https://www.nuget.org/packages/cef.runtime.osx-x64) | macOS x64 |
+| [cef.runtime.osx-arm64](https://www.nuget.org/packages/cef.runtime.osx-arm64) | [![NuGet](https://img.shields.io/nuget/v/cef.runtime.osx-arm64?logo=nuget)](https://www.nuget.org/packages/cef.runtime.osx-arm64) | macOS ARM64 |
 
-To work around this, the source repositories for these packages have been included directly in this workspace, allowing you to build the NuGet packages locally if needed.
+The source projects for these packages are also included directly in this workspace, so you can build them locally if needed. (Windows uses the official `chromiumembeddedframework.runtime.*` packages from nuget.org.)
 
 ## Repository Structure
 
