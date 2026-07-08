@@ -42,4 +42,35 @@
   <Import Project="$(ProjectDir)..\CefGlue.Packages.props" />
   <Import Project="$(ProjectDir)..\CefGlue.Common\build\CefGlue.Common.targets" />
 
+  <!--
+    Deploy the CEF sub-process (Xilium.CefGlue.BrowserProcess) into an isolated
+    'subprocess' subfolder of the test output.
+
+    BrowserProcess is built self-contained (it carries its own .NET runtime). A plain
+    ProjectReference only copies its managed assemblies into the test output root, so the
+    exe there has a self-contained runtimeconfig but no runtime next to it, and blocks on
+    an "install .NET runtime" dialog when CEF spawns it as a render/GPU sub-process. We
+    cannot drop the runtime into the output root either, because that self-contained
+    runtime clashes with the framework-dependent test host. So copy the complete
+    BrowserProcess output into a subfolder; TestBase points CEF at it.
+  -->
+  <PropertyGroup>
+    <CefSubprocessRid Condition="'$(CefSubprocessRid)' == '' AND $([MSBuild]::IsOSPlatform('Windows'))">win-x64</CefSubprocessRid>
+    <CefSubprocessRid Condition="'$(CefSubprocessRid)' == '' AND $([MSBuild]::IsOSPlatform('Linux'))">linux-x64</CefSubprocessRid>
+    <CefSubprocessRid Condition="'$(CefSubprocessRid)' == '' AND $([MSBuild]::IsOSPlatform('OSX'))">osx-arm64</CefSubprocessRid>
+    <CefSubprocessSourceDir>$(MSBuildThisFileDirectory)..\CefGlue.BrowserProcess\bin\$(Configuration)\$(TargetFramework)\$(CefSubprocessRid)\</CefSubprocessSourceDir>
+  </PropertyGroup>
+
+  <Target Name="DeployCefSubprocess" AfterTargets="Build"
+          Condition="Exists('$(CefSubprocessSourceDir)')">
+    <ItemGroup>
+      <!-- Everything from the sub-process output except its own nested publish/ folder. -->
+      <_CefSubprocessFiles Include="$(CefSubprocessSourceDir)**\*.*"
+                           Exclude="$(CefSubprocessSourceDir)publish\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_CefSubprocessFiles)"
+          DestinationFiles="@(_CefSubprocessFiles->'$(OutDir)subprocess\%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+  </Target>
+
 </Project>
