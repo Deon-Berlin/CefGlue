@@ -2,6 +2,8 @@ name: Publish CefGlue Packages
 
 on:
     workflow_dispatch:
+    release:
+        types: [published]
     push:
         branches:
             - main
@@ -27,7 +29,10 @@ jobs:
             - name: Determine version suffix
               id: version
               run: |
-                  if [[ "${{ github.ref_name }}" =~ ^release/v[0-9]+$ ]]; then
+                  # Release tags look like `release/146.7680.179` (the leading `v` is
+                  # optional, e.g. `release/v146.7680.179`). For those, publish a clean
+                  # version with no suffix; otherwise tag a prerelease with branch+commits.
+                  if [[ "${{ github.ref_name }}" =~ ^release/v?[0-9]+(\.[0-9]+)*$ ]]; then
                     echo "suffix=" >> $GITHUB_OUTPUT
                   else
                     BRANCH=$(echo "${{ github.ref_name }}" | sed 's/[^a-zA-Z0-9]/-/g' | tr '[:upper:]' '[:lower:]' | cut -c1-30)
