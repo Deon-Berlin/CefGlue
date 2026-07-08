@@ -1,6 +1,6 @@
-# CefGlue - CEF 147.0.10 Fork
+# CefGlue - CEF 148.0.9 Fork
 
-This repository contains a fork of [CefGlue](https://github.com/OutSystems/CefGlue) updated to **CEF version 147.0.10** (Chromium 147.0.7727.118), along with the necessary CEF redistribution packages for Linux and macOS.
+This repository contains a fork of [CefGlue](https://github.com/OutSystems/CefGlue) updated to **CEF version 148.0.9** (Chromium 148.0.7778.180), along with the necessary CEF redistribution packages for Linux and macOS.
 
 ## Overview
 
@@ -8,7 +8,7 @@ CefGlue is a .NET binding for The Chromium Embedded Framework (CEF). It allows y
 
 ### Why This Fork?
 
-At the time of this fork, the official NuGet packages for the following CEF redistributables were not yet available for version 147.0.10:
+At the time of this fork, the official NuGet packages for the following CEF redistributables were not yet available for version 148.0.9:
 
 - `cef.runtime.linux-x64`
 - `cef.runtime.linux-arm64`
@@ -50,9 +50,9 @@ To work around this, the source repositories for these packages have been includ
 
 | Component | Version |
 |-----------|---------|
-| CEF | 147.0.10 |
-| Chromium | 147.0.7727.118 |
-| CefGlue | 147.7727.118 |
+| CEF | 148.0.9 |
+| Chromium | 148.0.7778.180 |
+| CefGlue | 148.7778.180 |
 | Target Framework | .NET 10.0 |
 | Avalonia | 11.3.14 |
 

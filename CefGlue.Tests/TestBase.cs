@@ -37,11 +37,20 @@ namespace CefGlue.Tests
 
             // Under `dotnet test` the entry executable is the test host, which cannot be
             // used as the CEF sub-process (it is not modifiable to call CefSubProcess.Run).
-            // Point CEF at the CefGlue.BrowserProcess executable in the test output instead.
+            // Point CEF at the CefGlue.BrowserProcess executable instead. It is deployed
+            // self-contained (with its own runtime) into a 'subprocess' subfolder by the
+            // DeployCefSubprocess target; the exe copied to the output root by the plain
+            // ProjectReference has no runtime beside it and would fail to launch. Fall back
+            // to the output root if the subfolder deployment is not present.
             var subprocessName = "Xilium.CefGlue.BrowserProcess" + (OperatingSystem.IsWindows() ? ".exe" : "");
+            var subprocessPath = Path.Combine(AppContext.BaseDirectory, "subprocess", subprocessName);
+            if (!File.Exists(subprocessPath))
+            {
+                subprocessPath = Path.Combine(AppContext.BaseDirectory, subprocessName);
+            }
             var settings = new CefSettings()
             {
-                BrowserSubprocessPath = Path.Combine(AppContext.BaseDirectory, subprocessName)
+                BrowserSubprocessPath = subprocessPath
             };
 
             CefRuntimeLoader.Initialize(settings: settings, customSchemes: new[] {
