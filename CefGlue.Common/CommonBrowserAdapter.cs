@@ -95,6 +95,12 @@ namespace Xilium.CefGlue.Common
 
             if (disposing)
             {
+                // Cancel any pending javascript evaluations now. Full cleanup normally happens via
+                // OnBrowserClose -> Cleanup, but that is async and not guaranteed to run promptly
+                // (e.g. the render process is busy), which would otherwise leave awaited Evaluate
+                // tasks hanging forever after the browser is disposed.
+                _javascriptExecutionEngine?.Dispose();
+
                 InnerDispose();
                 GC.SuppressFinalize(this);
             }
