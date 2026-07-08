@@ -1,21 +1,36 @@
-# CefGlue - CEF 148.0.9 Fork
+# CefGlue - CEF 149.0.6 Fork
 
-This repository contains a fork of [CefGlue](https://github.com/OutSystems/CefGlue) updated to **CEF version 148.0.9** (Chromium 148.0.7778.180), along with the necessary CEF redistribution packages for Linux and macOS.
+This repository contains a fork of [CefGlue](https://github.com/OutSystems/CefGlue) updated to **CEF version 149.0.6** (Chromium 149.0.7827.201), along with the necessary CEF redistribution packages for Linux and macOS.
 
 ## Overview
 
 CefGlue is a .NET binding for The Chromium Embedded Framework (CEF). It allows you to embed Chromium in .NET applications and provides both **Avalonia** and **WPF** web browser control implementations.
 
+## NuGet Packages
+
+| Package | Version | Description |
+|---------|---------|-------------|
+| [CefGlue.Next.Avalonia](https://www.nuget.org/packages/CefGlue.Next.Avalonia) | [![NuGet](https://img.shields.io/nuget/v/CefGlue.Next.Avalonia?logo=nuget)](https://www.nuget.org/packages/CefGlue.Next.Avalonia) | Avalonia browser control |
+| [CefGlue.Next.WPF](https://www.nuget.org/packages/CefGlue.Next.WPF) | [![NuGet](https://img.shields.io/nuget/v/CefGlue.Next.WPF?logo=nuget)](https://www.nuget.org/packages/CefGlue.Next.WPF) | WPF browser control |
+| [CefGlue.Next.Core](https://www.nuget.org/packages/CefGlue.Next.Core) | [![NuGet](https://img.shields.io/nuget/v/CefGlue.Next.Core?logo=nuget)](https://www.nuget.org/packages/CefGlue.Next.Core) | Core .NET binding for CEF |
+| [CefGlue.Next.Common](https://www.nuget.org/packages/CefGlue.Next.Common) | [![NuGet](https://img.shields.io/nuget/v/CefGlue.Next.Common?logo=nuget)](https://www.nuget.org/packages/CefGlue.Next.Common) | Shared browser adapter |
+| [CefGlue.Next.Common.Shared](https://www.nuget.org/packages/CefGlue.Next.Common.Shared) | [![NuGet](https://img.shields.io/nuget/v/CefGlue.Next.Common.Shared?logo=nuget)](https://www.nuget.org/packages/CefGlue.Next.Common.Shared) | Shared utilities and serialization |
+| [CefGlue.Next.BrowserProcess.Core](https://www.nuget.org/packages/CefGlue.Next.BrowserProcess.Core) | [![NuGet](https://img.shields.io/nuget/v/CefGlue.Next.BrowserProcess.Core?logo=nuget)](https://www.nuget.org/packages/CefGlue.Next.BrowserProcess.Core) | Browser sub-process core |
+
+> Most applications only need **CefGlue.Next.Avalonia** or **CefGlue.Next.WPF**; the remaining packages are pulled in transitively as dependencies.
+
 ### Why This Fork?
 
-At the time of this fork, the official NuGet packages for the following CEF redistributables were not yet available for version 148.0.9:
+At the time of this fork, the official NuGet packages for the following CEF redistributables were not yet available for version 149.0.6, so this fork builds and publishes them:
 
-- `cef.runtime.linux-x64`
-- `cef.runtime.linux-arm64`
-- `cef.runtime.osx-x64`
-- `cef.runtime.osx-arm64`
+| Package | Version | Platform |
+|---------|---------|----------|
+| [cef.runtime.linux-x64](https://www.nuget.org/packages/cef.runtime.linux-x64) | [![NuGet](https://img.shields.io/nuget/v/cef.runtime.linux-x64?logo=nuget)](https://www.nuget.org/packages/cef.runtime.linux-x64) | Linux x64 |
+| [cef.runtime.linux-arm64](https://www.nuget.org/packages/cef.runtime.linux-arm64) | [![NuGet](https://img.shields.io/nuget/v/cef.runtime.linux-arm64?logo=nuget)](https://www.nuget.org/packages/cef.runtime.linux-arm64) | Linux ARM64 |
+| [cef.runtime.osx-x64](https://www.nuget.org/packages/cef.runtime.osx-x64) | [![NuGet](https://img.shields.io/nuget/v/cef.runtime.osx-x64?logo=nuget)](https://www.nuget.org/packages/cef.runtime.osx-x64) | macOS x64 |
+| [cef.runtime.osx-arm64](https://www.nuget.org/packages/cef.runtime.osx-arm64) | [![NuGet](https://img.shields.io/nuget/v/cef.runtime.osx-arm64?logo=nuget)](https://www.nuget.org/packages/cef.runtime.osx-arm64) | macOS ARM64 |
 
-To work around this, the source repositories for these packages have been included directly in this workspace, allowing you to build the NuGet packages locally if needed.
+The source projects for these packages are also included directly in this workspace, so you can build them locally if needed. (Windows uses the official `chromiumembeddedframework.runtime.*` packages from nuget.org.)
 
 ## Repository Structure
 
@@ -50,9 +65,9 @@ To work around this, the source repositories for these packages have been includ
 
 | Component | Version |
 |-----------|---------|
-| CEF | 148.0.9 |
-| Chromium | 148.0.7778.180 |
-| CefGlue | 148.7778.180 |
+| CEF | 149.0.6 |
+| Chromium | 149.0.7827.201 |
+| CefGlue | 149.7827.201 |
 | Target Framework | .NET 10.0 |
 | Avalonia | 11.3.14 |
 
