@@ -1260,6 +1260,13 @@ typedef enum {
   ///
   CEF_WOD_NEW_PICTURE_IN_PICTURE,
 
+#if CEF_API_ADDED(14800)
+  ///
+  /// Opens a link in a split view alongside the current tab.
+  ///
+  CEF_WOD_NEW_SPLIT_VIEW,
+#endif
+
   CEF_WOD_NUM_VALUES,
 } cef_window_open_disposition_t;
 
@@ -3524,6 +3531,16 @@ typedef enum {
   /// Front L, Front R, LFE, Back C
   CEF_CHANNEL_LAYOUT_3_1_BACK,
 
+#if CEF_API_ADDED(14800)
+  /// Front L, Front R, Front C, LFE, Side L, Side R,
+  /// Top Front L, Top Front R, Top Back L, Top Back R
+  CEF_CHANNEL_LAYOUT_5_1_4,
+
+  /// Front L, Front R, Front C, LFE, Back L, Back R, Side L, Side R,
+  /// Top Front L, Top Front R, Top Back L, Top Back R
+  CEF_CHANNEL_LAYOUT_7_1_4,
+#endif
+
   CEF_CHANNEL_NUM_VALUES,
 } cef_channel_layout_t;
 
@@ -3652,11 +3669,7 @@ typedef enum {
 ///
 typedef enum {
   CEF_CPAIT_BOOKMARK_STAR,
-#if CEF_API_ADDED(CEF_EXPERIMENTAL)
-  CEF_CPAIT_CLICK_TO_CALL_DEPRECATED,
-#else
   CEF_CPAIT_CLICK_TO_CALL,
-#endif
   CEF_CPAIT_COOKIE_CONTROLS,
   CEF_CPAIT_FILE_SYSTEM_ACCESS,
   CEF_CPAIT_FIND,
@@ -3708,8 +3721,8 @@ typedef enum {
   CEF_CPAIT_RECORD_REPLAY,
   CEF_CPAIT_INDIGO,
 #endif
-#if CEF_API_ADDED(CEF_EXPERIMENTAL)
-  CEF_CPAIT_FEDERATION_DEPRECATED,
+#if CEF_API_ADDED(14800)
+  CEF_CPAIT_FEDERATION,
   CEF_CPAIT_GLIC,
 #endif
   CEF_CPAIT_NUM_VALUES,

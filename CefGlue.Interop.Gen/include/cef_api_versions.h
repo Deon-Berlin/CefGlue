@@ -249,30 +249,40 @@
 #define CEF_API_HASH_14700 "ca03ee7aa4d9a766d43302c03689684de0b78966"
 #endif
 
-// Next version last updated April 24, 2026.
-#define CEF_API_VERSION_999998 999998
+// Added April 22, 2026.
+#define CEF_API_VERSION_14800 14800
 #if defined(OS_WIN)
-#define CEF_API_HASH_999998 "1cf33dbf355efffcd993ab4d2ea391e6631f95f2"
+#define CEF_API_HASH_14800 "a9fddb1f86f1fc427a6eee19a370dbedb14468cb"
 #elif defined(OS_MAC)
-#define CEF_API_HASH_999998 "4b5130ce2abe48970a3edf9b3d2e541c007f6938"
+#define CEF_API_HASH_14800 "c4a25b0e7f0beb51b9f5db9fb75904d11dd856a1"
 #elif defined(OS_LINUX)
-#define CEF_API_HASH_999998 "ca03ee7aa4d9a766d43302c03689684de0b78966"
+#define CEF_API_HASH_14800 "aa2de54c143e9ffffd183177f14c325820b5916a"
 #endif
 
-// Experimental version last updated April 24, 2026.
+// Next version last updated May 24, 2026.
+#define CEF_API_VERSION_999998 999998
+#if defined(OS_WIN)
+#define CEF_API_HASH_999998 "a9fddb1f86f1fc427a6eee19a370dbedb14468cb"
+#elif defined(OS_MAC)
+#define CEF_API_HASH_999998 "c4a25b0e7f0beb51b9f5db9fb75904d11dd856a1"
+#elif defined(OS_LINUX)
+#define CEF_API_HASH_999998 "aa2de54c143e9ffffd183177f14c325820b5916a"
+#endif
+
+// Experimental version last updated May 24, 2026.
 #define CEF_API_VERSION_999999 999999
 #if defined(OS_WIN)
-#define CEF_API_HASH_999999 "65db327c10558a625d0650a0e454cc24ea6f23b4"
+#define CEF_API_HASH_999999 "20da1acee8f84a83324f2b39604a802aa0b2ec0a"
 #elif defined(OS_MAC)
-#define CEF_API_HASH_999999 "48dac8d7565e012841b9d3c3935776c1a7bff589"
+#define CEF_API_HASH_999999 "1de376c05c3f2412726cd0eae00ccdd5a0877e84"
 #elif defined(OS_LINUX)
-#define CEF_API_HASH_999999 "e1f04162d75f4f36056af4e4a02a4da0457451dd"
+#define CEF_API_HASH_999999 "d04f31fbd7b76ea45e0acce63da1b00718e88592"
 #endif
 
 // Oldest supported CEF version.
 #define CEF_API_VERSION_MIN CEF_API_VERSION_13300
 
 // Newest supported CEF version.
-#define CEF_API_VERSION_LAST CEF_API_VERSION_14700
+#define CEF_API_VERSION_LAST CEF_API_VERSION_14800
 
 #endif  // CEF_INCLUDE_CEF_API_VERSIONS_H_

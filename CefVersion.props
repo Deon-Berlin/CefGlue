@@ -17,6 +17,6 @@
         <ChromiumVersion>$([System.Text.RegularExpressions.Regex]::Match('$(CefVersionJsonContent)', '"chromium_version"\s*:\s*"([^"]+)"').Groups[1].Value)</ChromiumVersion>
         <CefGlueVersion>$([System.Text.RegularExpressions.Regex]::Match('$(CefVersionJsonContent)', '"cefglue_version"\s*:\s*"([^"]+)"').Groups[1].Value)</CefGlueVersion>
         <!-- this version needs to be set whenever we need to have a version different from the CEF version, i.e. bugfix in build scripts -->
-        <CefRuntimePackageVersion>147.0.10</CefRuntimePackageVersion>
+        <CefRuntimePackageVersion>148.0.9</CefRuntimePackageVersion>
     </PropertyGroup>
 </Project>

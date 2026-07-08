@@ -452,9 +452,13 @@ typedef enum {
   /// automatically (i.e. without transient activation) should be enabled.
   CEF_CONTENT_SETTING_TYPE_AUTOMATIC_FULLSCREEN,
 
+#if CEF_API_ADDED(14800)
+  CEF_CONTENT_SETTING_TYPE_SUB_APP_INSTALLATION_PROMPTS_DEPRECATED,
+#else
   /// Content settings used to indicate that a web app is allowed to prompt the
   /// user for the installation of sub apps.
   CEF_CONTENT_SETTING_TYPE_SUB_APP_INSTALLATION_PROMPTS,
+#endif
 
   /// Whether an application can enumerate audio output device.
   CEF_CONTENT_SETTING_TYPE_SPEAKER_SELECTION,
