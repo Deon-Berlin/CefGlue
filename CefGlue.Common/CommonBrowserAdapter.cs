@@ -352,6 +352,10 @@ namespace Xilium.CefGlue.Common
             if (frame.IsMain)
             {
                 IsJavascriptEngineInitialized = true;
+                // The render frame is now live; (re)send native object registrations so they are
+                // delivered and injected even if the initial registration message was dropped
+                // (sent before the frame had a render process).
+                _objectRegistry.NotifyMainFrameContextCreated(frame);
             }
             JavascriptContextCreated?.Invoke(_eventsEmitter, new JavascriptContextLifetimeEventArgs(frame));
         }

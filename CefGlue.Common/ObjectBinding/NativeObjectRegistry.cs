@@ -36,7 +36,7 @@ namespace Xilium.CefGlue.Common.ObjectBinding
                 }
 
                 _registeredObjects.Add(name, nativeObj);
-                
+
                 if (_browser != null)
                 {
                     SendRegistrationMessage(nativeObj);
@@ -84,7 +84,26 @@ namespace Xilium.CefGlue.Common.ObjectBinding
             return obj;
         }
 
-        private void SendRegistrationMessage(NativeObject obj)
+        /// <summary>
+        /// Re-sends the registration of all objects to a freshly-created main frame context.
+        /// This is required because a registration message sent (via <see cref="Register"/> /
+        /// <see cref="SetBrowser"/>) to the current main frame is dropped by CEF when that frame
+        /// has no live render process yet (e.g. the initial empty frame before the first
+        /// navigation). Once the render side reports a context was created, the frame is live and
+        /// the registration can be delivered so the render side injects the objects.
+        /// </summary>
+        public void NotifyMainFrameContextCreated(CefFrame frame)
+        {
+            lock (_registrationSyncRoot)
+            {
+                foreach (var obj in _registeredObjects.Values)
+                {
+                    SendRegistrationMessage(obj, frame);
+                }
+            }
+        }
+
+        private void SendRegistrationMessage(NativeObject obj, CefFrame frame = null)
         {
             var message = new Messages.NativeObjectRegistrationRequest()
             {
@@ -93,8 +112,8 @@ namespace Xilium.CefGlue.Common.ObjectBinding
             };
 
             var cefMessage = message.ToCefProcessMessage();
-            // TODO target main frame?
-            _browser.GetMainFrame().SendProcessMessage(CefProcessId.Renderer, cefMessage);
+            frame ??= _browser.GetMainFrame();
+            frame.SendProcessMessage(CefProcessId.Renderer, cefMessage);
         }
 
         public void Dispose()
