@@ -46,9 +46,16 @@
     <None Include="cef.runtime.$(RuntimeIdentifier).props" Pack="true" PackagePath="buildTransitive" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Include="redist/package-$(RuntimeIdentifier)-$(CefVersion)/CEF/**/*" Pack="true" PackagePath="CEF/$(RuntimeIdentifier)/" />
-  </ItemGroup>
+  <!-- The staged redist CEF binaries are added to the package via
+       TargetsForTfmSpecificContentInPackage (see AddCefRedistToPackage) rather than a
+       plain None glob. A None glob is evaluated at project-load time, when the redist
+       files usually do not exist yet (they are produced by PrepareRedist), so it only
+       worked as a two-step "stage, then pack" flow and, on re-runs, produced a
+       duplicate item that made NuGet pack silently drop the space-containing macOS
+       bundle paths on Windows. Collecting the files in a pack-time target fixes both. -->
+  <PropertyGroup>
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);AddCefRedistToPackage</TargetsForTfmSpecificContentInPackage>
+  </PropertyGroup>
 
   <!-- Run before GenerateNuspec so the produced files are available when the nuspec is assembled -->
   <Target Name="PrepareRedist" BeforeTargets="GenerateNuspec;Build">
@@ -69,12 +76,25 @@
     <Exec Command="$(PowerShellExe) -File &quot;$(ScriptShell)&quot; &quot;$(RedistBuildScript)&quot; &quot;$(RuntimeIdentifier)&quot; &quot;$(CefBuildVersion)&quot;"
           Condition="'$(IsWindows)' == 'true'" />
 
-    <!-- Add redist files here, after the script has produced them, so the glob resolves correctly -->
+  </Target>
+
+  <!-- Collect the staged redist files into the package. Invoked during pack via
+       TargetsForTfmSpecificContentInPackage and depends on PrepareRedist so the glob is
+       expanded after the files have been produced, making a single `dotnet pack`
+       invocation self-contained on every platform. -->
+  <Target Name="AddCefRedistToPackage" DependsOnTargets="PrepareRedist">
     <ItemGroup>
-      <None Include="redist/package-$(RuntimeIdentifier)-$(CefVersion)/CEF/**/*" Pack="true" PackagePath="CEF/$(RuntimeIdentifier)/" />
+      <_CefRedistFile Include="redist/package-$(RuntimeIdentifier)-$(CefVersion)/CEF/**/*" />
+      <!-- PackagePath is only the destination root; NuGet appends each file's own
+           %(RecursiveDir)%(Filename)%(Extension). Do NOT add %(RecursiveDir) here or it
+           is applied twice (which doubled every path, e.g. the extensionless macOS
+           framework binary). -->
+      <TfmSpecificPackageFile Include="@(_CefRedistFile)">
+        <PackagePath>CEF/$(RuntimeIdentifier)/</PackagePath>
+      </TfmSpecificPackageFile>
     </ItemGroup>
   </Target>
-  
+
   <Target Name="BuildSecondaryRuntime" Condition="'$(SecondaryRuntime)' != ''"
           AfterTargets="Build">
     <MSBuild Projects="$(MSBuildThisFileFullPath)" Properties="RuntimeIdentifier=$(SecondaryRuntime)" />
