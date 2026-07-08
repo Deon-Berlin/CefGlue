@@ -360,8 +360,9 @@ namespace Xilium.CefGlue.Common
                 IsJavascriptEngineInitialized = true;
                 // The render frame is now live; (re)send native object registrations so they are
                 // delivered and injected even if the initial registration message was dropped
-                // (sent before the frame had a render process).
-                _objectRegistry.NotifyMainFrameContextCreated(frame);
+                // (sent before the frame had a render process). Note this rides an async
+                // render->browser IPC; the LoadEnd path below is the race-free delivery point.
+                _objectRegistry.SendRegistrations(frame);
             }
             JavascriptContextCreated?.Invoke(_eventsEmitter, new JavascriptContextLifetimeEventArgs(frame));
         }
@@ -610,6 +611,14 @@ namespace Xilium.CefGlue.Common
 
         void ICefBrowserHost.HandleLoadEnd(CefBrowser browser, CefFrame frame, int httpStatusCode)
         {
+            if (frame.IsMain)
+            {
+                // Deliver native object registrations to the loaded main frame BEFORE raising
+                // LoadEnd. Consumers script the page in response to LoadEnd; sending here first
+                // guarantees the render frame injects the objects before those scripts run.
+                // See NativeObjectRegistry.SendRegistrations for the full rationale.
+                _objectRegistry.SendRegistrations(frame);
+            }
             // seams like we need to set focus back after navigation
             if (Control.HasKeyboardFocus()) HandleGotFocus();
             LoadEnd?.Invoke(_eventsEmitter, new LoadEndEventArgs(frame, httpStatusCode));
