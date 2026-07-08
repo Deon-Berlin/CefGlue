@@ -4,7 +4,7 @@ on:
     workflow_dispatch:
         inputs:
             cefbuildversion:
-                description: "CEF version (i.e. 146.0.10+g8219561+chromium-146.0.7680.179)"
+                description: "CEF version (i.e. 147.0.10+gd58e84d+chromium-147.0.7727.118)"
                 required: false
                 default: ""
             packages:
@@ -16,6 +16,15 @@ on:
                     - all
                     - linux-only
                     - macos-only
+    # Rebuild the native CEF redist packages automatically when the pinned CEF
+    # version changes on main. cef-version.json is the single source of truth;
+    # when cefbuildversion is empty (as it is for push events) the redist scripts
+    # and CefRuntime.csproj read the version from cef-version.json.
+    push:
+        branches:
+            - main
+        paths:
+            - "cef-version.json"
 
 jobs:
     build-linux-x64:

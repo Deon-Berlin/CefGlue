@@ -52,8 +52,8 @@ extern "C" {
 /// The sandbox is used to restrict sub-processes (renderer, GPU, etc) from
 /// directly accessing system resources. This helps to protect the user from
 /// untrusted and potentially malicious Web content. See
-/// https://bitbucket.org/chromiumembedded/cef/wiki/SandboxSetup.md for usage
-/// details.
+/// https://chromiumembedded.github.io/cef/sandbox_setup
+/// for usage details.
 ///
 
 ///

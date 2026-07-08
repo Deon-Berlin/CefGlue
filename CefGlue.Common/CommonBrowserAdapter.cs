@@ -95,6 +95,12 @@ namespace Xilium.CefGlue.Common
 
             if (disposing)
             {
+                // Cancel any pending javascript evaluations now. Full cleanup normally happens via
+                // OnBrowserClose -> Cleanup, but that is async and not guaranteed to run promptly
+                // (e.g. the render process is busy), which would otherwise leave awaited Evaluate
+                // tasks hanging forever after the browser is disposed.
+                _javascriptExecutionEngine?.Dispose();
+
                 InnerDispose();
                 GC.SuppressFinalize(this);
             }
@@ -352,6 +358,10 @@ namespace Xilium.CefGlue.Common
             if (frame.IsMain)
             {
                 IsJavascriptEngineInitialized = true;
+                // The render frame is now live; (re)send native object registrations so they are
+                // delivered and injected even if the initial registration message was dropped
+                // (sent before the frame had a render process).
+                _objectRegistry.NotifyMainFrameContextCreated(frame);
             }
             JavascriptContextCreated?.Invoke(_eventsEmitter, new JavascriptContextLifetimeEventArgs(frame));
         }

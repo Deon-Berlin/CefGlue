@@ -5,8 +5,10 @@ using CefGlue.Tests.CustomSchemes;
 using CefGlue.Tests.Helpers;
 using NUnit.Framework;
 using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Xilium.CefGlue;
 using Xilium.CefGlue.Avalonia;
 using Xilium.CefGlue.Common;
 using Xilium.CefGlue.Common.Shared;
@@ -33,7 +35,16 @@ namespace CefGlue.Tests
 
             var initializationTaskCompletionSource = new TaskCompletionSource<bool>();
 
-            CefRuntimeLoader.Initialize(customSchemes: new[] { 
+            // Under `dotnet test` the entry executable is the test host, which cannot be
+            // used as the CEF sub-process (it is not modifiable to call CefSubProcess.Run).
+            // Point CEF at the CefGlue.BrowserProcess executable in the test output instead.
+            var subprocessName = "Xilium.CefGlue.BrowserProcess" + (OperatingSystem.IsWindows() ? ".exe" : "");
+            var settings = new CefSettings()
+            {
+                BrowserSubprocessPath = Path.Combine(AppContext.BaseDirectory, subprocessName)
+            };
+
+            CefRuntimeLoader.Initialize(settings: settings, customSchemes: new[] {
                 new CustomScheme()
                 {
                     SchemeName = CustomSchemeHandlerFactory.SchemeName,
