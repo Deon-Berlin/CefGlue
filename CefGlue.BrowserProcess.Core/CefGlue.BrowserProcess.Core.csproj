@@ -4,6 +4,7 @@
         <TargetFramework>$(DotnetVersion)</TargetFramework>
         <AssemblyName>Xilium.CefGlue.BrowserProcess.Core</AssemblyName>
         <RootNamespace>Xilium.CefGlue.BrowserProcess</RootNamespace>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <ItemGroup>
