@@ -4,11 +4,6 @@ on:
     workflow_dispatch:
     release:
         types: [published]
-    push:
-        branches:
-            - main
-        paths:
-            - "cef-version.json"
 
 jobs:
     build-and-publish:
