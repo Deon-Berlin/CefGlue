@@ -63,7 +63,11 @@ namespace Xilium.CefGlue.Common.Shared.Serialization
                         break;
 
                     case DataMarkers.DateTimeMarker:
-                        return JsonSerializer.Deserialize<DateTime>("\"" + stringValue.Substring(DataMarkers.MarkerLength) + "\"");
+                        // JS serializes dates via toISOString() (UTC, e.g. "...Z"). System.Text.Json
+                        // parses that to a Kind=Utc DateTime keeping the UTC wall-clock; convert to
+                        // local so the value matches DateTime.Parse of the same instant (no-op when
+                        // the machine runs in UTC).
+                        return JsonSerializer.Deserialize<DateTime>("\"" + stringValue.Substring(DataMarkers.MarkerLength) + "\"").ToLocalTime();
 
                     case DataMarkers.BinaryMarker:
                         return Convert.FromBase64String(stringValue.Substring(DataMarkers.MarkerLength));
