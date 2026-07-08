@@ -160,7 +160,7 @@ with tarfile.open(sys.argv[1], 'r:bz2') as t:
 "@ $archivePath $extractDir
         if ($LASTEXITCODE -ne 0) { throw "Extraction failed with exit code $LASTEXITCODE" }
 
-        $includeDest = Join-Path $ScriptDir 'CefGlue\CefGlue.Interop.Gen\include'
+        $includeDest = Join-Path $ScriptDir 'CefGlue.Interop.Gen\include'
         if (-not (Test-Path $includeDest)) { New-Item -ItemType Directory -Path $includeDest | Out-Null }
 
         # Copy all files from the extracted include/ directory
@@ -172,7 +172,7 @@ with tarfile.open(sys.argv[1], 'r:bz2') as t:
         }
 
         Copy-Item -Path (Join-Path $extractedInclude.FullName '*') -Destination $includeDest -Recurse -Force
-        Write-Ok "CEF headers installed to CefGlue/CefGlue.Interop.Gen/include/"
+        Write-Ok "CEF headers installed to CefGlue.Interop.Gen/include/"
     } finally {
         Remove-Item -Path $tempDir -Recurse -Force -ErrorAction SilentlyContinue
     }
@@ -184,7 +184,7 @@ with tarfile.open(sys.argv[1], 'r:bz2') as t:
 if (-not $SkipInterop) {
     Write-Step "Regenerating interop bindings"
 
-    $interopDir   = Join-Path $ScriptDir 'CefGlue\CefGlue.Interop.Gen'
+    $interopDir   = Join-Path $ScriptDir 'CefGlue.Interop.Gen'
     $interopScript = Join-Path $interopDir 'cefglue_interop_gen.py'
 
     if (Test-Path $interopScript) {
@@ -209,9 +209,9 @@ if (-not $SkipInterop) {
 # ── Step 7/10: Build the solution ─────────────────────────────────────────────
 if ($Build) {
     Write-Step "Building solution"
-    Push-Location (Join-Path $ScriptDir 'CefGlue')
+    Push-Location $ScriptDir
     try {
-        & dotnet build Xilium.CefGlue.slnx -c Release -p:Platform=x64
+        & dotnet build Xilium.CefGlue.slnx -c Release
         if ($LASTEXITCODE -ne 0) { throw "dotnet build failed with exit code $LASTEXITCODE" }
     } finally {
         Pop-Location
@@ -234,12 +234,12 @@ if ($Build)              { Write-Host "  v Solution built" }
 Write-Host ""
 Write-Host "Manual steps still required:" -ForegroundColor Yellow
 Write-Host "  1. Fix any API breaking changes in CefGlue source code"
-Write-Host "     > cd CefGlue; dotnet build Xilium.CefGlue.slnx -c Release -p:Platform=x64"
+Write-Host "     > dotnet build Xilium.CefGlue.slnx -c Release"
 Write-Host "  2. Build CEF redistribution packages:"
 Write-Host "     > .\build-local-packages.ps1"
-Write-Host "     > or: cd runtime-packages; dotnet pack runtime-packages.csproj --runtime linux-x64 /p:CefBuildVersion=$CefBuildVersion"
+Write-Host "     > or: cd CefRuntime; dotnet pack CefRuntime.csproj --runtime linux-x64 /p:CefBuildVersion=$CefBuildVersion"
 Write-Host "  3. Run tests:"
-Write-Host "     > cd CefGlue; dotnet test CefGlue.Tests\CefGlue.Tests.csproj -c Release -p:Platform=x64"
+Write-Host "     > dotnet test CefGlue.Tests\CefGlue.Tests.csproj -c Release"
 Write-Host "  4. Update README.md with new version information"
 Write-Host "  5. Commit changes:"
 Write-Host "     > git add -A; git commit -m 'Upgrade CEF to $CefVersion'"
