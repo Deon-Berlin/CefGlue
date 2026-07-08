@@ -8,14 +8,14 @@ CefGlue is a .NET binding for The Chromium Embedded Framework (CEF). It allows y
 
 ## NuGet Packages
 
-| Package | Version | Downloads | Description |
-|---------|---------|-----------|-------------|
-| [CefGlue.Next.Avalonia](https://www.nuget.org/packages/CefGlue.Next.Avalonia) | [![NuGet](https://img.shields.io/nuget/v/CefGlue.Next.Avalonia?logo=nuget)](https://www.nuget.org/packages/CefGlue.Next.Avalonia) | [![Downloads](https://img.shields.io/nuget/dt/CefGlue.Next.Avalonia)](https://www.nuget.org/packages/CefGlue.Next.Avalonia) | Avalonia browser control |
-| [CefGlue.Next.WPF](https://www.nuget.org/packages/CefGlue.Next.WPF) | [![NuGet](https://img.shields.io/nuget/v/CefGlue.Next.WPF?logo=nuget)](https://www.nuget.org/packages/CefGlue.Next.WPF) | [![Downloads](https://img.shields.io/nuget/dt/CefGlue.Next.WPF)](https://www.nuget.org/packages/CefGlue.Next.WPF) | WPF browser control |
-| [CefGlue.Next.Core](https://www.nuget.org/packages/CefGlue.Next.Core) | [![NuGet](https://img.shields.io/nuget/v/CefGlue.Next.Core?logo=nuget)](https://www.nuget.org/packages/CefGlue.Next.Core) | [![Downloads](https://img.shields.io/nuget/dt/CefGlue.Next.Core)](https://www.nuget.org/packages/CefGlue.Next.Core) | Core .NET binding for CEF |
-| [CefGlue.Next.Common](https://www.nuget.org/packages/CefGlue.Next.Common) | [![NuGet](https://img.shields.io/nuget/v/CefGlue.Next.Common?logo=nuget)](https://www.nuget.org/packages/CefGlue.Next.Common) | [![Downloads](https://img.shields.io/nuget/dt/CefGlue.Next.Common)](https://www.nuget.org/packages/CefGlue.Next.Common) | Shared browser adapter |
-| [CefGlue.Next.Common.Shared](https://www.nuget.org/packages/CefGlue.Next.Common.Shared) | [![NuGet](https://img.shields.io/nuget/v/CefGlue.Next.Common.Shared?logo=nuget)](https://www.nuget.org/packages/CefGlue.Next.Common.Shared) | [![Downloads](https://img.shields.io/nuget/dt/CefGlue.Next.Common.Shared)](https://www.nuget.org/packages/CefGlue.Next.Common.Shared) | Shared utilities and serialization |
-| [CefGlue.Next.BrowserProcess.Core](https://www.nuget.org/packages/CefGlue.Next.BrowserProcess.Core) | [![NuGet](https://img.shields.io/nuget/v/CefGlue.Next.BrowserProcess.Core?logo=nuget)](https://www.nuget.org/packages/CefGlue.Next.BrowserProcess.Core) | [![Downloads](https://img.shields.io/nuget/dt/CefGlue.Next.BrowserProcess.Core)](https://www.nuget.org/packages/CefGlue.Next.BrowserProcess.Core) | Browser sub-process core |
+| Package | Version | Description |
+|---------|---------|-------------|
+| [CefGlue.Next.Avalonia](https://www.nuget.org/packages/CefGlue.Next.Avalonia) | [![NuGet](https://img.shields.io/nuget/v/CefGlue.Next.Avalonia?logo=nuget)](https://www.nuget.org/packages/CefGlue.Next.Avalonia) | Avalonia browser control |
+| [CefGlue.Next.WPF](https://www.nuget.org/packages/CefGlue.Next.WPF) | [![NuGet](https://img.shields.io/nuget/v/CefGlue.Next.WPF?logo=nuget)](https://www.nuget.org/packages/CefGlue.Next.WPF) | WPF browser control |
+| [CefGlue.Next.Core](https://www.nuget.org/packages/CefGlue.Next.Core) | [![NuGet](https://img.shields.io/nuget/v/CefGlue.Next.Core?logo=nuget)](https://www.nuget.org/packages/CefGlue.Next.Core) | Core .NET binding for CEF |
+| [CefGlue.Next.Common](https://www.nuget.org/packages/CefGlue.Next.Common) | [![NuGet](https://img.shields.io/nuget/v/CefGlue.Next.Common?logo=nuget)](https://www.nuget.org/packages/CefGlue.Next.Common) | Shared browser adapter |
+| [CefGlue.Next.Common.Shared](https://www.nuget.org/packages/CefGlue.Next.Common.Shared) | [![NuGet](https://img.shields.io/nuget/v/CefGlue.Next.Common.Shared?logo=nuget)](https://www.nuget.org/packages/CefGlue.Next.Common.Shared) | Shared utilities and serialization |
+| [CefGlue.Next.BrowserProcess.Core](https://www.nuget.org/packages/CefGlue.Next.BrowserProcess.Core) | [![NuGet](https://img.shields.io/nuget/v/CefGlue.Next.BrowserProcess.Core?logo=nuget)](https://www.nuget.org/packages/CefGlue.Next.BrowserProcess.Core) | Browser sub-process core |
 
 > Most applications only need **CefGlue.Next.Avalonia** or **CefGlue.Next.WPF**; the remaining packages are pulled in transitively as dependencies.
 
