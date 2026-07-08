@@ -141,6 +141,11 @@ NET_ERROR(BLOCKED_BY_FINGERPRINTING_PROTECTION, -34)
 // the domain administrator.
 NET_ERROR(BLOCKED_IN_INCOGNITO_BY_ADMINISTRATOR, -35)
 
+// The request was blocked because the local network permission is missing.
+// Note that this is different from BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS
+// which is specifically for a CORS error code.
+NET_ERROR(LOCAL_NETWORK_PERMISSION_MISSING, -36)
+
 // A connection was closed (corresponding to a TCP FIN).
 NET_ERROR(CONNECTION_CLOSED, -100)
 
@@ -785,8 +790,9 @@ NET_ERROR(PROXY_HTTP_1_1_REQUIRED, -366)
 // The PAC script terminated fatally and must be reloaded.
 NET_ERROR(PAC_SCRIPT_TERMINATED, -367)
 
-// Signals that the request requires the IPP proxy.
-NET_ERROR(PROXY_REQUIRED, -368)
+// Obsolete. Support for CNAME record detection was never fully implemented and
+// is no longer needed since the IP Protection feature didn't launch.
+// NET_ERROR(PROXY_REQUIRED, -368)
 
 // Obsolete. Kept here to avoid reuse.
 // Request is throttled because of a Backoff header.

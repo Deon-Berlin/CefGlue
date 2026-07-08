@@ -939,6 +939,7 @@
   E_CPONLY(CEF_ColorInfoBarBackground) \
   E_CPONLY(CEF_ColorInfoBarButtonIcon) \
   E_CPONLY(CEF_ColorInfoBarButtonIconDisabled) \
+  E_CPONLY(CEF_ColorInfoBarButtonIconHovered) \
   E_CPONLY(CEF_ColorInfoBarContentAreaSeparator) \
   E_CPONLY(CEF_ColorInfoBarForeground) \
   /* There is also a CEF_ColorInfoBarIcon in /ui/color/color_id.h */ \
@@ -1289,6 +1290,15 @@
   E_CPONLY(CEF_ColorProfileMenuPromoButtonsBackground) \
   /* Profiles colors. */ \
   E_CPONLY(CEF_ColorProfilesReauthDialogBorder) \
+  /* Projects Panel colors. */ \
+  E_CPONLY(CEF_ColorProjectsPanelBackground) \
+  E_CPONLY(CEF_ColorProjectsPanelButtonDisabledIcon) \
+  E_CPONLY(CEF_ColorProjectsPanelButtonHoverBackground) \
+  E_CPONLY(CEF_ColorProjectsPanelButtonIcon) \
+  E_CPONLY(CEF_ColorProjectsPanelListsSeparator) \
+  E_CPONLY(CEF_ColorProjectsPanelNoTabGroupsText) \
+  E_CPONLY(CEF_ColorProjectsPanelTabGroupsDragPlaceholder) \
+  E_CPONLY(CEF_ColorProjectsPanelTabGroupsDropIndicator) \
   /* PWA colors. */ \
   E_CPONLY(CEF_ColorPwaBackground) \
   E_CPONLY(CEF_ColorPwaMenuButtonIcon) \
@@ -1314,127 +1324,113 @@
   E_CPONLY(CEF_ColorReadAnythingBackgroundLight) \
   E_CPONLY(CEF_ColorReadAnythingBackgroundYellow) \
   E_CPONLY(CEF_ColorReadAnythingBackgroundHighContrast) \
-  E_CPONLY(CEF_ColorReadAnythingBackgroundLowContrast) \
-  E_CPONLY(CEF_ColorReadAnythingBackgroundSepiaLight) \
-  E_CPONLY(CEF_ColorReadAnythingBackgroundSepiaDark) \
+  E_CPONLY(CEF_ColorReadAnythingBackgroundLowContrastLight) \
+  E_CPONLY(CEF_ColorReadAnythingBackgroundLowContrastDark) \
   E_CPONLY(CEF_ColorReadAnythingCurrentReadAloudHighlight) \
   E_CPONLY(CEF_ColorReadAnythingCurrentReadAloudHighlightBlue) \
   E_CPONLY(CEF_ColorReadAnythingCurrentReadAloudHighlightDark) \
   E_CPONLY(CEF_ColorReadAnythingCurrentReadAloudHighlightLight) \
   E_CPONLY(CEF_ColorReadAnythingCurrentReadAloudHighlightYellow) \
   E_CPONLY(CEF_ColorReadAnythingCurrentReadAloudHighlightHighContrast) \
-  E_CPONLY(CEF_ColorReadAnythingCurrentReadAloudHighlightLowContrast) \
-  E_CPONLY(CEF_ColorReadAnythingCurrentReadAloudHighlightSepiaLight) \
-  E_CPONLY(CEF_ColorReadAnythingCurrentReadAloudHighlightSepiaDark) \
+  E_CPONLY(CEF_ColorReadAnythingCurrentReadAloudHighlightLowContrastLight) \
+  E_CPONLY(CEF_ColorReadAnythingCurrentReadAloudHighlightLowContrastDark) \
   E_CPONLY(CEF_ColorReadAnythingFocusRingBackground) \
   E_CPONLY(CEF_ColorReadAnythingFocusRingBackgroundBlue) \
   E_CPONLY(CEF_ColorReadAnythingFocusRingBackgroundDark) \
   E_CPONLY(CEF_ColorReadAnythingFocusRingBackgroundLight) \
   E_CPONLY(CEF_ColorReadAnythingFocusRingBackgroundYellow) \
   E_CPONLY(CEF_ColorReadAnythingFocusRingBackgroundHighContrast) \
-  E_CPONLY(CEF_ColorReadAnythingFocusRingBackgroundLowContrast) \
-  E_CPONLY(CEF_ColorReadAnythingFocusRingBackgroundSepiaLight) \
-  E_CPONLY(CEF_ColorReadAnythingFocusRingBackgroundSepiaDark) \
+  E_CPONLY(CEF_ColorReadAnythingFocusRingBackgroundLowContrastLight) \
+  E_CPONLY(CEF_ColorReadAnythingFocusRingBackgroundLowContrastDark) \
   E_CPONLY(CEF_ColorReadAnythingForeground) \
   E_CPONLY(CEF_ColorReadAnythingForegroundBlue) \
   E_CPONLY(CEF_ColorReadAnythingForegroundDark) \
   E_CPONLY(CEF_ColorReadAnythingForegroundLight) \
   E_CPONLY(CEF_ColorReadAnythingForegroundYellow) \
   E_CPONLY(CEF_ColorReadAnythingForegroundHighContrast) \
-  E_CPONLY(CEF_ColorReadAnythingForegroundLowContrast) \
-  E_CPONLY(CEF_ColorReadAnythingForegroundSepiaLight) \
-  E_CPONLY(CEF_ColorReadAnythingForegroundSepiaDark) \
+  E_CPONLY(CEF_ColorReadAnythingForegroundLowContrastLight) \
+  E_CPONLY(CEF_ColorReadAnythingForegroundLowContrastDark) \
   E_CPONLY(CEF_ColorReadAnythingLineFocus) \
   E_CPONLY(CEF_ColorReadAnythingLineFocusBlue) \
   E_CPONLY(CEF_ColorReadAnythingLineFocusDark) \
   E_CPONLY(CEF_ColorReadAnythingLineFocusLight) \
   E_CPONLY(CEF_ColorReadAnythingLineFocusYellow) \
   E_CPONLY(CEF_ColorReadAnythingLineFocusHighContrast) \
-  E_CPONLY(CEF_ColorReadAnythingLineFocusLowContrast) \
   E_CPONLY(CEF_ColorReadAnythingLineFocusScrim) \
-  E_CPONLY(CEF_ColorReadAnythingLineFocusSepiaLight) \
-  E_CPONLY(CEF_ColorReadAnythingLineFocusSepiaDark) \
+  E_CPONLY(CEF_ColorReadAnythingLineFocusLowContrastLight) \
+  E_CPONLY(CEF_ColorReadAnythingLineFocusLowContrastDark) \
   E_CPONLY(CEF_ColorReadAnythingSeparator) \
   E_CPONLY(CEF_ColorReadAnythingSeparatorBlue) \
   E_CPONLY(CEF_ColorReadAnythingSeparatorDark) \
   E_CPONLY(CEF_ColorReadAnythingSeparatorLight) \
   E_CPONLY(CEF_ColorReadAnythingSeparatorYellow) \
   E_CPONLY(CEF_ColorReadAnythingSeparatorHighContrast) \
-  E_CPONLY(CEF_ColorReadAnythingSeparatorLowContrast) \
-  E_CPONLY(CEF_ColorReadAnythingSeparatorSepiaLight) \
-  E_CPONLY(CEF_ColorReadAnythingSeparatorSepiaDark) \
+  E_CPONLY(CEF_ColorReadAnythingSeparatorLowContrastLight) \
+  E_CPONLY(CEF_ColorReadAnythingSeparatorLowContrastDark) \
   E_CPONLY(CEF_ColorReadAnythingDropdownBackground) \
   E_CPONLY(CEF_ColorReadAnythingDropdownBackgroundBlue) \
   E_CPONLY(CEF_ColorReadAnythingDropdownBackgroundDark) \
   E_CPONLY(CEF_ColorReadAnythingDropdownBackgroundLight) \
   E_CPONLY(CEF_ColorReadAnythingDropdownBackgroundYellow) \
   E_CPONLY(CEF_ColorReadAnythingDropdownBackgroundHighContrast) \
-  E_CPONLY(CEF_ColorReadAnythingDropdownBackgroundLowContrast) \
-  E_CPONLY(CEF_ColorReadAnythingDropdownBackgroundSepiaLight) \
-  E_CPONLY(CEF_ColorReadAnythingDropdownBackgroundSepiaDark) \
+  E_CPONLY(CEF_ColorReadAnythingDropdownBackgroundLowContrastLight) \
+  E_CPONLY(CEF_ColorReadAnythingDropdownBackgroundLowContrastDark) \
   E_CPONLY(CEF_ColorReadAnythingDropdownSelected) \
   E_CPONLY(CEF_ColorReadAnythingDropdownSelectedBlue) \
   E_CPONLY(CEF_ColorReadAnythingDropdownSelectedDark) \
   E_CPONLY(CEF_ColorReadAnythingDropdownSelectedLight) \
   E_CPONLY(CEF_ColorReadAnythingDropdownSelectedYellow) \
   E_CPONLY(CEF_ColorReadAnythingDropdownSelectedHighContrast) \
-  E_CPONLY(CEF_ColorReadAnythingDropdownSelectedLowContrast) \
-  E_CPONLY(CEF_ColorReadAnythingDropdownSelectedSepiaLight) \
-  E_CPONLY(CEF_ColorReadAnythingDropdownSelectedSepiaDark) \
+  E_CPONLY(CEF_ColorReadAnythingDropdownSelectedLowContrastLight) \
+  E_CPONLY(CEF_ColorReadAnythingDropdownSelectedLowContrastDark) \
   E_CPONLY(CEF_ColorReadAnythingTextSelection) \
   E_CPONLY(CEF_ColorReadAnythingTextSelectionBlue) \
   E_CPONLY(CEF_ColorReadAnythingTextSelectionDark) \
   E_CPONLY(CEF_ColorReadAnythingTextSelectionLight) \
   E_CPONLY(CEF_ColorReadAnythingTextSelectionYellow) \
   E_CPONLY(CEF_ColorReadAnythingTextSelectionHighContrast) \
-  E_CPONLY(CEF_ColorReadAnythingTextSelectionLowContrast) \
-  E_CPONLY(CEF_ColorReadAnythingTextSelectionSepiaLight) \
-  E_CPONLY(CEF_ColorReadAnythingTextSelectionSepiaDark) \
+  E_CPONLY(CEF_ColorReadAnythingTextSelectionLowContrastLight) \
+  E_CPONLY(CEF_ColorReadAnythingTextSelectionLowContrastDark) \
   E_CPONLY(CEF_ColorReadAnythingLinkDefault) \
   E_CPONLY(CEF_ColorReadAnythingLinkDefaultBlue) \
   E_CPONLY(CEF_ColorReadAnythingLinkDefaultDark) \
   E_CPONLY(CEF_ColorReadAnythingLinkDefaultLight) \
   E_CPONLY(CEF_ColorReadAnythingLinkDefaultYellow) \
   E_CPONLY(CEF_ColorReadAnythingLinkDefaultHighContrast) \
-  E_CPONLY(CEF_ColorReadAnythingLinkDefaultLowContrast) \
-  E_CPONLY(CEF_ColorReadAnythingLinkDefaultSepiaLight) \
-  E_CPONLY(CEF_ColorReadAnythingLinkDefaultSepiaDark) \
+  E_CPONLY(CEF_ColorReadAnythingLinkDefaultLowContrastLight) \
+  E_CPONLY(CEF_ColorReadAnythingLinkDefaultLowContrastDark) \
   E_CPONLY(CEF_ColorReadAnythingLinkVisited) \
   E_CPONLY(CEF_ColorReadAnythingLinkVisitedBlue) \
   E_CPONLY(CEF_ColorReadAnythingLinkVisitedDark) \
   E_CPONLY(CEF_ColorReadAnythingLinkVisitedLight) \
   E_CPONLY(CEF_ColorReadAnythingLinkVisitedYellow) \
   E_CPONLY(CEF_ColorReadAnythingLinkVisitedHighContrast) \
-  E_CPONLY(CEF_ColorReadAnythingLinkVisitedLowContrast) \
-  E_CPONLY(CEF_ColorReadAnythingLinkVisitedSepiaLight) \
-  E_CPONLY(CEF_ColorReadAnythingLinkVisitedSepiaDark) \
+  E_CPONLY(CEF_ColorReadAnythingLinkVisitedLowContrastLight) \
+  E_CPONLY(CEF_ColorReadAnythingLinkVisitedLowContrastDark) \
   E_CPONLY(CEF_ColorReadAnythingPreviousReadAloudHighlight) \
   E_CPONLY(CEF_ColorReadAnythingPreviousReadAloudHighlightBlue) \
   E_CPONLY(CEF_ColorReadAnythingPreviousReadAloudHighlightDark) \
   E_CPONLY(CEF_ColorReadAnythingPreviousReadAloudHighlightLight) \
   E_CPONLY(CEF_ColorReadAnythingPreviousReadAloudHighlightYellow) \
   E_CPONLY(CEF_ColorReadAnythingPreviousReadAloudHighlightHighContrast) \
-  E_CPONLY(CEF_ColorReadAnythingPreviousReadAloudHighlightLowContrast) \
-  E_CPONLY(CEF_ColorReadAnythingPreviousReadAloudHighlightSepiaLight) \
-  E_CPONLY(CEF_ColorReadAnythingPreviousReadAloudHighlightSepiaDark) \
+  E_CPONLY(CEF_ColorReadAnythingPreviousReadAloudHighlightLowContrastLight) \
+  E_CPONLY(CEF_ColorReadAnythingPreviousReadAloudHighlightLowContrastDark) \
   E_CPONLY(CEF_ColorReadAnythingAudioPlayerBackground) \
   E_CPONLY(CEF_ColorReadAnythingAudioPlayerBackgroundBlue) \
   E_CPONLY(CEF_ColorReadAnythingAudioPlayerBackgroundDark) \
   E_CPONLY(CEF_ColorReadAnythingAudioPlayerBackgroundLight) \
   E_CPONLY(CEF_ColorReadAnythingAudioPlayerBackgroundYellow) \
   E_CPONLY(CEF_ColorReadAnythingAudioPlayerBackgroundHighContrast) \
-  E_CPONLY(CEF_ColorReadAnythingAudioPlayerBackgroundLowContrast) \
-  E_CPONLY(CEF_ColorReadAnythingAudioPlayerBackgroundSepiaLight) \
-  E_CPONLY(CEF_ColorReadAnythingAudioPlayerBackgroundSepiaDark) \
+  E_CPONLY(CEF_ColorReadAnythingAudioPlayerBackgroundLowContrastLight) \
+  E_CPONLY(CEF_ColorReadAnythingAudioPlayerBackgroundLowContrastDark) \
   E_CPONLY(CEF_ColorReadAnythingAudioPlayerIcon) \
   E_CPONLY(CEF_ColorReadAnythingAudioPlayerIconBlue) \
   E_CPONLY(CEF_ColorReadAnythingAudioPlayerIconDark) \
   E_CPONLY(CEF_ColorReadAnythingAudioPlayerIconLight) \
   E_CPONLY(CEF_ColorReadAnythingAudioPlayerIconYellow) \
   E_CPONLY(CEF_ColorReadAnythingAudioPlayerIconHighContrast) \
-  E_CPONLY(CEF_ColorReadAnythingAudioPlayerIconLowContrast) \
-  E_CPONLY(CEF_ColorReadAnythingAudioPlayerIconSepiaLight) \
-  E_CPONLY(CEF_ColorReadAnythingAudioPlayerIconSepiaDark) \
+  E_CPONLY(CEF_ColorReadAnythingAudioPlayerIconLowContrastLight) \
+  E_CPONLY(CEF_ColorReadAnythingAudioPlayerIconLowContrastDark) \
   E_CPONLY(CEF_ColorReadAnythingToolbarIcon) \
   E_CPONLY(CEF_ColorReadAnythingToolbarIconBlue) \
   E_CPONLY(CEF_ColorReadAnythingToolbarIconDark) \
@@ -1442,17 +1438,40 @@
   E_CPONLY(CEF_ColorReadAnythingToolbarIconYellow) \
   E_CPONLY(CEF_ColorReadAnythingToolbarIconHighContrast) \
   E_CPONLY(CEF_ColorReadAnythingToolbarIconLowContrast) \
-  E_CPONLY(CEF_ColorReadAnythingToolbarIconSepiaLight) \
-  E_CPONLY(CEF_ColorReadAnythingToolbarIconSepiaDark) \
+  E_CPONLY(CEF_ColorReadAnythingToolbarIconLowContrastLight) \
+  E_CPONLY(CEF_ColorReadAnythingToolbarIconLowContrastDark) \
+  E_CPONLY(CEF_ColorReadAnythingToolbarIconHoverBackground) \
+  E_CPONLY(CEF_ColorReadAnythingToolbarIconHoverBackgroundBlue) \
+  E_CPONLY(CEF_ColorReadAnythingToolbarIconHoverBackgroundDark) \
+  E_CPONLY(CEF_ColorReadAnythingToolbarIconHoverBackgroundLight) \
+  E_CPONLY(CEF_ColorReadAnythingToolbarIconHoverBackgroundYellow) \
+  E_CPONLY(CEF_ColorReadAnythingToolbarIconHoverBackgroundHighContrast) \
+  E_CPONLY(CEF_ColorReadAnythingToolbarIconHoverBackgroundLowContrastLight) \
+  E_CPONLY(CEF_ColorReadAnythingToolbarIconHoverBackgroundLowContrastDark) \
+  E_CPONLY(CEF_ColorReadAnythingToolbarFocusOutline) \
+  E_CPONLY(CEF_ColorReadAnythingToolbarFocusOutlineBlue) \
+  E_CPONLY(CEF_ColorReadAnythingToolbarFocusOutlineDark) \
+  E_CPONLY(CEF_ColorReadAnythingToolbarFocusOutlineLight) \
+  E_CPONLY(CEF_ColorReadAnythingToolbarFocusOutlineYellow) \
+  E_CPONLY(CEF_ColorReadAnythingToolbarFocusOutlineHighContrast) \
+  E_CPONLY(CEF_ColorReadAnythingToolbarFocusOutlineLowContrastLight) \
+  E_CPONLY(CEF_ColorReadAnythingToolbarFocusOutlineLowContrastDark) \
+  E_CPONLY(CEF_ColorReadAnythingOnAudioPlayerFocusOutline) \
+  E_CPONLY(CEF_ColorReadAnythingOnAudioPlayerFocusOutlineBlue) \
+  E_CPONLY(CEF_ColorReadAnythingOnAudioPlayerFocusOutlineDark) \
+  E_CPONLY(CEF_ColorReadAnythingOnAudioPlayerFocusOutlineLight) \
+  E_CPONLY(CEF_ColorReadAnythingOnAudioPlayerFocusOutlineYellow) \
+  E_CPONLY(CEF_ColorReadAnythingOnAudioPlayerFocusOutlineHighContrast) \
+  E_CPONLY(CEF_ColorReadAnythingOnAudioPlayerFocusOutlineLowContrastLight) \
+  E_CPONLY(CEF_ColorReadAnythingOnAudioPlayerFocusOutlineLowContrastDark) \
   E_CPONLY(CEF_ColorReadAnythingAudioControlsIcon) \
   E_CPONLY(CEF_ColorReadAnythingAudioControlsIconBlue) \
   E_CPONLY(CEF_ColorReadAnythingAudioControlsIconDark) \
   E_CPONLY(CEF_ColorReadAnythingAudioControlsIconLight) \
   E_CPONLY(CEF_ColorReadAnythingAudioControlsIconYellow) \
   E_CPONLY(CEF_ColorReadAnythingAudioControlsIconHighContrast) \
-  E_CPONLY(CEF_ColorReadAnythingAudioControlsIconLowContrast) \
-  E_CPONLY(CEF_ColorReadAnythingAudioControlsIconSepiaLight) \
-  E_CPONLY(CEF_ColorReadAnythingAudioControlsIconSepiaDark) \
+  E_CPONLY(CEF_ColorReadAnythingAudioControlsIconLowContrastLight) \
+  E_CPONLY(CEF_ColorReadAnythingAudioControlsIconLowContrastDark) \
   /* Realbox colors. */ \
   E_CPONLY(CEF_ColorSearchboxAnswerIconBackground) \
   E_CPONLY(CEF_ColorSearchboxAnswerIconForeground) \
@@ -1757,10 +1776,12 @@
   E_CPONLY(CEF_ColorToolbarButtonIconInactive) \
   E_CPONLY(CEF_ColorToolbarButtonIconPressed) \
   E_CPONLY(CEF_ColorToolbarButtonText) \
+  E_CPONLY(CEF_ColorToolbarCloseButtonBackgroundDefault) \
   E_CPONLY(CEF_ColorToolbarContentAreaSeparator) \
   E_CPONLY(CEF_ColorToolbarExtensionSeparatorDisabled) \
   E_CPONLY(CEF_ColorToolbarExtensionSeparatorEnabled) \
   E_CPONLY(CEF_ColorToolbarFeaturePromoHighlight) \
+  E_CPONLY(CEF_ColorToolbarGlicButtonBackgroundDefault) \
   E_CPONLY(CEF_ColorToolbarIconContainerBorder) \
   E_CPONLY(CEF_ColorToolbarInkDrop) \
   E_CPONLY(CEF_ColorToolbarInkDropHover) \
@@ -1776,6 +1797,7 @@
   E_CPONLY(CEF_ColorToolbarTopSeparatorFrameInactive) \
   /* Vertical tabstrip colors. */ \
   E_CPONLY(CEF_ColorVerticalTabStripShadow) \
+  E_CPONLY(CEF_ColorVerticalTabPinnedOutline) \
   /* WebAuthn colors. */ \
   E_CPONLY(CEF_ColorWebAuthnHoverButtonForeground) \
   E_CPONLY(CEF_ColorWebAuthnHoverButtonForegroundDisabled) \
@@ -1825,6 +1847,7 @@
     /* Caption colors. */ \
     E_CPONLY(CEF_ColorCaptionButtonForegroundActive) \
     E_CPONLY(CEF_ColorCaptionButtonForegroundInactive) \
+    E_CPONLY(CEF_ColorCaptionButtonOnToolbar) \
     E_CPONLY(CEF_ColorCaptionCloseButtonBackgroundHovered) \
     E_CPONLY(CEF_ColorCaptionCloseButtonForegroundHovered) \
     E_CPONLY(CEF_ColorCaptionForegroundActive) \

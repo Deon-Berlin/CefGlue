@@ -1,7 +1,7 @@
 {
-  "cef_version": "146.0.10",
-  "cef_build_version": "146.0.10+g8219561+chromium-146.0.7680.179",
-  "chromium_version": "146.0.7680.179",
-  "cefglue_version": "146.7680.179",
-  "cef_git_hash": "g8219561"
+  "cef_version": "147.0.10",
+  "cef_build_version": "147.0.10+gd58e84d+chromium-147.0.7727.118",
+  "chromium_version": "147.0.7727.118",
+  "cefglue_version": "147.7727.118",
+  "cef_git_hash": "gd58e84d"
 }
