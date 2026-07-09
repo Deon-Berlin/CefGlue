@@ -16,7 +16,16 @@
         <CefBuildVersion>$([System.Text.RegularExpressions.Regex]::Match('$(CefVersionJsonContent)', '"cef_build_version"\s*:\s*"([^"]+)"').Groups[1].Value)</CefBuildVersion>
         <ChromiumVersion>$([System.Text.RegularExpressions.Regex]::Match('$(CefVersionJsonContent)', '"chromium_version"\s*:\s*"([^"]+)"').Groups[1].Value)</ChromiumVersion>
         <CefGlueVersion>$([System.Text.RegularExpressions.Regex]::Match('$(CefVersionJsonContent)', '"cefglue_version"\s*:\s*"([^"]+)"').Groups[1].Value)</CefGlueVersion>
-        <!-- this version needs to be set whenever we need to have a version different from the CEF version, i.e. bugfix in build scripts -->
-        <CefRuntimePackageVersion>149.0.6</CefRuntimePackageVersion>
+        <!--
+          Redist (cef.runtime.*) package version. Scheme (SemVer 2.0.0, 3-part):
+            base release  = the CEF version, i.e. {ChromiumMajor}.{CefMinor}.{CefPatch}  (e.g. 149.0.6)
+            patch rebuild = {ChromiumMajor}.{CefMinor}.{CefPatch * 10 + patchNumber}      (e.g. 149.0.61)
+          i.e. multiply the last component by 10 to open a patch digit, and strip the trailing
+          0 for the base (patchNumber 0). NuGet versions are immutable, so republishing the same
+          CEF binaries with a build-script fix takes the next patch number.
+          149.0.61 = first patch of CEF 149.0.6 (deploy-cef-framework.sh: skip the removed
+          "(Plugin)" helper that CEF 148 dropped).
+        -->
+        <CefRuntimePackageVersion>149.0.61</CefRuntimePackageVersion>
     </PropertyGroup>
 </Project>

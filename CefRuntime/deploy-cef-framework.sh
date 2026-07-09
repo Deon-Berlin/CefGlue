@@ -42,6 +42,8 @@ rsync -a --delete \
 #    Variants: "" (main), (Renderer), (GPU), (Plugin), (Alerts)
 #    GPU intentionally shares the same bundle-id suffix as the main helper,
 #    matching the cefclient convention.
+#    Not every variant ships in every CEF version — e.g. CEF 148 removed the
+#    "(Plugin)" helper — so any variant whose source app is absent is skipped.
 # ---------------------------------------------------------------------------
 get_id_suffix() {
   local v="$1"
@@ -59,6 +61,11 @@ for VARIANT in "" " (Renderer)" " (GPU)" " (Plugin)" " (Alerts)"; do
   DST_APP="${DST}/${APP_NAME} Helper${VARIANT}.app"
   NEW_EXE="${APP_NAME} Helper${VARIANT}"
   SUFFIX="$(get_id_suffix "${VARIANT}")"
+
+  if [ ! -d "${SRC_APP}" ]; then
+    echo "Helper not present in this CEF version, skipping: cefclient Helper${VARIANT}.app"
+    continue
+  fi
 
   echo "Deploying helper: ${NEW_EXE}"
   rsync -a --delete "${SRC_APP}/" "${DST_APP}/"
@@ -103,6 +110,11 @@ codesign --force --timestamp --options=runtime --sign "${CODESIGN_KEY}" "${DST}/
 for VARIANT in "" " (Renderer)" " (GPU)" " (Plugin)" " (Alerts)"; do
   APP="${DST}/${APP_NAME} Helper${VARIANT}.app"
   EXE="${APP}/Contents/MacOS/${APP_NAME} Helper${VARIANT}"
+
+  if [ ! -d "${APP}" ]; then
+    continue  # variant not present in this CEF version (see step 2)
+  fi
+
   echo "Signing helper: ${APP_NAME} Helper${VARIANT}"
 
   codesign --force --timestamp --options=runtime --entitlements "${ENTITLEMENTS}" --sign "${CODESIGN_KEY}" "${EXE}"
