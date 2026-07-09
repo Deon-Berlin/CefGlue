@@ -85,14 +85,23 @@ namespace Xilium.CefGlue.Common.ObjectBinding
         }
 
         /// <summary>
-        /// Re-sends the registration of all objects to a freshly-created main frame context.
+        /// (Re)sends the registration of all objects to the given (now live) main frame.
         /// This is required because a registration message sent (via <see cref="Register"/> /
         /// <see cref="SetBrowser"/>) to the current main frame is dropped by CEF when that frame
         /// has no live render process yet (e.g. the initial empty frame before the first
-        /// navigation). Once the render side reports a context was created, the frame is live and
-        /// the registration can be delivered so the render side injects the objects.
+        /// navigation), and because a cross-process navigation creates a fresh render process that
+        /// never received the original registration.
+        ///
+        /// Called both when the render side reports a context was created and — critically — right
+        /// before <c>LoadEnd</c> is raised to consumers. Consumers (and the native-object tests)
+        /// script the freshly loaded page in response to <c>LoadEnd</c>; sending the registration
+        /// here, on the same browser-local signal and before that event, guarantees the
+        /// registration message reaches the render frame before any browser→render script the
+        /// consumer issues (both target the same frame and are delivered in send order). This
+        /// closes a race where re-sending only on the asynchronous <c>JsContextCreated</c> IPC
+        /// could arrive after the consumer's script had already run (giving "undefined" object).
         /// </summary>
-        public void NotifyMainFrameContextCreated(CefFrame frame)
+        public void SendRegistrations(CefFrame frame)
         {
             lock (_registrationSyncRoot)
             {

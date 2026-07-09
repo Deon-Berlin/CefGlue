@@ -46,13 +46,18 @@
     Deploy the CEF sub-process (Xilium.CefGlue.BrowserProcess) into an isolated
     'subprocess' subfolder of the test output.
 
-    BrowserProcess is built self-contained (it carries its own .NET runtime). A plain
-    ProjectReference only copies its managed assemblies into the test output root, so the
-    exe there has a self-contained runtimeconfig but no runtime next to it, and blocks on
-    an "install .NET runtime" dialog when CEF spawns it as a render/GPU sub-process. We
-    cannot drop the runtime into the output root either, because that self-contained
-    runtime clashes with the framework-dependent test host. So copy the complete
-    BrowserProcess output into a subfolder; TestBase points CEF at it.
+    BrowserProcess carries its own .NET runtime. A plain ProjectReference only copies its
+    managed assemblies into the test output root, so the exe there has no runtime beside it
+    and blocks on an "install .NET" dialog when CEF spawns it as a render/GPU sub-process.
+    The runtime cannot go in the output root either, because it clashes with the
+    framework-dependent test host. So deploy the sub-process into its own subfolder.
+
+    The deploy MIRRORS the source (wipes the destination first). This is essential: BrowserProcess's
+    $(rid) build output can be framework-dependent or self-contained depending on build history,
+    and a plain copy-if-newer leaves stale files behind — e.g. a coreclr.dll from a previous
+    self-contained build sitting next to a later framework-dependent runtimeconfig. That
+    inconsistent mix makes the apphost fail with the "install .NET" dialog. Mirroring guarantees
+    the deployed folder exactly matches the current (internally consistent) build output.
   -->
   <PropertyGroup>
     <CefSubprocessRid Condition="'$(CefSubprocessRid)' == '' AND $([MSBuild]::IsOSPlatform('Windows'))">win-x64</CefSubprocessRid>
@@ -63,6 +68,10 @@
 
   <Target Name="DeployCefSubprocess" AfterTargets="Build"
           Condition="Exists('$(CefSubprocessSourceDir)')">
+    <!-- $(OutDir) is only resolved during the build, so reference it directly in the target
+         (not in a pre-evaluated property). Wipe stale files so the deployed folder exactly
+         matches the current build output. -->
+    <RemoveDir Directories="$(OutDir)subprocess\" />
     <ItemGroup>
       <!-- Everything from the sub-process output except its own nested publish/ folder. -->
       <_CefSubprocessFiles Include="$(CefSubprocessSourceDir)**\*.*"
@@ -70,7 +79,7 @@
     </ItemGroup>
     <Copy SourceFiles="@(_CefSubprocessFiles)"
           DestinationFiles="@(_CefSubprocessFiles->'$(OutDir)subprocess\%(RecursiveDir)%(Filename)%(Extension)')"
-          SkipUnchangedFiles="true" />
+          SkipUnchangedFiles="false" />
   </Target>
 
 </Project>
