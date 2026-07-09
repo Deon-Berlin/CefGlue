@@ -62,7 +62,13 @@ $CefVersion      = $Matches[1]
 $CefGitHash      = $Matches[2]
 $ChromiumVersion = $Matches[3]
 
-# CefGlue version: CEF_MAJOR.CHROME_BUILD.CHROME_PATCH
+# CefGlue (managed CefGlue.Next.*) version — SemVer 2.0.0, 3-part:
+#   base release  = CEF_MAJOR.CHROME_BUILD.CHROME_PATCH               (e.g. 149.7827.201)
+#   patch rebuild = CEF_MAJOR.CHROME_BUILD.(CHROME_PATCH * 10 + N)    (e.g. 149.7827.2011)
+# A fresh CEF upgrade is always a base release (patch 0, trailing 0 stripped). To republish
+# the SAME CEF binaries with a fix (NuGet versions are immutable), bump cefglue_version in
+# cef-version.json to the *10+N patch form by hand, and bump CefRuntimePackageVersion in
+# CefVersion.props to the matching redist patch (e.g. 149.0.61). See UPGRADE.md.
 $cefMajor        = $CefVersion.Split('.')[0]
 $chromeParts     = $ChromiumVersion.Split('.')
 $CefGlueVersion  = "$cefMajor.$($chromeParts[2]).$($chromeParts[3])"

@@ -259,7 +259,29 @@ The version numbers follow this pattern:
 | CEF Version | `MAJOR.MINOR.PATCH` | `144.0.13` |
 | CEF Build Version | `CEF_VERSION+gHASH+chromium-CHROME_VERSION` | `144.0.13+g9f739aa+chromium-144.0.7559.133` |
 | Chromium Version | `MAJOR.MINOR.BUILD.PATCH` | `144.0.7559.133` |
-| CefGlue Version | `CEF_MAJOR.CHROME_BUILD.CHROME_PATCH` | `144.7559.133` |
+| CefGlue Version (`cefglue_version`, managed `CefGlue.Next.*`) | `CEF_MAJOR.CHROME_BUILD.CHROME_PATCH` | `144.7559.133` |
+| Redist version (`CefRuntimePackageVersion`, `cef.runtime.*`) | `CEF_MAJOR.CEF_MINOR.CEF_PATCH` (= the CEF version) | `144.0.13` |
+
+### Patch releases (republishing the same CEF binaries)
+
+NuGet package versions are **immutable** — a published version can't be overwritten. To ship a
+build-script/packaging fix for the same CEF binaries, publish a **patch** version. Both families
+use a SemVer 2.0.0 3-part scheme: **multiply the last component by 10 to open a patch digit, and
+strip the trailing `0` for the base (patch 0)**:
+
+| Family | Base (patch 0) | Patch 1 | Patch 2 |
+|--------|----------------|---------|---------|
+| Managed `CefGlue.Next.*` (`cefglue_version`) | `149.7827.201` | `149.7827.2011` | `149.7827.2012` |
+| Redist `cef.runtime.*` (`CefRuntimePackageVersion`) | `149.0.6` | `149.0.61` | `149.0.62` |
+
+To cut a patch: bump `cefglue_version` in `cef-version.json` and `CefRuntimePackageVersion` in
+`CefVersion.props` to the matching `*10 + N` forms, rebuild/republish, and deprecate/unlist the
+superseded versions on nuget.org. (A fresh CEF upgrade is always a base release / patch 0.)
+
+> Monotonicity note: this relies on the first component — the chromium major — incrementing on
+> every CEF release (this fork ships one CEF version per chromium major). Do **not** adopt a
+> second CEF patch within the same chromium major *after* publishing a patch (e.g. patch
+> `149.0.6` → `149.0.61`, then adopt CEF `149.0.7` → `149.0.7`), or version ordering would break.
 
 ## Files Modified During an Upgrade
 
