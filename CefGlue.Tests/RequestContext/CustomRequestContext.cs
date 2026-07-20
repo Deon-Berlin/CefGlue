@@ -42,7 +42,7 @@ namespace CefGlue.Tests.RequestContext
         [Test]
         public async Task CefRequestContextApplied()
         {
-            const string cachePath = @"C:/path/to/cache";
+            var cachePath = Path.Combine(RootCachePath, "CefRequestContextApplied");
             var browserFactory = () => new AvaloniaCefBrowser(() => CefRequestContext.CreateContext(new CefRequestContextSettings()
             {
                 CachePath = cachePath,

@@ -25,6 +25,13 @@ namespace CefGlue.Tests
 
         protected AvaloniaCefBrowser Browser => browser;
 
+        // CEF requires every CachePath (global or per-request-context) to be equal to, or a
+        // child of, CefSettings.RootCachePath. With the Chrome runtime an invalid/foreign
+        // cache path aborts profile creation and crashes the browser process, so tests that
+        // exercise a custom request-context cache path must place it under this root.
+        protected static readonly string RootCachePath =
+            Path.Combine(Path.GetTempPath(), "CefGlue.Tests.Cache");
+
         [OneTimeSetUp]
         protected async Task SetUp()
         {
@@ -48,9 +55,11 @@ namespace CefGlue.Tests
             {
                 subprocessPath = Path.Combine(AppContext.BaseDirectory, subprocessName);
             }
+            Directory.CreateDirectory(RootCachePath);
             var settings = new CefSettings()
             {
-                BrowserSubprocessPath = subprocessPath
+                BrowserSubprocessPath = subprocessPath,
+                RootCachePath = RootCachePath
             };
 
             CefRuntimeLoader.Initialize(settings: settings, customSchemes: new[] {

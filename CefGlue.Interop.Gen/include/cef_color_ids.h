@@ -283,6 +283,8 @@
   E_CPONLY(CEF_ColorSysAiIllustrationShapeSurfaceGradientEnd) \
   /* Experimentation. */ \
   E_CPONLY(CEF_ColorSysOmniboxContainer) \
+  E_CPONLY(CEF_ColorSysSurfaceSection) \
+  E_CPONLY(CEF_ColorSysBaseContainerOnSurface) \
   /* Deprecated */ \
   E_CPONLY(CEF_ColorSysStateHover) \
   E_CPONLY(CEF_ColorSysStateFocus) \
@@ -626,6 +628,7 @@
   E_CPONLY(CEF_ColorWebNativeControlScrollbarArrowBackgroundPressed) \
   E_CPONLY(CEF_ColorWebNativeControlScrollbarArrowForeground) \
   E_CPONLY(CEF_ColorWebNativeControlScrollbarArrowForegroundDisabled) \
+  E_CPONLY(CEF_ColorWebNativeControlScrollbarArrowForegroundHovered) \
   E_CPONLY(CEF_ColorWebNativeControlScrollbarArrowForegroundPressed) \
   E_CPONLY(CEF_ColorWebNativeControlScrollbarCorner) \
   E_CPONLY(CEF_ColorWebNativeControlScrollbarThumb) \
@@ -811,6 +814,11 @@
   E_CPONLY(CEF_ColorAvatarButtonNormalRipple) \
   E_CPONLY(CEF_ColorAvatarStroke) \
   E_CPONLY(CEF_ColorAvatarFillForContrast) \
+  /* Bookmark Manager page colors. */ \
+  E_CPONLY(CEF_ColorBookmarkManagerItemBackgroundSelected) \
+  E_CPONLY(CEF_ColorBookmarkManagerItemOutline) \
+  E_CPONLY(CEF_ColorBookmarkManagerItemText) \
+  E_CPONLY(CEF_ColorBookmarkManagerItemTitle) \
   /* Bookmark bar colors. */ \
   E_CPONLY(CEF_ColorBookmarkBarBackground) \
   E_CPONLY(CEF_ColorBookmarkBarForeground) \
@@ -868,6 +876,11 @@
   E_CPONLY(CEF_ColorComposeDialogTextareaReadonlyForeground) \
   E_CPONLY(CEF_ColorComposeDialogTextareaIcon) \
   E_CPONLY(CEF_ColorComposeDialogSelectOptionDisabled) \
+  /* Contextual tasks colors. */ \
+  E_CPONLY(CEF_ColorContextualTasksBannerPromoBackground) \
+  E_CPONLY(CEF_ColorContextualTasksBannerPromoText) \
+  E_CPONLY(CEF_ColorContextualTasksBannerPromoIconBackground) \
+  E_CPONLY(CEF_ColorContextualTasksBannerPromoIconForeground) \
   /* Desktop media picker view. */ \
   E_CPONLY(CEF_ColorDesktopMediaPickerDescriptionLabel) \
   /* Desktop media tab list colors. */ \
@@ -875,7 +888,7 @@
   E_CPONLY(CEF_ColorDesktopMediaTabListPreviewBackground) \
   /* Desktop to iOS promo bubble. */ \
   E_CPONLY(CEF_ColorDesktopToIOSPromoFooterSubtitleLabel) \
-  /* Download bubble and toolbar button colors. */\
+  /* Download bubble and toolbar button colors. */ \
   E_CPONLY(CEF_ColorDownloadItemIconDangerous) \
   E_CPONLY(CEF_ColorDownloadItemTextDangerous) \
   E_CPONLY(CEF_ColorDownloadItemIconWarning) \
@@ -890,6 +903,11 @@
   E_CPONLY(CEF_ColorDownloadToolbarButtonAnimationForeground) \
   E_CPONLY(CEF_ColorDownloadToolbarButtonInactive) \
   E_CPONLY(CEF_ColorDownloadToolbarButtonRingBackground) \
+  /* Download History WebUI colors. */ \
+  E_CPONLY(CEF_ColorDownloadManagerItemError) \
+  E_CPONLY(CEF_ColorDownloadManagerItemBackground) \
+  E_CPONLY(CEF_ColorDownloadManagerItemBackgroundInactive) \
+  E_CPONLY(CEF_ColorDownloadManagerProgress) \
   /* Extension colors. */ \
   E_CPONLY(CEF_ColorExtensionDialogBackground) \
   E_CPONLY(CEF_ColorExtensionIconBadgeBackgroundDefault) \
@@ -903,6 +921,8 @@
   E_CPONLY(CEF_ColorExtensionsMenuContainerBackground) \
   E_CPONLY(CEF_ColorExtensionsMenuText) \
   E_CPONLY(CEF_ColorExtensionsMenuSecondaryText) \
+  /* Extension manager WebUI colors. */ \
+  E_CPONLY(CEF_ColorExtensionManagerHighlightText) \
   /* Feature first run dialog colors. */ \
   E_CPONLY(CEF_ColorFeatureFirstRunInfoContainerBackground) \
   E_CPONLY(CEF_ColorFeatureFirstRunIconColor) \
@@ -930,6 +950,10 @@
   /* Frame caption colors. */ \
   E_CPONLY(CEF_ColorFrameCaptionActive) \
   E_CPONLY(CEF_ColorFrameCaptionInactive) \
+  /* History colors. */ \
+  E_CPONLY(CEF_ColorHistoryPageBookmarkStar) \
+  E_CPONLY(CEF_ColorHistoryPageSeparator) \
+  E_CPONLY(CEF_ColorHistoryPageText) \
   /* History embedding colors. */ \
   E_CPONLY(CEF_ColorHistoryEmbeddingsBackground) \
   E_CPONLY(CEF_ColorHistoryEmbeddingsDivider) \
@@ -983,6 +1007,11 @@
   E_CPONLY(CEF_ColorMultiContentsViewInactiveContentOutline) \
   E_CPONLY(CEF_ColorMultiContentsViewHighlightContentOutline) \
   E_CPONLY(CEF_ColorMultiContentsViewMiniToolbarForeground) \
+  /* cr-nav-menu-item colors. */ \
+  E_CPONLY(CEF_ColorNavMenuItem) \
+  E_CPONLY(CEF_ColorNavMenuItemSelected) \
+  E_CPONLY(CEF_ColorNavMenuItemBackgroundHover) \
+  E_CPONLY(CEF_ColorNavMenuItemBackgroundSelected) \
   /* New tab button colors. */ \
   E_CPONLY(CEF_ColorNewTabButtonForegroundFrameActive) \
   E_CPONLY(CEF_ColorNewTabButtonForegroundFrameInactive) \
@@ -1545,6 +1574,10 @@
   /* Screenshot captured bubble colors. */ \
   E_CPONLY(CEF_ColorScreenshotCapturedImageBackground) \
   E_CPONLY(CEF_ColorScreenshotCapturedImageBorder) \
+  /* Settings columned section colors. */ \
+  E_CPONLY(CEF_ColorSettingsColumnedSectionDescriptionHeader) \
+  /* Settings info card colors. */ \
+  E_CPONLY(CEF_ColorSettingsInfoCardBackground) \
   /* Share-this-tab dialog colors. */ \
   E_CPONLY(CEF_ColorShareThisTabAudioToggleBackground) \
   E_CPONLY(CEF_ColorShareThisTabSourceViewBorder) \
@@ -1552,6 +1585,7 @@
   E_CPONLY(CEF_ColorSharingRecentActivityDialogFaviconContainer) \
   E_CPONLY(CEF_ColorSharingRecentActivityDialogActivityContainer) \
   /* Side panel colors. */ \
+  E_CPONLY(CEF_ColorSidePanelSearchFieldBackground) \
   E_CPONLY(CEF_ColorSidePanelBackground) \
   E_CPONLY(CEF_ColorSidePanelBadgeBackground) \
   E_CPONLY(CEF_ColorSidePanelBadgeBackgroundUpdated) \
@@ -1616,6 +1650,13 @@
   E_CPONLY(CEF_ColorSidePanelWallpaperSearchErrorButtonBackground) \
   E_CPONLY(CEF_ColorSidePanelWallpaperSearchErrorButtonText) \
   E_CPONLY(CEF_ColorSidePanelWallpaperSearchInspirationDescriptors) \
+  /* Slider colors. */ \
+  E_CPONLY(CEF_ColorSliderActive) \
+  E_CPONLY(CEF_ColorSliderActiveContainer) \
+  E_CPONLY(CEF_ColorSliderActiveRipple) \
+  E_CPONLY(CEF_ColorSliderActiveText) \
+  E_CPONLY(CEF_ColorSliderDisabled) \
+  E_CPONLY(CEF_ColorSliderDisabledContainer) \
   /* Split view colors. */ \
   E_CPONLY(CEF_ColorSplitViewBackground) \
   /* Star rating view colors. */ \
@@ -1723,11 +1764,11 @@
   E_CPONLY(CEF_ColorTabGroupTabStripFrameInactiveOrange) \
   E_CPONLY(CEF_ColorTabStrokeFrameActive) \
   E_CPONLY(CEF_ColorTabStrokeFrameInactive) \
-  E_CPONLY(CEF_ColorTabstripLoadingProgressBackground) \
-  E_CPONLY(CEF_ColorTabstripLoadingProgressForeground) \
   E_CPONLY(CEF_ColorTabstripScrollContainerShadow) \
   E_CPONLY(CEF_ColorTabThrobber) \
   E_CPONLY(CEF_ColorTabThrobberPreconnect) \
+  /* cr-tab colors. */ \
+  E_CPONLY(CEF_ColorTabNavItemSelected) \
   /* Tab Search colors */ \
   E_CPONLY(CEF_ColorTabSearchButtonBackground) \
   E_CPONLY(CEF_ColorTabSearchButtonIcon) \
@@ -1830,24 +1871,14 @@
   E_CPONLY(CEF_ColorWebAuthnPinTextfieldBottomBorder) \
   E_CPONLY(CEF_ColorWebAuthnProgressRingBackground) \
   E_CPONLY(CEF_ColorWebAuthnProgressRingForeground) \
+  /* General WebUI page colors. */ \
+  E_CPONLY(CEF_ColorWebuiCardBackground) \
+  E_CPONLY(CEF_ColorWebuiDialogBackground) \
+  E_CPONLY(CEF_ColorWebuiDialogContainerBackground) \
+  E_CPONLY(CEF_ColorWebuiPageBackground) \
   /* Web contents colors. */ \
   E_CPONLY(CEF_ColorWebContentsBackground) \
   E_CPONLY(CEF_ColorWebContentsBackgroundLetterboxing) \
-  /* WebUI Tab Strip colors. */ \
-  E_CPONLY(CEF_ColorWebUiTabStripBackground) \
-  E_CPONLY(CEF_ColorWebUiTabStripFocusOutline) \
-  E_CPONLY(CEF_ColorWebUiTabStripIndicatorCapturing) \
-  E_CPONLY(CEF_ColorWebUiTabStripIndicatorPip) \
-  E_CPONLY(CEF_ColorWebUiTabStripIndicatorRecording) \
-  E_CPONLY(CEF_ColorWebUiTabStripScrollbarThumb) \
-  E_CPONLY(CEF_ColorWebUiTabStripTabActiveTitleBackground) \
-  E_CPONLY(CEF_ColorWebUiTabStripTabActiveTitleContent) \
-  E_CPONLY(CEF_ColorWebUiTabStripTabBackground) \
-  E_CPONLY(CEF_ColorWebUiTabStripTabBlocked) \
-  E_CPONLY(CEF_ColorWebUiTabStripTabLoadingSpinning) \
-  E_CPONLY(CEF_ColorWebUiTabStripTabSeparator) \
-  E_CPONLY(CEF_ColorWebUiTabStripTabText) \
-  E_CPONLY(CEF_ColorWebUiTabStripTabWaitingSpinning) \
   /* Window control button background colors. */ \
   E_CPONLY(CEF_ColorWindowControlButtonBackgroundActive) \
   E_CPONLY(CEF_ColorWindowControlButtonBackgroundInactive) \

@@ -44,6 +44,12 @@ namespace CefGlue.Tests.Network
 
             protected override CefResourceHandler GetResourceHandler(CefBrowser browser, CefFrame frame, CefRequest request)
             {
+                // Only intercept the resource the test fetches; let the host page (a data: URL
+                // navigated by LoadContent) load normally so its JS context becomes available.
+                if (request.Url.StartsWith("data:"))
+                {
+                    return null;
+                }
                 return _resourceHandler(request);
             }
         }
@@ -94,7 +100,7 @@ namespace CefGlue.Tests.Network
             public string RedirectUrl { get; set; }
         }
 
-        private Task<Response> GetResponse()
+        private async Task<Response> GetResponse()
         {
             var taskCompletion = new TaskCompletionSource<Response>();
 
@@ -134,14 +140,21 @@ namespace CefGlue.Tests.Network
                 "   } catch {}" +
                 "   console.log(result.concat([ '' ]).join('|'));" +
                 "})";
-            Browser.LoadContent("<html/>");
+
+            // Wait for the page context to be ready before evaluating: an EvaluateJavaScript
+            // queued before LoadEnd is never delivered to the render frame, so the fetch would
+            // never run and the console message would never arrive (the test would time out).
+            await Browser.LoadContent("<html/>");
             EvaluateJavascript<int>(script);
 
-            return taskCompletion.Task.ContinueWith(t =>
+            try
+            {
+                return await taskCompletion.Task;
+            }
+            finally
             {
                 Browser.ConsoleMessage -= OnConsoleMessage;
-                return t.Result;
-            });
+            }
         }
 
         [Test]

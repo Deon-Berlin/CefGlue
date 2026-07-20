@@ -269,30 +269,40 @@
 #define CEF_API_HASH_14900 "778f64e58ff024840e29fb49bb7b9c3819f12191"
 #endif
 
-// Next version last updated June 26, 2026.
-#define CEF_API_VERSION_999998 999998
+// Added June 04, 2026.
+#define CEF_API_VERSION_15000 15000
 #if defined(OS_WIN)
-#define CEF_API_HASH_999998 "de5114c34e4c0c3d725313c38f4ed5b18cbfdeb4"
+#define CEF_API_HASH_15000 "71146b4350a01d3805e7ea990eb034e6ef4d53db"
 #elif defined(OS_MAC)
-#define CEF_API_HASH_999998 "22fd845554eb5e3f5516965213efca951a3f8256"
+#define CEF_API_HASH_15000 "e85c868aa8a947e1e7c9904c0745c60ae490fa05"
 #elif defined(OS_LINUX)
-#define CEF_API_HASH_999998 "778f64e58ff024840e29fb49bb7b9c3819f12191"
+#define CEF_API_HASH_15000 "210767725a6feb2e4becd3956b648cab6a006712"
 #endif
 
-// Experimental version last updated June 26, 2026.
+// Next version last updated July 10, 2026.
+#define CEF_API_VERSION_999998 999998
+#if defined(OS_WIN)
+#define CEF_API_HASH_999998 "71146b4350a01d3805e7ea990eb034e6ef4d53db"
+#elif defined(OS_MAC)
+#define CEF_API_HASH_999998 "e85c868aa8a947e1e7c9904c0745c60ae490fa05"
+#elif defined(OS_LINUX)
+#define CEF_API_HASH_999998 "210767725a6feb2e4becd3956b648cab6a006712"
+#endif
+
+// Experimental version last updated July 10, 2026.
 #define CEF_API_VERSION_999999 999999
 #if defined(OS_WIN)
-#define CEF_API_HASH_999999 "fa8a184fbb8addce7ea2eff74ffcb0f37ff22418"
+#define CEF_API_HASH_999999 "c63591fb321ac707f8710f296a8ae1ec05a575db"
 #elif defined(OS_MAC)
-#define CEF_API_HASH_999999 "7c43ce183fe3e2d6dbec845bdb28b1cd04de4b49"
+#define CEF_API_HASH_999999 "0934859000c911cdd75907f63f2ef8e485706e5b"
 #elif defined(OS_LINUX)
-#define CEF_API_HASH_999999 "bb387d66714b12d14cf27f2a6b50cb785166b83e"
+#define CEF_API_HASH_999999 "a5d187477e0cbe23eb1043c2f1868582b7018260"
 #endif
 
 // Oldest supported CEF version.
 #define CEF_API_VERSION_MIN CEF_API_VERSION_13300
 
 // Newest supported CEF version.
-#define CEF_API_VERSION_LAST CEF_API_VERSION_14900
+#define CEF_API_VERSION_LAST CEF_API_VERSION_15000
 
 #endif  // CEF_INCLUDE_CEF_API_VERSIONS_H_

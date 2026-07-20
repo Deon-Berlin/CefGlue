@@ -64,10 +64,13 @@ namespace Xilium.CefGlue.Common.Shared.Serialization
 
                     case DataMarkers.DateTimeMarker:
                         // JS serializes dates via toISOString() (UTC, e.g. "...Z"). System.Text.Json
-                        // parses that to a Kind=Utc DateTime keeping the UTC wall-clock; convert to
-                        // local so the value matches DateTime.Parse of the same instant (no-op when
-                        // the machine runs in UTC).
-                        return JsonSerializer.Deserialize<DateTime>("\"" + stringValue.Substring(DataMarkers.MarkerLength) + "\"").ToLocalTime();
+                        // parses that to a Kind=Utc DateTime keeping the UTC wall-clock; convert those
+                        // to local so the value matches the same instant in local time. A .NET
+                        // DateTime with Kind=Unspecified/Local is serialized without a 'Z', so it must
+                        // be returned as-is: applying ToLocalTime() would assume UTC and shift it by the
+                        // local offset, breaking round-tripping outside a UTC time zone.
+                        var dateTime = JsonSerializer.Deserialize<DateTime>("\"" + stringValue.Substring(DataMarkers.MarkerLength) + "\"");
+                        return dateTime.Kind == DateTimeKind.Utc ? dateTime.ToLocalTime() : dateTime;
 
                     case DataMarkers.BinaryMarker:
                         return Convert.FromBase64String(stringValue.Substring(DataMarkers.MarkerLength));
