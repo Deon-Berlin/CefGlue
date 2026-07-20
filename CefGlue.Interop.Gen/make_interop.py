@@ -428,8 +428,13 @@ def make_proxy_g_body(cls):
       result.append(privateOrProtected + ' int _disposed = 0;')
       result.append('')
 
-    isRefCounted = cls.get_parent_capi_name() == "cef_base_ref_counted_t"
-    isScoped = cls.get_parent_capi_name() == "cef_base_scoped_t"
+    # NOTE: do NOT recompute isRefCounted from the *direct* parent here. It is
+    # already set (above) from the *top* base class. A proxy whose direct parent
+    # is another proxy (e.g. CefRequestContext : CefPreferenceManager) is still
+    # ref-counted, and its ToNative() must AddRef() like every other proxy so the
+    # ref it hands to a native "in" parameter (consumed by CToCpp::Wrap) is
+    # balanced. Recomputing from the direct parent made ToNative() skip AddRef(),
+    # under-referencing the object and freeing it while the managed proxy lived on.
 
     # ctor
     result.append(privateOrProtected + ' %(csname)s(%(iname)s* ptr)' % { 'csname' : csname, 'iname' : iname })
