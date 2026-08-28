@@ -4,6 +4,9 @@
     <TargetFramework>$(DotnetVersion)</TargetFramework>
     <AssemblyName>Xilium.CefGlue.Common.Shared</AssemblyName>
     <RootNamespace>Xilium.CefGlue.Common.Shared</RootNamespace>
+    <!-- SharedRegion hands out a raw pointer into a cross-process mapping; both the browser and
+         render sides address it as bytes, with no managed wrapper on the per-frame path. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
