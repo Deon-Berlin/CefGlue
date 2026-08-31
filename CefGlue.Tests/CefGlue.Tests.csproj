@@ -3,6 +3,8 @@
   <PropertyGroup>
     <TargetFramework>$(DotnetVersion)</TargetFramework>
     <IsPackable>false</IsPackable>
+    <!-- SharedRegionTests reads and writes through the region's raw pointer. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug_WindowlessRender'">
