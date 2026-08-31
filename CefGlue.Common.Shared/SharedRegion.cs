@@ -75,14 +75,23 @@ namespace Xilium.CefGlue.Common.Shared
         }
 
         /// <summary>
-        /// Open a region someone else created, read-only, or null when it does not exist. A caller
-        /// racing a resize (the region is recreated under a new name) gets null rather than an
-        /// exception — at frame rate that difference is the whole error budget.
+        /// Open a region someone else created, read-only, or null when it does not exist or holds
+        /// fewer than <paramref name="size"/> bytes. A caller racing a resize (the region is
+        /// recreated under a new name) gets null rather than an exception — at frame rate that
+        /// difference is the whole error budget.
+        ///
+        /// <para><b>Why the caller states the size.</b> The opener cannot always ask the OS how big
+        /// the object is: macOS rejects <c>lseek</c> on a shared-memory descriptor (<c>ESPIPE</c>),
+        /// and <c>fstat</c>'s struct layout is platform- and version-specific. The reader of an OSR
+        /// frame already knows what it needs — the notify carries the stride and height — so it
+        /// says so, and the requirement is enforced rather than discovered.</para>
         /// </summary>
-        public static SharedRegion OpenExisting(string name)
+        /// <param name="name">The name the creator passed to <see cref="Create"/>.</param>
+        /// <param name="size">Bytes the caller needs to be able to read through <see cref="Pointer"/>.</param>
+        public static SharedRegion OpenExisting(string name, long size)
         {
-            if (string.IsNullOrEmpty(name)) return null;
-            return OperatingSystem.IsWindows() ? OpenWindows(name) : OpenPosix(name);
+            if (string.IsNullOrEmpty(name) || size <= 0) return null;
+            return OperatingSystem.IsWindows() ? OpenWindows(name, size) : OpenPosix(name, size);
         }
 
         public void Dispose()
@@ -113,12 +122,19 @@ namespace Xilium.CefGlue.Common.Shared
         }
 
         [SupportedOSPlatform("windows")]
-        private static SharedRegion OpenWindows(string name)
+        private static SharedRegion OpenWindows(string name, long size)
         {
             MemoryMappedFile mmf;
             try { mmf = MemoryMappedFile.OpenExisting(name); }
             catch { return null; }
-            return MapWindows(name, mmf, 0);
+
+            // A Windows view knows its own length, so the caller's requirement is checked against
+            // the real object rather than taken on trust.
+            var region = MapWindows(name, mmf, 0);
+            if (region.Length >= size) return region;
+
+            region.Dispose();
+            return null;
         }
 
         [SupportedOSPlatform("windows")]
@@ -172,7 +188,7 @@ namespace Xilium.CefGlue.Common.Shared
             }
         }
 
-        private static SharedRegion OpenPosix(string name)
+        private static SharedRegion OpenPosix(string name, long size)
         {
             string posixName;
             try { posixName = PosixName(name); }
@@ -183,12 +199,22 @@ namespace Xilium.CefGlue.Common.Shared
 
             try
             {
-                if (Posix.fstat_size(fd, out long size) != 0 || size <= 0) return null;
+                // Where the platform will say how big the object is, that is authoritative and the
+                // caller's requirement is checked against it. Where it will not — macOS — the
+                // caller's size is what gets mapped, and mmap is itself the check: Darwin refuses a
+                // mapping longer than the object with EINVAL, so an undersized region still fails
+                // to open rather than handing back pages that fault on touch.
+                long length = size;
+                if (Posix.TryGetSize(fd, out long actual))
+                {
+                    if (actual < size) return null;
+                    length = actual;
+                }
 
-                var addr = Posix.mmap(IntPtr.Zero, (nuint)size, Posix.PROT_READ, Posix.MAP_SHARED, fd, 0);
+                var addr = Posix.mmap(IntPtr.Zero, (nuint)length, Posix.PROT_READ, Posix.MAP_SHARED, fd, 0);
                 if (addr == Posix.MAP_FAILED) return null;
 
-                return new SharedRegion(name, (byte*)addr, size, null, null, addr, (nuint)size, posixOwner: false);
+                return new SharedRegion(name, (byte*)addr, length, null, null, addr, (nuint)length, posixOwner: false);
             }
             finally
             {
@@ -234,15 +260,22 @@ namespace Xilium.CefGlue.Common.Shared
             public static extern int close(int fd);
 
             /// <summary>
-            /// The size of an open shm object. <c>fstat</c>'s struct layout is platform- and
-            /// version-specific, so this seeks to the end instead — a portable question with a
-            /// portable answer.
+            /// The size of an open shm object, where the platform will give it up. Linux backs
+            /// POSIX shared memory with a seekable tmpfs file, so seeking to the end answers it.
+            /// <b>macOS does not:</b> <c>lseek</c> on a shared-memory descriptor fails with
+            /// <c>ESPIPE</c> ("Illegal seek"), which is why this returns false rather than a size
+            /// there. <c>fstat</c> would answer on both, but its struct layout is platform- and
+            /// version-specific, and getting it wrong is silent.
             /// </summary>
-            public static int fstat_size(int fd, out long size)
+            public static bool TryGetSize(int fd, out long size)
             {
                 size = lseek(fd, 0, SEEK_END);
-                if (size < 0) return -1;
-                return lseek(fd, 0, SEEK_SET) < 0 ? -1 : 0;
+                if (size <= 0 || lseek(fd, 0, SEEK_SET) < 0)
+                {
+                    size = 0;
+                    return false;
+                }
+                return true;
             }
 
             private const int SEEK_SET = 0;

@@ -25,7 +25,7 @@ namespace CefGlue.Tests
                 writer.Pointer[4095] = 0xCD;
             }
 
-            using var reader = SharedRegion.OpenExisting(name);
+            using var reader = SharedRegion.OpenExisting(name, 4096);
 
             Assert.That(reader, Is.Not.Null);
             Assert.That(reader.Length, Is.GreaterThanOrEqualTo(4096));
@@ -41,7 +41,7 @@ namespace CefGlue.Tests
         {
             var name = UniqueName();
             using var writer = SharedRegion.Create(name, 4096);
-            using var reader = SharedRegion.OpenExisting(name);
+            using var reader = SharedRegion.OpenExisting(name, 4096);
 
             unsafe
             {
@@ -55,7 +55,45 @@ namespace CefGlue.Tests
         [Test]
         public void OpenExisting_ReturnsNullForAnUnknownName()
         {
-            Assert.That(SharedRegion.OpenExisting(UniqueName()), Is.Null);
+            Assert.That(SharedRegion.OpenExisting(UniqueName(), 4096), Is.Null);
+        }
+
+        // The opener maps what the caller asks for, because macOS will not report a shared-memory
+        // object's size. Asking for more than the creator made must therefore fail to open, rather
+        // than hand back a mapping whose tail is not backed by anything.
+        [Test]
+        public void OpenExisting_ReturnsNull_WhenTheRegionIsSmallerThanTheCallerNeeds()
+        {
+            var name = UniqueName();
+            using var writer = SharedRegion.Create(name, 64 * 1024);
+
+            // Far enough past the creator's size to clear any rounding the platform applies —
+            // macOS rounds a region up to a page, Windows to the 64K allocation granularity.
+            Assert.That(SharedRegion.OpenExisting(name, 4 * 1024 * 1024), Is.Null);
+        }
+
+        [Test]
+        public void OpenExisting_MapsAtLeastWhatTheCallerAskedFor()
+        {
+            var name = UniqueName();
+            using var writer = SharedRegion.Create(name, 64 * 1024);
+            unsafe { writer.Pointer[64 * 1024 - 1] = 0x7F; }
+
+            using var reader = SharedRegion.OpenExisting(name, 64 * 1024);
+
+            Assert.That(reader, Is.Not.Null);
+            Assert.That(reader.Length, Is.GreaterThanOrEqualTo(64 * 1024));
+            unsafe { Assert.That(reader.Pointer[64 * 1024 - 1], Is.EqualTo(0x7F)); }
+        }
+
+        [Test]
+        public void OpenExisting_ReturnsNullRatherThanThrowing_ForANonPositiveSize()
+        {
+            var name = UniqueName();
+            using var writer = SharedRegion.Create(name, 4096);
+
+            Assert.That(SharedRegion.OpenExisting(name, 0), Is.Null);
+            Assert.That(SharedRegion.OpenExisting(name, -1), Is.Null);
         }
 
         [Test]
@@ -63,8 +101,8 @@ namespace CefGlue.Tests
         {
             // A frame notify racing a resize can carry a stale name; at frame rate the difference
             // between null and an exception is the whole error budget.
-            Assert.That(SharedRegion.OpenExisting(null), Is.Null);
-            Assert.That(SharedRegion.OpenExisting(""), Is.Null);
+            Assert.That(SharedRegion.OpenExisting(null, 4096), Is.Null);
+            Assert.That(SharedRegion.OpenExisting("", 4096), Is.Null);
         }
 
         [Test]

@@ -32,7 +32,7 @@ namespace Xilium.CefGlue.BrowserProcess.FrameDelivery
             dispatcher.RegisterMessageHandler(Messages.OsrFrame.Name, Handle);
         }
 
-        private SharedRegion Resolve(int browserId, string mapName)
+        private SharedRegion Resolve(int browserId, string mapName, long required)
         {
             if (_regions.TryGetValue(browserId, out var cached))
             {
@@ -44,7 +44,7 @@ namespace Xilium.CefGlue.BrowserProcess.FrameDelivery
             // The region may not exist yet, or the name may be stale after a resize bumped the
             // generation while a frame notify was in flight. Skipping the frame is correct — the
             // next paint carries the new name — and beats throwing at the frame rate.
-            var region = SharedRegion.OpenExisting(mapName);
+            var region = SharedRegion.OpenExisting(mapName, required);
             if (region == null) return null;
 
             _regions[browserId] = region;
@@ -55,14 +55,20 @@ namespace Xilium.CefGlue.BrowserProcess.FrameDelivery
         {
             var msg = Messages.OsrFrame.FromCefMessage(args.Message);
 
-            var region = Resolve(msg.BrowserId, msg.MapName);
-            if (region == null) return;
-
-            // Validate the message against the actual mapped size before any unsafe read, so a
-            // stale/short map cannot drive an out-of-bounds access in the render process.
+            // How much of the region this frame needs. Computed before the region is opened,
+            // because the opener has to be told: macOS will not report a shared-memory object's
+            // size, so an undersized region is caught by asking for the right length rather than
+            // by measuring afterwards.
             long pixelBytes = (long)msg.Stride * msg.Height;
             long required = msg.HeaderSize + 2L * pixelBytes; // header + two buffers
-            if (pixelBytes <= 0 || required > region.Length) return;
+            if (pixelBytes <= 0 || required <= 0) return;
+
+            var region = Resolve(msg.BrowserId, msg.MapName, required);
+            if (region == null) return;
+
+            // A mapping cached from an earlier frame can be shorter than this one needs, so the
+            // size is still checked before any unsafe read.
+            if (required > region.Length) return;
 
             byte* basePtr = region.Pointer;
             int active = System.Threading.Volatile.Read(ref *(int*)(basePtr + msg.ActiveOffset));
