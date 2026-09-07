@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Xilium.CefGlue.Common.Shared;
 using Xilium.CefGlue.Common.Shared.Helpers;
 using Xilium.CefGlue.Common.Shared.RendererProcessCommunication;
@@ -21,34 +20,11 @@ namespace Xilium.CefGlue.BrowserProcess.FrameDelivery
     {
         private const string JsCallbackName = "__cefOnFrame";
 
-        /// <summary>
-        /// Open regions by browser id. Not synchronised: CEF delivers process messages on the
-        /// render process's main thread, which is also the only thread that disposes them.
-        /// </summary>
-        private readonly Dictionary<int, SharedRegion> _regions = new Dictionary<int, SharedRegion>();
+        private readonly OsrRegionCache _regions = new OsrRegionCache();
 
         public FrameDeliveryRenderSide(MessageDispatcher dispatcher)
         {
             dispatcher.RegisterMessageHandler(Messages.OsrFrame.Name, Handle);
-        }
-
-        private SharedRegion Resolve(int browserId, string mapName, long required)
-        {
-            if (_regions.TryGetValue(browserId, out var cached))
-            {
-                if (cached.Name == mapName) return cached;
-                cached.Dispose();
-                _regions.Remove(browserId);
-            }
-
-            // The region may not exist yet, or the name may be stale after a resize bumped the
-            // generation while a frame notify was in flight. Skipping the frame is correct — the
-            // next paint carries the new name — and beats throwing at the frame rate.
-            var region = SharedRegion.OpenExisting(mapName, required);
-            if (region == null) return null;
-
-            _regions[browserId] = region;
-            return region;
         }
 
         private void Handle(MessageReceivedEventArgs args)
@@ -63,7 +39,7 @@ namespace Xilium.CefGlue.BrowserProcess.FrameDelivery
             long required = msg.HeaderSize + 2L * pixelBytes; // header + two buffers
             if (pixelBytes <= 0 || required <= 0) return;
 
-            var region = Resolve(msg.BrowserId, msg.MapName, required);
+            var region = _regions.Resolve(msg.BrowserId, msg.MapName, required);
             if (region == null) return;
 
             // A mapping cached from an earlier frame can be shorter than this one needs, so the
