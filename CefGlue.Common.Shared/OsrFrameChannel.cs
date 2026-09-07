@@ -24,7 +24,24 @@ namespace Xilium.CefGlue.Common.Shared
             };
             using var cefMessage = msg.ToCefProcessMessage();
             using var frame = hostBrowser.GetMainFrame();
-            frame.SendProcessMessage(CefProcessId.Renderer, cefMessage);
+            frame?.SendProcessMessage(CefProcessId.Renderer, cefMessage);
+        }
+
+        /// <summary>
+        /// Tell the host's render process that an offscreen browser is gone, so it can release the
+        /// region it has been keeping mapped for it. The counterpart to <see cref="Send"/>; both
+        /// leave on the CEF UI thread in program order, so this cannot overtake a frame notify.
+        /// </summary>
+        public static void SendGone(CefBrowser hostBrowser, int browserId)
+        {
+            var msg = new Messages.OsrBrowserGone
+            {
+                BrowserId = browserId
+            };
+
+            using var cefMessage = msg.ToCefProcessMessage();
+            using var frame = hostBrowser.GetMainFrame();
+            frame?.SendProcessMessage(CefProcessId.Renderer, cefMessage);
         }
     }
 }

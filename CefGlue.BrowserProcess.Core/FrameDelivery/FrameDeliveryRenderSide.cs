@@ -10,11 +10,10 @@ namespace Xilium.CefGlue.BrowserProcess.FrameDelivery
     /// region, reads the active double-buffer slot, copies it into a JS ArrayBuffer, and calls
     /// the page's <c>window.__cefOnFrame(browserId, width, height, buffer)</c> if present.
     ///
-    /// <para>The region is opened once and <b>kept mapped</b> across frames, keyed by browser.
-    /// Re-opening it per frame would re-establish every page-table entry on each paint and give
-    /// back much of what a persistent region on the writer side exists to save. The mapping is
-    /// replaced only when the name changes, which is what an OSR resize does — it recreates the
-    /// region under a bumped generation.</para>
+    /// <para>The regions live in <see cref="OsrRegionCache"/> and stay mapped across frames. A
+    /// mapping is replaced when the name changes, which is what an OSR resize does — it recreates
+    /// the region under a bumped generation — and released when <see cref="Messages.OsrBrowserGone"/>
+    /// says the browser is gone. Nothing else prunes it: a dead browser sends no more frames.</para>
     /// </summary>
     internal sealed unsafe class FrameDeliveryRenderSide
     {
@@ -25,6 +24,7 @@ namespace Xilium.CefGlue.BrowserProcess.FrameDelivery
         public FrameDeliveryRenderSide(MessageDispatcher dispatcher)
         {
             dispatcher.RegisterMessageHandler(Messages.OsrFrame.Name, Handle);
+            dispatcher.RegisterMessageHandler(Messages.OsrBrowserGone.Name, HandleGone);
         }
 
         private void Handle(MessageReceivedEventArgs args)
@@ -75,6 +75,15 @@ namespace Xilium.CefGlue.BrowserProcess.FrameDelivery
             {
                 context.Exit();
             }
+        }
+
+        // A browser that is destroyed and never recreated would otherwise keep its mapping for the
+        // life of this process: a frame notify is the only other thing that prunes the cache, and a
+        // dead browser sends no more frames.
+        private void HandleGone(MessageReceivedEventArgs args)
+        {
+            var msg = Messages.OsrBrowserGone.FromCefMessage(args.Message);
+            _regions.Release(msg.BrowserId);
         }
     }
 }
