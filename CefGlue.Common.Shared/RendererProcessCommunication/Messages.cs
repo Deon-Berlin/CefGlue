@@ -369,6 +369,40 @@ namespace Xilium.CefGlue.Common.Shared.RendererProcessCommunication
             }
         }
 
+        /// <summary>
+        /// An OSR browser is gone: release anything held for it. Sent by the browser process when
+        /// the browser's frame transport is disposed. Without it the render side keeps that
+        /// browser's shared region mapped for the life of the process, since a frame notify is the
+        /// only other thing that ever prunes the cache.
+        /// </summary>
+        public struct OsrBrowserGone
+        {
+            public const string Name = nameof(OsrBrowserGone);
+
+            public int BrowserId;
+
+            public CefProcessMessage ToCefProcessMessage()
+            {
+                var message = CefProcessMessage.Create(Name);
+                using (var arguments = message.Arguments)
+                {
+                    arguments.SetInt(0, BrowserId);
+                }
+                return message;
+            }
+
+            public static OsrBrowserGone FromCefMessage(CefProcessMessage message)
+            {
+                using (var arguments = message.Arguments)
+                {
+                    return new OsrBrowserGone()
+                    {
+                        BrowserId = arguments.GetInt(0)
+                    };
+                }
+            }
+        }
+
         public struct UnhandledException
         {
             public const string Name = nameof(UnhandledException);

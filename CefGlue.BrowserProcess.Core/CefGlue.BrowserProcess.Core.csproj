@@ -18,6 +18,7 @@
     
     <ItemGroup>
         <InternalsVisibleTo Include="Xilium.CefGlue.BrowserProcess" />
+        <InternalsVisibleTo Include="CefGlue.Tests" />
     </ItemGroup>
 
 </Project>

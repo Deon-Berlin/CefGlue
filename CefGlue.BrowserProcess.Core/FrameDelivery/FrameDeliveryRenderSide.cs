@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Xilium.CefGlue.Common.Shared;
 using Xilium.CefGlue.Common.Shared.Helpers;
 using Xilium.CefGlue.Common.Shared.RendererProcessCommunication;
@@ -11,44 +10,21 @@ namespace Xilium.CefGlue.BrowserProcess.FrameDelivery
     /// region, reads the active double-buffer slot, copies it into a JS ArrayBuffer, and calls
     /// the page's <c>window.__cefOnFrame(browserId, width, height, buffer)</c> if present.
     ///
-    /// <para>The region is opened once and <b>kept mapped</b> across frames, keyed by browser.
-    /// Re-opening it per frame would re-establish every page-table entry on each paint and give
-    /// back much of what a persistent region on the writer side exists to save. The mapping is
-    /// replaced only when the name changes, which is what an OSR resize does — it recreates the
-    /// region under a bumped generation.</para>
+    /// <para>The regions live in <see cref="OsrRegionCache"/> and stay mapped across frames. A
+    /// mapping is replaced when the name changes, which is what an OSR resize does — it recreates
+    /// the region under a bumped generation — and released when <see cref="Messages.OsrBrowserGone"/>
+    /// says the browser is gone. Nothing else prunes it: a dead browser sends no more frames.</para>
     /// </summary>
     internal sealed unsafe class FrameDeliveryRenderSide
     {
         private const string JsCallbackName = "__cefOnFrame";
 
-        /// <summary>
-        /// Open regions by browser id. Not synchronised: CEF delivers process messages on the
-        /// render process's main thread, which is also the only thread that disposes them.
-        /// </summary>
-        private readonly Dictionary<int, SharedRegion> _regions = new Dictionary<int, SharedRegion>();
+        private readonly OsrRegionCache _regions = new OsrRegionCache();
 
         public FrameDeliveryRenderSide(MessageDispatcher dispatcher)
         {
             dispatcher.RegisterMessageHandler(Messages.OsrFrame.Name, Handle);
-        }
-
-        private SharedRegion Resolve(int browserId, string mapName, long required)
-        {
-            if (_regions.TryGetValue(browserId, out var cached))
-            {
-                if (cached.Name == mapName) return cached;
-                cached.Dispose();
-                _regions.Remove(browserId);
-            }
-
-            // The region may not exist yet, or the name may be stale after a resize bumped the
-            // generation while a frame notify was in flight. Skipping the frame is correct — the
-            // next paint carries the new name — and beats throwing at the frame rate.
-            var region = SharedRegion.OpenExisting(mapName, required);
-            if (region == null) return null;
-
-            _regions[browserId] = region;
-            return region;
+            dispatcher.RegisterMessageHandler(Messages.OsrBrowserGone.Name, HandleGone);
         }
 
         private void Handle(MessageReceivedEventArgs args)
@@ -63,7 +39,7 @@ namespace Xilium.CefGlue.BrowserProcess.FrameDelivery
             long required = msg.HeaderSize + 2L * pixelBytes; // header + two buffers
             if (pixelBytes <= 0 || required <= 0) return;
 
-            var region = Resolve(msg.BrowserId, msg.MapName, required);
+            var region = _regions.Resolve(msg.BrowserId, msg.MapName, required);
             if (region == null) return;
 
             // A mapping cached from an earlier frame can be shorter than this one needs, so the
@@ -99,6 +75,15 @@ namespace Xilium.CefGlue.BrowserProcess.FrameDelivery
             {
                 context.Exit();
             }
+        }
+
+        // A browser that is destroyed and never recreated would otherwise keep its mapping for the
+        // life of this process: a frame notify is the only other thing that prunes the cache, and a
+        // dead browser sends no more frames.
+        private void HandleGone(MessageReceivedEventArgs args)
+        {
+            var msg = Messages.OsrBrowserGone.FromCefMessage(args.Message);
+            _regions.Release(msg.BrowserId);
         }
     }
 }
