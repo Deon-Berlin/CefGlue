@@ -399,9 +399,11 @@ namespace Xilium.CefGlue.Common
         protected virtual void ConfigureWindowInfo(CefWindowInfo windowInfo) { }
 
         /// <summary>
-        /// Allows to customize the window information used to create the developer tools window
-        /// (e.g. set the <see cref="CefRuntimeStyle"/> to Alloy and let the window be a
-        /// top-level window, so the developer tools open in its own window).
+        /// Allows to customize the window information used to create the developer tools
+        /// window. By default the developer tools open in their own standalone window.
+        /// Note CEF requires the developer tools window to use the Chrome runtime style
+        /// (an Alloy runtime style request is ignored), and providing a parent window
+        /// handle will create the developer tools window inside the browser window.
         /// Called only when the developer tools window is created with the default window
         /// information, not when window information is explicitly provided to
         /// <see cref="ShowDeveloperTools(CefWindowInfo, CefBrowserSettings)"/>.

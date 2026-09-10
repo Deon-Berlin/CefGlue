@@ -281,9 +281,13 @@ namespace Xilium.CefGlue.Common
 
                 if (CefRuntime.Platform == CefRuntimePlatform.Windows)
                 {
-                    // This function set ParentHandle (owner in Windows) and set Bounds to CW_USERDEFAULT (only works on Windows).
-                    // So, it should be called only in Windows.
-                    windowInfo.SetAsPopup(BrowserHost?.GetWindowHandle() ?? IntPtr.Zero, "DevTools");
+                    // Do not pass a parent window handle: CEF creates the developer tools
+                    // window inside the browser window when a parent handle is provided.
+                    // A parentless window info makes CEF create the developer tools window
+                    // as a standalone window instead. Note CEF requires the developer tools
+                    // window to use the Chrome runtime style (an Alloy runtime style request
+                    // is ignored), so do not change the runtime style here.
+                    windowInfo.SetAsPopup(IntPtr.Zero, "DevTools");
                 }
 
                 _windowConfigurator?.ConfigureDevToolsWindowInfo(windowInfo);
