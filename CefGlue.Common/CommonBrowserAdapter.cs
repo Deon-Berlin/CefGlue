@@ -24,7 +24,6 @@ namespace Xilium.CefGlue.Common
         private string _initialUrl;
         private string _title;
         private string _tooltip;
-        private IWindowInfoConfigurator _windowConfigurator;
         private CefBrowser _browser;
         private CommonCefClient _cefClient;
         private PipeServer _crashServerPipe;
@@ -41,7 +40,6 @@ namespace Xilium.CefGlue.Common
             _eventsEmitter = eventsEmitter;
             _name = name;
             _logger = logger;
-            _windowConfigurator = eventsEmitter as IWindowInfoConfigurator;
 
             Control = control;
             RequestContext = cefRequestContext;
@@ -272,28 +270,23 @@ namespace Xilium.CefGlue.Common
             return Task.FromResult<T>(default);
         }
 
-        public void ShowDeveloperTools(CefWindowInfo windowInfo = null, CefBrowserSettings settings = null)
+        public void ShowDeveloperTools()
         {
-            if (windowInfo == null)
+            var windowInfo = CefWindowInfo.Create();
+            windowInfo.RuntimeStyle = CefRuntimeStyle.Chrome;
+
+            if (CefRuntime.Platform == CefRuntimePlatform.Windows)
             {
-                windowInfo = CefWindowInfo.Create();
-                windowInfo.RuntimeStyle = CefRuntimeStyle.Chrome;
-
-                if (CefRuntime.Platform == CefRuntimePlatform.Windows)
-                {
-                    // Do not pass a parent window handle: CEF creates the developer tools
-                    // window inside the browser window when a parent handle is provided.
-                    // A parentless window info makes CEF create the developer tools window
-                    // as a standalone window instead. Note CEF requires the developer tools
-                    // window to use the Chrome runtime style (an Alloy runtime style request
-                    // is ignored), so do not change the runtime style here.
-                    windowInfo.SetAsPopup(IntPtr.Zero, "DevTools");
-                }
-
-                _windowConfigurator?.ConfigureDevToolsWindowInfo(windowInfo);
+                // Do not pass a parent window handle: CEF creates the developer tools
+                // window inside the browser window when a parent handle is provided.
+                // A parentless window info makes CEF create the developer tools window
+                // as a standalone window instead. Note CEF requires the developer tools
+                // window to use the Chrome runtime style (an Alloy runtime style request
+                // is ignored), so do not change the runtime style here.
+                windowInfo.SetAsPopup(IntPtr.Zero, "DevTools");
             }
 
-            BrowserHost?.ShowDevTools(windowInfo, _cefClient, settings ?? new CefBrowserSettings(), new CefPoint());
+            BrowserHost?.ShowDevTools(windowInfo, _cefClient, new CefBrowserSettings(), new CefPoint());
         }
 
         public void CloseDeveloperTools()
@@ -333,10 +326,6 @@ namespace Xilium.CefGlue.Common
 
             var windowInfo = CefWindowInfo.Create();
             SetupBrowserView(windowInfo, width, height, hostViewHandle.Value);
-
-            // allow the host application to customize the window information
-            // (e.g. change the runtime style) before the browser is created
-            _windowConfigurator?.ConfigureWindowInfo(windowInfo);
 
             var cefClient = CreateCefClient();
             cefClient.Dispatcher.RegisterMessageHandler(Messages.UnhandledException.Name, OnBrowserProcessUnhandledException);
