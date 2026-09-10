@@ -15,6 +15,8 @@ namespace Xilium.CefGlue.Common
 {
     internal class CommonBrowserAdapter : ICefBrowserHost, IDisposable
     {
+        private const string DownloadBubblePartialViewEnabledPreference = "download_bubble.partial_view_enabled";
+
         private readonly object _eventsEmitter;
         private readonly string _name;
         protected readonly ILogger _logger;
@@ -169,6 +171,17 @@ namespace Xilium.CefGlue.Common
         public bool IsJavascriptEngineInitialized { get; private set; }
 
         public CefBrowserSettings Settings { get; } = new CefBrowserSettings();
+
+        /// <summary>
+        /// Gets or sets whether the default download bubble (the download UI displayed
+        /// by the Chrome runtime style) is shown when a download starts. When set to
+        /// false the download bubble popup is hidden (the preference
+        /// download_bubble.partial_view_enabled is set to false on the browser request
+        /// context); the download toolbar button and its animations cannot be hidden
+        /// via preferences.
+        /// Must be set before the browser is initialized.
+        /// </summary>
+        public bool ShowDownloadBubble { get; set; } = true;
 
         public CefBrowser Browser => _browser;
 
@@ -468,6 +481,11 @@ namespace Xilium.CefGlue.Common
                 var browserHost = browser.GetHost();
                 BrowserHost = browserHost;
 
+                if (!ShowDownloadBubble)
+                {
+                    HideDownloadBubbleUi(browserHost);
+                }
+
                 var dispatcher = _cefClient?.Dispatcher;
                 if (dispatcher != null)
                 {
@@ -491,6 +509,22 @@ namespace Xilium.CefGlue.Common
 
                 Initialized?.Invoke();
             });
+        }
+
+        private void HideDownloadBubbleUi(CefBrowserHost browserHost)
+        {
+            // hide the download bubble popup displayed by the Chrome runtime style.
+            // note: the download toolbar button and its start/complete animations cannot
+            // be disabled via preferences, only the popup itself is suppressed.
+            var requestContext = browserHost.GetRequestContext() ?? CefRequestContext.GetGlobalContext();
+            using (var value = CefValue.Create())
+            {
+                value.SetBool(false);
+                if (!requestContext.SetPreference(DownloadBubblePartialViewEnabledPreference, value, out var error))
+                {
+                    _logger.Warn($"Failed to set the {DownloadBubblePartialViewEnabledPreference} preference: {error}");
+                }
+            }
         }
 
         protected virtual void OnBrowserHostCreated(CefBrowserHost browserHost)

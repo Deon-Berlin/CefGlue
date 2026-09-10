@@ -257,6 +257,19 @@ namespace Xilium.CefGlue.Common
         public CefBrowserSettings Settings => _adapter.Settings;
 
         /// <summary>
+        /// Gets or sets whether the default download bubble (the download UI displayed by
+        /// the Chrome runtime style) is shown when a download starts.
+        /// Only applies to browsers using the Chrome runtime style (Alloy style browsers have
+        /// no download UI). When set to false the download bubble popup is hidden and downloads
+        /// continue silently with their suggested file name, unless a
+        /// <see cref="DownloadHandler"/> handles the download itself. Note the download
+        /// toolbar button and its start/complete animations cannot be disabled via
+        /// preferences; use the Alloy runtime style (see <see cref="ConfigureWindowInfo"/>) to
+        /// remove all Chrome UI. Must be set before the browser becomes initialized.
+        /// </summary>
+        public bool ShowDownloadBubble { get => _adapter.ShowDownloadBubble; set => _adapter.ShowDownloadBubble = value; }
+
+        /// <summary>
         /// Get or set the current zoom level. The default zoom level is 0.0.
         /// </summary>
         public double ZoomLevel { get => _adapter.ZoomLevel; set => _adapter.ZoomLevel = value; }
