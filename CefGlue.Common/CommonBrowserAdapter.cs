@@ -22,6 +22,7 @@ namespace Xilium.CefGlue.Common
         private string _initialUrl;
         private string _title;
         private string _tooltip;
+        private IWindowInfoConfigurator _windowConfigurator;
         private CefBrowser _browser;
         private CommonCefClient _cefClient;
         private PipeServer _crashServerPipe;
@@ -38,6 +39,7 @@ namespace Xilium.CefGlue.Common
             _eventsEmitter = eventsEmitter;
             _name = name;
             _logger = logger;
+            _windowConfigurator = eventsEmitter as IWindowInfoConfigurator;
 
             Control = control;
             RequestContext = cefRequestContext;
@@ -257,19 +259,24 @@ namespace Xilium.CefGlue.Common
             return Task.FromResult<T>(default);
         }
 
-        public void ShowDeveloperTools()
+        public void ShowDeveloperTools(CefWindowInfo windowInfo = null, CefBrowserSettings settings = null)
         {
-            var windowInfo = CefWindowInfo.Create();
-            windowInfo.RuntimeStyle = CefRuntimeStyle.Chrome;
-
-            if (CefRuntime.Platform == CefRuntimePlatform.Windows)
+            if (windowInfo == null)
             {
-                // This function set ParentHandle (owner in Windows) and set Bounds to CW_USERDEFAULT (only works on Windows).
-                // So, it should be called only in Windows.
-                windowInfo.SetAsPopup(BrowserHost?.GetWindowHandle() ?? IntPtr.Zero, "DevTools");
+                windowInfo = CefWindowInfo.Create();
+                windowInfo.RuntimeStyle = CefRuntimeStyle.Chrome;
+
+                if (CefRuntime.Platform == CefRuntimePlatform.Windows)
+                {
+                    // This function set ParentHandle (owner in Windows) and set Bounds to CW_USERDEFAULT (only works on Windows).
+                    // So, it should be called only in Windows.
+                    windowInfo.SetAsPopup(BrowserHost?.GetWindowHandle() ?? IntPtr.Zero, "DevTools");
+                }
+
+                _windowConfigurator?.ConfigureDevToolsWindowInfo(windowInfo);
             }
 
-            BrowserHost?.ShowDevTools(windowInfo, _cefClient, new CefBrowserSettings(), new CefPoint());
+            BrowserHost?.ShowDevTools(windowInfo, _cefClient, settings ?? new CefBrowserSettings(), new CefPoint());
         }
 
         public void CloseDeveloperTools()
@@ -309,6 +316,10 @@ namespace Xilium.CefGlue.Common
 
             var windowInfo = CefWindowInfo.Create();
             SetupBrowserView(windowInfo, width, height, hostViewHandle.Value);
+
+            // allow the host application to customize the window information
+            // (e.g. change the runtime style) before the browser is created
+            _windowConfigurator?.ConfigureWindowInfo(windowInfo);
 
             var cefClient = CreateCefClient();
             cefClient.Dispatcher.RegisterMessageHandler(Messages.UnhandledException.Name, OnBrowserProcessUnhandledException);

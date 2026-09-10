@@ -10,7 +10,7 @@ namespace Xilium.CefGlue.Common
     /// <summary>
     /// Browser interface shared among the several implementations (Avalonia, WPF, ...)
     /// </summary>
-    public abstract partial class BaseCefBrowser : IDisposable
+    public abstract partial class BaseCefBrowser : IDisposable, IWindowInfoConfigurator
     {
         protected readonly ILogger _logger;
 
@@ -361,8 +361,43 @@ namespace Xilium.CefGlue.Common
         /// </summary>
         public void ShowDeveloperTools()
         {
-            _adapter.ShowDeveloperTools();
+            ShowDeveloperTools(windowInfo: null, settings: null);
         }
+
+        /// <summary>
+        /// Opens the Developer tools with custom window information and settings.
+        /// When no window information is provided a default popup window is used, which can
+        /// still be customized by overriding <see cref="ConfigureDevToolsWindowInfo"/>.
+        /// </summary>
+        /// <param name="windowInfo">The window information used to create the developer tools window.</param>
+        /// <param name="settings">The settings to be used by the developer tools browser.</param>
+        public void ShowDeveloperTools(CefWindowInfo windowInfo = null, CefBrowserSettings settings = null)
+        {
+            _adapter.ShowDeveloperTools(windowInfo, settings);
+        }
+
+        /// <summary>
+        /// Allows to customize the window information used to create the browser window.
+        /// Called after the default window configuration is applied (windowed browsers are
+        /// created as child windows of the host control, offscreen browsers use windowless
+        /// rendering) and before the browser is created, so any window information property
+        /// can still be changed (e.g. set the <see cref="CefRuntimeStyle"/> to Alloy).
+        /// </summary>
+        protected virtual void ConfigureWindowInfo(CefWindowInfo windowInfo) { }
+
+        /// <summary>
+        /// Allows to customize the window information used to create the developer tools window
+        /// (e.g. set the <see cref="CefRuntimeStyle"/> to Alloy and let the window be a
+        /// top-level window, so the developer tools open in its own window).
+        /// Called only when the developer tools window is created with the default window
+        /// information, not when window information is explicitly provided to
+        /// <see cref="ShowDeveloperTools(CefWindowInfo, CefBrowserSettings)"/>.
+        /// </summary>
+        protected virtual void ConfigureDevToolsWindowInfo(CefWindowInfo windowInfo) { }
+
+        void IWindowInfoConfigurator.ConfigureWindowInfo(CefWindowInfo windowInfo) => ConfigureWindowInfo(windowInfo);
+
+        void IWindowInfoConfigurator.ConfigureDevToolsWindowInfo(CefWindowInfo windowInfo) => ConfigureDevToolsWindowInfo(windowInfo);
 
         /// <summary>
         /// Closes the Developer tools (opened previously).
