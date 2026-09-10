@@ -264,8 +264,8 @@ namespace Xilium.CefGlue.Common
         /// continue silently with their suggested file name, unless a
         /// <see cref="DownloadHandler"/> handles the download itself. Note the download
         /// toolbar button and its start/complete animations cannot be disabled via
-        /// preferences; use the Alloy runtime style (see <see cref="ConfigureWindowInfo"/>) to
-        /// remove all Chrome UI. Must be set before the browser becomes initialized.
+        /// preferences; use the Alloy runtime style to remove all Chrome UI.
+        /// Must be set before the browser becomes initialized.
         /// </summary>
         public bool ShowDownloadBubble { get => _adapter.ShowDownloadBubble; set => _adapter.ShowDownloadBubble = value; }
 
