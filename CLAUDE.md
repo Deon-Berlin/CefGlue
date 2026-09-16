@@ -31,7 +31,11 @@ dotnet test    CefGlue.Tests/CefGlue.Tests.csproj -c Release
   build without the redist packages.** Everything downstream of `CefGlue.Common`
   (Avalonia/WPF/Demos/Tests) can only *restore* once the `cef.runtime.*` packages
   for the current version exist (see below).
-- **Tests: all 129 pass** as of CEF 150.0.11. `TestBase` sets
+- **Tests: all 142 pass, 1 skipped on Windows** (143 total) as of CEF 152.0.6. The tests
+  pin **NUnit 3.12**: `[Platform(...)]` throws "Unknown framework version" on .NET 10 and
+  **silently drops the whole fixture** from discovery (watch the total, not just failures),
+  and `Assert.Ignore` is reported as a *failure* under the assembly-wide `[Timeout]` — use
+  `[ExcludeOnWindows("reason")]` to skip. `TestBase` sets
   `CefSettings.BrowserSubprocessPath` (CEF can't self-host `testhost.exe`) and a
   valid `RootCachePath` (the Chrome runtime crashes if a request-context
   `CachePath` isn't a child of `RootCachePath`) — keep both.
@@ -59,16 +63,16 @@ matching headers exist on the CDN (`https://cef-builds.spotifycdn.com/index.json
 
 ### 2. Version bookkeeping — two families, set by hand
 
-| File | Property | Scheme | Example (150) |
+| File | Property | Scheme | Example (152) |
 |------|----------|--------|---------------|
-| `cef-version.json` | `cefglue_version` (managed `CefGlue.Next.*`) | `{CefMajor}.{ChromeBuild}.{ChromePatch}` | `150.7871.115` |
-| `CefVersion.props` | `CefRuntimePackageVersion` (redist `cef.runtime.*`) | the CEF version `{CefMajor}.{CefMinor}.{CefPatch}` | `150.0.11` |
+| `cef-version.json` | `cefglue_version` (managed `CefGlue.Next.*`) | `{CefMajor}.{ChromeBuild}.{ChromePatch}` | `152.7977.83` |
+| `CefVersion.props` | `CefRuntimePackageVersion` (redist `cef.runtime.*`) | the CEF version `{CefMajor}.{CefMinor}.{CefPatch}` | `152.0.6` |
 
 `upgrade-cef.ps1` derives and writes `cef-version.json`; **`CefRuntimePackageVersion`
 is NOT auto-derived — bump it by hand.** A fresh upgrade is a base release. To
 **republish the same CEF binaries** with a build-script fix (nuget versions are
 immutable), use the **x10 patch scheme**: multiply the last component by 10 and add
-the patch number — managed `150.7871.115 → 150.7871.1151`, redist `150.0.11 → 150.0.111`.
+the patch number — managed `152.7977.83 → 152.7977.831`, redist `152.0.6 → 152.0.61`.
 
 ### 3. Headers — overlay both platforms; don't chase enums
 
