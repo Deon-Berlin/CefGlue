@@ -184,11 +184,27 @@ def get_funcs(cls, base = True, inherited = True):
         current_cls = classes.pop()
         if current_cls is None:
             break
-        for func in current_cls.get_virtual_funcs():
+        for func in version_ordered(current_cls.get_virtual_funcs()):
             funcs.append( get_func_parts(func, i) )
             i += 1
 
     return funcs
+
+def version_ordered(funcs):
+    """ Order a class's methods the way CEF's translator lays out its C struct: every method without
+        an `added=` attribute first, in declaration order, then the versioned additions by the API
+        version that added them (`experimental` last). Declaration order alone puts e.g.
+        CefDownloadItem::IsPaused (added=14400) mid-struct, which shifts every later function pointer
+        by one slot, so the managed wrapper calls the wrong native function. """
+    def added(func):
+        value = func.get_attrib('added') if func.has_attrib('added') else None
+        if value is None:
+            return (0, 0)
+        if value == 'experimental':
+            return (2, 0)
+        return (1, int(value))
+    # sorted() is stable, so methods within each version keep their declaration order.
+    return sorted(funcs, key=added)
 
 def get_top_base_class_name(cls):
     while cls is not None:
