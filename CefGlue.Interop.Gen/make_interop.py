@@ -184,11 +184,25 @@ def get_funcs(cls, base = True, inherited = True):
         current_cls = classes.pop()
         if current_cls is None:
             break
-        for func in current_cls.get_virtual_funcs():
+        # CEF's C API appends methods introduced in later API versions after
+        # unversioned methods, even when the C++ header declares them earlier.
+        # Match the ordering used by make_capi_header.py so sequential C#
+        # interop structs have the same function pointer offsets as libcef.
+        for func in sorted(current_cls.get_virtual_funcs(), key=get_func_added_version):
             funcs.append( get_func_parts(func, i) )
             i += 1
 
     return funcs
+
+def get_func_added_version(func):
+    added = func.get_attrib('added')
+    if added is None:
+        return 0
+    if added == 'next':
+        return 999998
+    if added == 'experimental':
+        return 999999
+    return int(added)
 
 def get_top_base_class_name(cls):
     while cls is not None:
