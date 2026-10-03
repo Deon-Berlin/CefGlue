@@ -76,11 +76,17 @@ else
     STRIP="aarch64-linux-gnu-strip"
 fi
 
-"$STRIP" -v -s "${OUTPUT}/CEF/libcef.so"
-"$STRIP" -v -s "${OUTPUT}/CEF/libEGL.so"
-"$STRIP" -v -s "${OUTPUT}/CEF/libGLESv2.so"
-"$STRIP" -v -s "${OUTPUT}/CEF/libvk_swiftshader.so"
-"$STRIP" -v -s "${OUTPUT}/CEF/libvulkan.so.1"
+if [ ! -f "${OUTPUT}/CEF/libcef.so" ]; then
+    echo "ERROR: libcef.so not found in ${RELEASE_DIR}"
+    exit 1
+fi
+
+# Strip whichever shared libraries this CEF release ships: the set changes between
+# versions (CEF 154 dropped libEGL.so and libGLESv2.so).
+for LIB in "${OUTPUT}/CEF/"*.so "${OUTPUT}/CEF/"*.so.*; do
+    [ -f "$LIB" ] || continue
+    "$STRIP" -v -s "$LIB"
+done
 
 echo "Copying CEF resources..."
 RESOURCES_DIR="$(find "$CEFBINARIES" -name "Resources" -type d | head -1)"
