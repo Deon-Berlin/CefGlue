@@ -1,6 +1,9 @@
-﻿var $GlobalObjectName$;
-if (!$GlobalObjectName$) {
-    $GlobalObjectName$ = (function () {
+﻿// Evaluated in each new V8 context; the result is invoked with the native functions as arguments.
+(function ($BindNativeFunctionName$, $UnbindNativeFunctionName$) {
+    if (globalThis.$GlobalObjectName$) {
+        return;
+    }
+    globalThis.$GlobalObjectName$ = (function () {
         const idPropertyName = "$JsonIdAttribute$";
         const refPropertyName = "$JsonRefAttribute$";
         const valuesPropertyName = "$JsonValuesAttribute$";
@@ -162,7 +165,6 @@ if (!$GlobalObjectName$) {
                 return new Proxy(targetObj, handler);
             },
             checkObjectBound: function (objName) {
-                native function $BindNativeFunctionName$();
                 if (window.hasOwnProperty(objName)) {
                     // quick check
                     return Promise.resolve(true);
@@ -170,7 +172,6 @@ if (!$GlobalObjectName$) {
                 return $BindNativeFunctionName$(objName);
             },
             deleteObjectBound: function (objName) {
-                native function $UnbindNativeFunctionName$();
                 $UnbindNativeFunctionName$(objName);
             },
             $EvaluateScriptFunctionName$: function (fn) {
@@ -178,4 +179,4 @@ if (!$GlobalObjectName$) {
             }
         };
     })();
-}
+})

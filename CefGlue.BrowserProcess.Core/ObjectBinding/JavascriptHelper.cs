@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 using Xilium.CefGlue.Common.Shared.Helpers;
 using Xilium.CefGlue.Common.Shared.RendererProcessCommunication;
@@ -16,6 +17,9 @@ namespace Xilium.CefGlue.BrowserProcess.ObjectBinding
         private const string BindNativeFunctionName = "Bind";
         private const string UnbindNativeFunctionName = "Unbind";
 
+        private static string _cefGlueGlobalScript;
+        private static V8BuiltinFunctionHandler _builtinFunctionHandler;
+
         public static void Register(INativeObjectRegistry nativeObjectRegistry)
         {
             var currentType = typeof(JavascriptHelper);
@@ -23,8 +27,27 @@ namespace Xilium.CefGlue.BrowserProcess.ObjectBinding
             var currentAssembly = currentType.Assembly;
             using (var stream = new StreamReader(currentAssembly.GetManifestResourceStream($"{currentNamespace}.{CefGlueGlobalScriptFileName}")))
             {
-                var cefGlueGlobalScript = FillScriptPlaceholders(stream.ReadToEnd());
-                CefRuntime.RegisterExtension("cefglue", cefGlueGlobalScript, new V8BuiltinFunctionHandler(nativeObjectRegistry));
+                _cefGlueGlobalScript = FillScriptPlaceholders(stream.ReadToEnd());
+            }
+            _builtinFunctionHandler = new V8BuiltinFunctionHandler(nativeObjectRegistry);
+        }
+
+        /// <summary>
+        /// Installs the cefglue global object into a newly created context. CEF 154 removed V8 extensions
+        /// (CefRegisterExtension), so the script is evaluated per context instead of registered once.
+        /// </summary>
+        public static void InstallGlobalObject(CefV8Context context)
+        {
+            using (context.EnterOrFail(shallDispose: false))
+            {
+                if (!context.TryEval(_cefGlueGlobalScript, "", 1, out var installer, out var exception))
+                {
+                    throw new InvalidOperationException($"Failed to evaluate {CefGlueGlobalScriptFileName}: {exception?.Message}");
+                }
+
+                var bind = CefV8Value.CreateFunction(BindNativeFunctionName, _builtinFunctionHandler);
+                var unbind = CefV8Value.CreateFunction(UnbindNativeFunctionName, _builtinFunctionHandler);
+                installer.ExecuteFunctionWithContext(context, null, new[] { bind, unbind });
             }
         }
 

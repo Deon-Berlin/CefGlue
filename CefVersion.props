@@ -26,6 +26,6 @@
           149.0.61 = first patch of CEF 149.0.6 (deploy-cef-framework.sh: skip the removed
           "(Plugin)" helper that CEF 148 dropped).
         -->
-        <CefRuntimePackageVersion>152.0.6</CefRuntimePackageVersion>
+        <CefRuntimePackageVersion>154.0.33</CefRuntimePackageVersion>
     </PropertyGroup>
 </Project>
