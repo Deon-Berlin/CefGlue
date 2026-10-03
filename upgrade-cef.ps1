@@ -7,9 +7,9 @@
     Automates the CEF version upgrade process:
       - Parses the version string into its components
       - Updates cef-version.json
-      - Updates the default cefbuildversion in the GitHub Actions workflow
-      - Cleans up old build artefacts
-      - Downloads the new CEF C API headers
+      - Sets CefRuntimePackageVersion in CefVersion.props to the CEF version
+      - Warns if chromiumembeddedframework.runtime is not on nuget.org yet
+      - Downloads the new CEF C API headers (linux64 + windows64)
       - Regenerates the interop bindings
       - Optionally builds the solution
 
@@ -105,80 +105,88 @@ $jsonContent = @"
 )
 Write-Ok "cef-version.json updated"
 
-# ── Step 3: Update GitHub Actions workflow ────────────────────────────────────
-$workflowFile = Join-Path $ScriptDir '.github\workflows\build-cef-packages.yml'
+# ── Step 3: Update the redist (cef.runtime.*) package version ───────────────
+# A fresh upgrade is a base release, so the redist version is the CEF version.
+# (build-cef-packages.yml reads cef-version.json itself; it needs no update.)
+Write-Step "Updating CefRuntimePackageVersion in CefVersion.props"
 
-if (Test-Path $workflowFile) {
-    Write-Step "Updating .github/workflows/build-cef-packages.yml"
+$propsFile = Join-Path $ScriptDir 'CefVersion.props'
+$propsContent = [System.IO.File]::ReadAllText($propsFile)
+$propsPattern = '(<CefRuntimePackageVersion>)[^<]*(</CefRuntimePackageVersion>)'
+if ($propsContent -notmatch $propsPattern) {
+    throw "CefRuntimePackageVersion not found in CefVersion.props"
+}
+$propsUpdated = [regex]::Replace($propsContent, $propsPattern, "`${1}${CefVersion}`${2}")
+[System.IO.File]::WriteAllText($propsFile, $propsUpdated, [System.Text.UTF8Encoding]::new($false))
+Write-Ok "CefRuntimePackageVersion set to $CefVersion"
 
-    $content = [System.IO.File]::ReadAllText($workflowFile)
+# ── Step 4: Check the official Windows runtime package ────────────────────────
+# Directory.Packages.props pins chromiumembeddedframework.runtime at $(CefVersion)
+# unconditionally, so restore fails with NU1102 on every platform until it exists.
+Write-Step "Checking nuget.org for chromiumembeddedframework.runtime $CefVersion"
 
-    # Replace the default: "..." value that holds a CEF build version string.
-    # The pattern is specific: the existing value contains +g<hash>+chromium-
-    $updated = [regex]::Replace(
-        $content,
-        '(default:\s*")[^"]*\+g[0-9a-f]+\+chromium-[^"]*(")',
-        "`${1}${CefBuildVersion}`${2}"
-    )
-
-    if ($updated -eq $content) {
-        Write-Warn "Could not find the cefbuildversion default value in the workflow file — skipping"
+try {
+    $nugetIndex = Invoke-RestMethod -Uri 'https://api.nuget.org/v3-flatcontainer/chromiumembeddedframework.runtime/index.json' -UseBasicParsing
+    if ($nugetIndex.versions -contains $CefVersion) {
+        Write-Ok "chromiumembeddedframework.runtime $CefVersion is published"
     } else {
-        [System.IO.File]::WriteAllText($workflowFile, $updated, [System.Text.UTF8Encoding]::new($false))
-        Write-Ok ".github/workflows/build-cef-packages.yml updated"
+        Write-Warn "chromiumembeddedframework.runtime $CefVersion is NOT published (latest: $($nugetIndex.versions[-1]))"
+        Write-Warn "dotnet restore will fail with NU1102 on every platform until it is"
     }
-} else {
-    Write-Warn ".github/workflows/build-cef-packages.yml not found — skipping"
+} catch {
+    Write-Warn "Could not reach nuget.org; skipping the Windows package check"
 }
 
 # ── Step 5: Download CEF C API headers ───────────────────────────────────────
+# Overlay linux64 then windows64 (do not mirror-delete): the Windows-specific
+# headers (cef_sandbox_win.h, internal/cef_*_win.h, wrapper/cef_library_loader.h)
+# ship only in the windows package.
 if (-not $SkipDownload) {
-    Write-Step "Downloading CEF C API headers"
-
     $encodedVersion = $CefBuildVersion.Replace('+', '%2B')
-    $downloadUrl    = "https://cef-builds.spotifycdn.com/cef_binary_${encodedVersion}_linux64_minimal.tar.bz2"
     $tempDir        = Join-Path $ScriptDir '.upgrade-cef'
+    $includeDest    = Join-Path $ScriptDir 'CefGlue.Interop.Gen\include'
+    Remove-Item -Path $tempDir -Recurse -Force -ErrorAction SilentlyContinue
     New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
-    $archivePath    = Join-Path $tempDir 'cef.tar.bz2'
-
-    Write-Info "URL: $downloadUrl"
+    if (-not (Test-Path $includeDest)) { New-Item -ItemType Directory -Path $includeDest | Out-Null }
 
     try {
-        # Use curl.exe if available (faster, shows progress); fall back to Invoke-WebRequest
-        if (Get-Command 'curl.exe' -ErrorAction SilentlyContinue) {
-            & curl.exe -L --fail --progress-bar -o $archivePath $downloadUrl
-            if ($LASTEXITCODE -ne 0) { throw "curl.exe failed with exit code $LASTEXITCODE" }
-        } else {
-            Write-Info "curl.exe not found — using Invoke-WebRequest (no progress bar)"
-            Invoke-WebRequest -Uri $downloadUrl -OutFile $archivePath -UseBasicParsing
-        }
+        foreach ($platform in @('linux64', 'windows64')) {
+            Write-Step "Downloading CEF C API headers ($platform)"
 
-        Write-Step "Extracting headers"
-        $extractDir = Join-Path $tempDir 'cef_extract'
-        New-Item -ItemType Directory -Path $extractDir | Out-Null
+            $downloadUrl = "https://cef-builds.spotifycdn.com/cef_binary_${encodedVersion}_${platform}_minimal.tar.bz2"
+            $archivePath = Join-Path $tempDir "$platform.tar.bz2"
+            $extractDir  = Join-Path $tempDir $platform
+            Write-Info "URL: $downloadUrl"
 
-        # Use Python's built-in tarfile module — avoids dependency on an external bzip2 binary
-        # which Windows tar.exe (libarchive) requires but does not ship with.
-        & python -c @"
+            # Use curl.exe if available (faster, shows progress); fall back to Invoke-WebRequest
+            if (Get-Command 'curl.exe' -ErrorAction SilentlyContinue) {
+                & curl.exe -L --fail --progress-bar -o $archivePath $downloadUrl
+                if ($LASTEXITCODE -ne 0) { throw "curl.exe failed with exit code $LASTEXITCODE" }
+            } else {
+                Write-Info "curl.exe not found — using Invoke-WebRequest (no progress bar)"
+                Invoke-WebRequest -Uri $downloadUrl -OutFile $archivePath -UseBasicParsing
+            }
+
+            # Use Python's built-in tarfile module — avoids dependency on an external bzip2 binary
+            # which Windows tar.exe (libarchive) requires but does not ship with.
+            # Only the include/ tree is extracted; the binaries are not needed here.
+            New-Item -ItemType Directory -Path $extractDir | Out-Null
+            & python -c @"
 import tarfile, sys
 with tarfile.open(sys.argv[1], 'r:bz2') as t:
-    t.extractall(sys.argv[2])
+    t.extractall(sys.argv[2], members=[m for m in t.getmembers() if m.name.split('/')[1:2] == ['include']])
 "@ $archivePath $extractDir
-        if ($LASTEXITCODE -ne 0) { throw "Extraction failed with exit code $LASTEXITCODE" }
+            if ($LASTEXITCODE -ne 0) { throw "Extraction failed with exit code $LASTEXITCODE" }
 
-        $includeDest = Join-Path $ScriptDir 'CefGlue.Interop.Gen\include'
-        if (-not (Test-Path $includeDest)) { New-Item -ItemType Directory -Path $includeDest | Out-Null }
+            $topDir = Get-ChildItem -Path $extractDir -Directory | Select-Object -First 1
+            $extractedInclude = if ($null -ne $topDir) { Join-Path $topDir.FullName 'include' } else { $null }
+            if ($null -eq $extractedInclude -or -not (Test-Path $extractedInclude)) {
+                throw "Could not find 'include' directory in the $platform archive"
+            }
 
-        # Copy all files from the extracted include/ directory
-        $extractedInclude = Get-ChildItem -Path $extractDir -Recurse -Filter 'include' -Directory |
-            Select-Object -First 1
-
-        if ($null -eq $extractedInclude) {
-            throw "Could not find 'include' directory in the extracted archive"
+            Copy-Item -Path (Join-Path $extractedInclude '*') -Destination $includeDest -Recurse -Force
+            Write-Ok "$platform headers installed to CefGlue.Interop.Gen/include/"
         }
-
-        Copy-Item -Path (Join-Path $extractedInclude.FullName '*') -Destination $includeDest -Recurse -Force
-        Write-Ok "CEF headers installed to CefGlue.Interop.Gen/include/"
     } finally {
         Remove-Item -Path $tempDir -Recurse -Force -ErrorAction SilentlyContinue
     }
@@ -233,20 +241,23 @@ Write-Host "========================================" -ForegroundColor White
 Write-Host ""
 Write-Host "Completed:" -ForegroundColor Green
 Write-Host "  v cef-version.json updated"
-Write-Host "  v .github/workflows/build-cef-packages.yml updated"
-if (-not $SkipDownload)  { Write-Host "  v CEF C API headers downloaded" }
+Write-Host "  v CefRuntimePackageVersion set to $CefVersion"
+if (-not $SkipDownload)  { Write-Host "  v CEF C API headers downloaded (linux64 + windows64)" }
 if (-not $SkipInterop)   { Write-Host "  v Interop bindings regenerated" }
 if ($Build)              { Write-Host "  v Solution built" }
 Write-Host ""
 Write-Host "Manual steps still required:" -ForegroundColor Yellow
-Write-Host "  1. Fix any API breaking changes in CefGlue source code"
+Write-Host "  1. Review the generated diff: a clean upgrade usually changes only version.g.cs;"
+Write-Host "     revert whitespace-only or path-separator-only churn in other generated files"
+Write-Host "     and keep each generated file's line endings as in git (version.g.cs is CRLF)"
+Write-Host "  2. Fix any API breaking changes in CefGlue source code"
 Write-Host "     > dotnet build Xilium.CefGlue.slnx -c Release"
-Write-Host "  2. Build CEF redistribution packages:"
-Write-Host "     > .\build-local-packages.ps1"
-Write-Host "     > or: cd CefRuntime; dotnet pack CefRuntime.csproj --runtime linux-x64 /p:CefBuildVersion=$CefBuildVersion"
-Write-Host "  3. Run tests:"
+Write-Host "  3. Build the CEF redistribution packages (cef.runtime.*):"
+Write-Host "     > run the build-cef-packages workflow, or locally per RID:"
+Write-Host "     > cd CefRuntime; dotnet pack CefRuntime.csproj --runtime <rid> `"/p:CefBuildVersion=$CefBuildVersion`" -c Release"
+Write-Host "  4. Run tests:"
 Write-Host "     > dotnet test CefGlue.Tests\CefGlue.Tests.csproj -c Release"
-Write-Host "  4. Update README.md with new version information"
-Write-Host "  5. Commit changes:"
-Write-Host "     > git add -A; git commit -m 'Upgrade CEF to $CefVersion'"
+Write-Host "  5. Update README.md with new version information"
+Write-Host "  6. Commit changes:"
+Write-Host "     > git add -A; git commit -m 'build(cef): upgrade to $CefVersion'"
 Write-Host ""
