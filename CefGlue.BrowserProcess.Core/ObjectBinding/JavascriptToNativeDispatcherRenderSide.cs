@@ -126,7 +126,9 @@ namespace Xilium.CefGlue.BrowserProcess.ObjectBinding
         }
 
         public void HandleContextCreated(CefV8Context context, bool isMain)
-        { 
+        {
+            JavascriptHelper.InstallGlobalObject(context);
+
             if (isMain)
             {
                 lock (_registrationSyncRoot)
