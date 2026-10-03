@@ -135,7 +135,6 @@ ok "cef-version.json updated"
 
 # ── Step 3: Update the redist (cef.runtime.*) package version ───────────────
 # A fresh upgrade is a base release, so the redist version is the CEF version.
-# (build-cef-packages.yml reads cef-version.json itself; it needs no update.)
 step "Updating CefRuntimePackageVersion in CefVersion.props"
 
 PROPS_FILE="${SCRIPT_DIR}/CefVersion.props"
@@ -145,6 +144,20 @@ if grep -q '<CefRuntimePackageVersion>' "$PROPS_FILE"; then
 else
     err "CefRuntimePackageVersion not found in CefVersion.props"
     exit 1
+fi
+
+# ── Step 3b: Update the redist workflow's default CEF version ────────────────
+# The workflow_dispatch input defaults to the current build string (push events
+# read cef-version.json instead). Replace every build-version string in the file
+# (the description example and the default); perl keeps the CRLF line endings.
+WORKFLOW_FILE="${SCRIPT_DIR}/.github/workflows/build-cef-packages.yml"
+VERSION_REGEX='[0-9]+\.[0-9]+\.[0-9]+\+g[0-9a-f]+\+chromium-[0-9.]+[0-9]'
+step "Updating the default CEF version in build-cef-packages.yml"
+if [ -f "$WORKFLOW_FILE" ] && grep -qE "$VERSION_REGEX" "$WORKFLOW_FILE"; then
+    NEW_VERSION="$CEF_BUILD_VERSION" perl -pi -e "s/${VERSION_REGEX}/\$ENV{NEW_VERSION}/g" "$WORKFLOW_FILE"
+    ok "build-cef-packages.yml default set to ${CEF_BUILD_VERSION}"
+else
+    warn "No CEF build version found in build-cef-packages.yml; update its default by hand"
 fi
 
 # ── Step 4: Check the official Windows runtime package ────────────────────────
@@ -232,6 +245,7 @@ echo ""
 echo -e "${GREEN}Completed:${NC}"
 echo "  ✓ cef-version.json updated"
 echo "  ✓ CefRuntimePackageVersion set to ${CEF_VERSION}"
+echo "  ✓ build-cef-packages.yml default CEF version updated"
 [ "$SKIP_DOWNLOAD" = false ]  && echo "  ✓ CEF C API headers downloaded (linux64 + windows64)"
 [ "$SKIP_INTEROP" = false ]   && echo "  ✓ Interop bindings regenerated"
 [ "$DO_BUILD" = true ]        && echo "  ✓ Solution built"

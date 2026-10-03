@@ -8,6 +8,7 @@
       - Parses the version string into its components
       - Updates cef-version.json
       - Sets CefRuntimePackageVersion in CefVersion.props to the CEF version
+      - Updates the default CEF version in the build-cef-packages workflow
       - Warns if chromiumembeddedframework.runtime is not on nuget.org yet
       - Downloads the new CEF C API headers (linux64 + windows64)
       - Regenerates the interop bindings
@@ -107,7 +108,6 @@ Write-Ok "cef-version.json updated"
 
 # ── Step 3: Update the redist (cef.runtime.*) package version ───────────────
 # A fresh upgrade is a base release, so the redist version is the CEF version.
-# (build-cef-packages.yml reads cef-version.json itself; it needs no update.)
 Write-Step "Updating CefRuntimePackageVersion in CefVersion.props"
 
 $propsFile = Join-Path $ScriptDir 'CefVersion.props'
@@ -119,6 +119,23 @@ if ($propsContent -notmatch $propsPattern) {
 $propsUpdated = [regex]::Replace($propsContent, $propsPattern, "`${1}${CefVersion}`${2}")
 [System.IO.File]::WriteAllText($propsFile, $propsUpdated, [System.Text.UTF8Encoding]::new($false))
 Write-Ok "CefRuntimePackageVersion set to $CefVersion"
+
+# ── Step 3b: Update the redist workflow's default CEF version ────────────────
+# The workflow_dispatch input defaults to the current build string (push events
+# read cef-version.json instead). Replace every build-version string in the file
+# (the description example and the default); line endings are left untouched.
+Write-Step "Updating the default CEF version in build-cef-packages.yml"
+
+$workflowFile  = Join-Path $ScriptDir '.github\workflows\build-cef-packages.yml'
+$versionRegex  = '\d+\.\d+\.\d+\+g[0-9a-f]+\+chromium-[\d.]+\d'
+$workflowText  = if (Test-Path $workflowFile) { [System.IO.File]::ReadAllText($workflowFile) } else { '' }
+if ($workflowText -match $versionRegex) {
+    $workflowText = [regex]::Replace($workflowText, $versionRegex, { param($m) $CefBuildVersion })
+    [System.IO.File]::WriteAllText($workflowFile, $workflowText, [System.Text.UTF8Encoding]::new($false))
+    Write-Ok "build-cef-packages.yml default set to $CefBuildVersion"
+} else {
+    Write-Warn "No CEF build version found in build-cef-packages.yml; update its default by hand"
+}
 
 # ── Step 4: Check the official Windows runtime package ────────────────────────
 # Directory.Packages.props pins chromiumembeddedframework.runtime at $(CefVersion)
@@ -242,6 +259,7 @@ Write-Host ""
 Write-Host "Completed:" -ForegroundColor Green
 Write-Host "  v cef-version.json updated"
 Write-Host "  v CefRuntimePackageVersion set to $CefVersion"
+Write-Host "  v build-cef-packages.yml default CEF version updated"
 if (-not $SkipDownload)  { Write-Host "  v CEF C API headers downloaded (linux64 + windows64)" }
 if (-not $SkipInterop)   { Write-Host "  v Interop bindings regenerated" }
 if ($Build)              { Write-Host "  v Solution built" }
