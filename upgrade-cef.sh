@@ -133,67 +133,64 @@ EOF
 
 ok "cef-version.json updated"
 
-# ── Step 3: Update GitHub Actions workflow ────────────────────────────────────
-WORKFLOW_FILE="${SCRIPT_DIR}/.github/workflows/build-cef-packages.yml"
+# ── Step 3: Update the redist (cef.runtime.*) package version ───────────────
+# A fresh upgrade is a base release, so the redist version is the CEF version.
+# (build-cef-packages.yml reads cef-version.json itself; it needs no update.)
+step "Updating CefRuntimePackageVersion in CefVersion.props"
 
-if [ -f "$WORKFLOW_FILE" ]; then
-    step "Updating .github/workflows/build-cef-packages.yml"
-
-    # Use Python to safely replace the default cefbuildversion value.
-    # The sed approach is unreliable because the version string contains '+'.
-    python3 - "$WORKFLOW_FILE" "$CEF_BUILD_VERSION" <<'PYEOF'
-import sys
-import re
-
-workflow_path = sys.argv[1]
-new_version   = sys.argv[2]
-
-with open(workflow_path, 'r') as f:
-    content = f.read()
-
-# Match the default: "..." line that holds a CEF build version string.
-# Pattern is specific: the current value contains +g<hash>+chromium-
-updated, n = re.subn(
-    r'(default:\s*")[^"]*\+g[0-9a-f]+\+chromium-[^"]*(")',
-    r'\g<1>' + new_version + r'\2',
-    content
-)
-
-if n == 0:
-    print("WARNING: Could not find cefbuildversion default value in workflow file.", file=sys.stderr)
-    sys.exit(1)
-
-with open(workflow_path, 'w') as f:
-    f.write(updated)
-PYEOF
-
-    ok ".github/workflows/build-cef-packages.yml updated"
+PROPS_FILE="${SCRIPT_DIR}/CefVersion.props"
+if grep -q '<CefRuntimePackageVersion>' "$PROPS_FILE"; then
+    perl -pi -e "s|<CefRuntimePackageVersion>[^<]*</CefRuntimePackageVersion>|<CefRuntimePackageVersion>${CEF_VERSION}</CefRuntimePackageVersion>|" "$PROPS_FILE"
+    ok "CefRuntimePackageVersion set to ${CEF_VERSION}"
 else
-    warn ".github/workflows/build-cef-packages.yml not found — skipping"
+    err "CefRuntimePackageVersion not found in CefVersion.props"
+    exit 1
+fi
+
+# ── Step 4: Check the official Windows runtime package ────────────────────────
+# Directory.Packages.props pins chromiumembeddedframework.runtime at $(CefVersion)
+# unconditionally, so restore fails with NU1102 on every platform until it exists.
+step "Checking nuget.org for chromiumembeddedframework.runtime ${CEF_VERSION}"
+
+NUGET_INDEX_URL="https://api.nuget.org/v3-flatcontainer/chromiumembeddedframework.runtime/index.json"
+if NUGET_INDEX=$(curl -sfL "$NUGET_INDEX_URL"); then
+    NUGET_VERSIONS=$(echo "$NUGET_INDEX" | tr -d ' \n\r[]{}"' | sed 's/^versions://' | tr ',' '\n')
+    if echo "$NUGET_VERSIONS" | grep -qx "$CEF_VERSION"; then
+        ok "chromiumembeddedframework.runtime ${CEF_VERSION} is published"
+    else
+        warn "chromiumembeddedframework.runtime ${CEF_VERSION} is NOT published (latest: $(echo "$NUGET_VERSIONS" | tail -1))"
+        warn "dotnet restore will fail with NU1102 on every platform until it is"
+    fi
+else
+    warn "Could not reach nuget.org; skipping the Windows package check"
 fi
 
 # ── Step 5: Download CEF C API headers ───────────────────────────────────────
+# Overlay linux64 then windows64 (do not mirror-delete): the Windows-specific
+# headers (cef_sandbox_win.h, internal/cef_*_win.h, wrapper/cef_library_loader.h)
+# ship only in the windows package.
 if [ "$SKIP_DOWNLOAD" = false ]; then
-    step "Downloading CEF C API headers"
-
     ENCODED_VERSION=$(python3 -c "import sys; print(sys.argv[1].replace('+', '%2B'))" "$CEF_BUILD_VERSION")
-    DOWNLOAD_URL="https://cef-builds.spotifycdn.com/cef_binary_${ENCODED_VERSION}_linux64_minimal.tar.bz2"
     TEMP_DIR="${SCRIPT_DIR}/.upgrade-cef"
-    mkdir -p "${TEMP_DIR}"
+    INCLUDE_DEST="${SCRIPT_DIR}/CefGlue.Interop.Gen/include"
+    rm -rf "$TEMP_DIR"
+    mkdir -p "$TEMP_DIR" "$INCLUDE_DEST"
+    trap 'rm -rf "$TEMP_DIR"' EXIT
 
-    info "URL: ${DOWNLOAD_URL}"
-    curl -L --fail --progress-bar -o "${TEMP_DIR}/cef.tar.bz2" "$DOWNLOAD_URL"
+    for PLATFORM in linux64 windows64; do
+        step "Downloading CEF C API headers (${PLATFORM})"
+        DOWNLOAD_URL="https://cef-builds.spotifycdn.com/cef_binary_${ENCODED_VERSION}_${PLATFORM}_minimal.tar.bz2"
+        info "URL: ${DOWNLOAD_URL}"
+        curl -L --fail --progress-bar -o "${TEMP_DIR}/${PLATFORM}.tar.bz2" "$DOWNLOAD_URL"
 
-    step "Extracting headers"
-    mkdir -p "${TEMP_DIR}/cef_extract"
-    tar -jxf "${TEMP_DIR}/cef.tar.bz2" -C "${TEMP_DIR}/cef_extract"
-
-    INCLUDE_DEST="${SCRIPT_DIR}/CefGlue/CefGlue.Interop.Gen/include"
-    mkdir -p "$INCLUDE_DEST"
-    cp -r "${TEMP_DIR}/cef_extract/"*/include/* "$INCLUDE_DEST/"
+        mkdir -p "${TEMP_DIR}/${PLATFORM}"
+        tar -jxf "${TEMP_DIR}/${PLATFORM}.tar.bz2" -C "${TEMP_DIR}/${PLATFORM}"
+        cp -R "${TEMP_DIR}/${PLATFORM}/"*/include/* "$INCLUDE_DEST/"
+        ok "${PLATFORM} headers installed to CefGlue.Interop.Gen/include/"
+    done
 
     rm -rf "$TEMP_DIR"
-    ok "CEF headers installed to CefGlue/CefGlue.Interop.Gen/include/"
+    trap - EXIT
 else
     warn "Skipping header download (--skip-download)"
 fi
@@ -202,7 +199,7 @@ fi
 if [ "$SKIP_INTEROP" = false ]; then
     step "Regenerating interop bindings"
 
-    INTEROP_DIR="${SCRIPT_DIR}/CefGlue/CefGlue.Interop.Gen"
+    INTEROP_DIR="${SCRIPT_DIR}/CefGlue.Interop.Gen"
     if [ -f "${INTEROP_DIR}/cefglue_interop_gen.py" ]; then
         (
             cd "$INTEROP_DIR"
@@ -222,7 +219,7 @@ fi
 # ── Step 7/10: Build the solution ─────────────────────────────────────────────
 if [ "$DO_BUILD" = true ]; then
     step "Building solution"
-    (cd "${SCRIPT_DIR}/CefGlue" && dotnet build Xilium.CefGlue.slnx -c Release -p:Platform=x64)
+    (cd "${SCRIPT_DIR}" && dotnet build Xilium.CefGlue.slnx -c Release)
     ok "Solution built successfully"
 fi
 
@@ -234,20 +231,23 @@ echo -e "${BOLD}═════════════════════�
 echo ""
 echo -e "${GREEN}Completed:${NC}"
 echo "  ✓ cef-version.json updated"
-echo "  ✓ .github/workflows/build-cef-packages.yml updated"
-[ "$SKIP_DOWNLOAD" = false ]  && echo "  ✓ CEF C API headers downloaded"
+echo "  ✓ CefRuntimePackageVersion set to ${CEF_VERSION}"
+[ "$SKIP_DOWNLOAD" = false ]  && echo "  ✓ CEF C API headers downloaded (linux64 + windows64)"
 [ "$SKIP_INTEROP" = false ]   && echo "  ✓ Interop bindings regenerated"
 [ "$DO_BUILD" = true ]        && echo "  ✓ Solution built"
 echo ""
 echo -e "${YELLOW}Manual steps still required:${NC}"
-echo "  1. Fix any API breaking changes in CefGlue source code"
-echo "     → cd CefGlue && dotnet build Xilium.CefGlue.slnx -c Release -p:Platform=x64"
-echo "  2. Build CEF redistribution packages:"
-echo "     → ./build-local-packages.ps1"
-echo "     → or: cd runtime-packages && dotnet pack runtime-packages.csproj --runtime linux-x64 /p:CefBuildVersion=${CEF_BUILD_VERSION}"
-echo "  3. Run tests:"
-echo "     → cd CefGlue && dotnet test CefGlue.Tests/CefGlue.Tests.csproj -c Release -p:Platform=x64"
-echo "  4. Update README.md with new version information"
-echo "  5. Commit changes:"
-echo "     → git add -A && git commit -m 'Upgrade CEF to ${CEF_VERSION}'"
+echo "  1. Review the generated diff: a clean upgrade usually changes only version.g.cs;"
+echo "     revert whitespace-only or path-separator-only churn in other generated files"
+echo "     and keep each generated file's line endings as in git (version.g.cs is CRLF)"
+echo "  2. Fix any API breaking changes in CefGlue source code"
+echo "     → dotnet build Xilium.CefGlue.slnx -c Release"
+echo "  3. Build the CEF redistribution packages (cef.runtime.*):"
+echo "     → run the build-cef-packages workflow, or locally per RID:"
+echo "     → cd CefRuntime && dotnet pack CefRuntime.csproj --runtime <rid> \"/p:CefBuildVersion=${CEF_BUILD_VERSION}\" -c Release"
+echo "  4. Run tests:"
+echo "     → dotnet test CefGlue.Tests/CefGlue.Tests.csproj -c Release"
+echo "  5. Update README.md with new version information"
+echo "  6. Commit changes:"
+echo "     → git add -A && git commit -m 'build(cef): upgrade to ${CEF_VERSION}'"
 echo ""
