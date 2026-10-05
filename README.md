@@ -25,14 +25,23 @@ At the time of this fork, the official NuGet packages for the following CEF redi
 
 | Package | Version | Platform |
 |---------|---------|----------|
-| [cef.runtime.win-x64](https://www.nuget.org/packages/cef.runtime.win-x64) | [![NuGet](https://img.shields.io/nuget/v/cef.runtime.win-x64?logo=nuget)](https://www.nuget.org/packages/cef.runtime.win-x64) | Windows x64 |
-| [cef.runtime.win-arm64](https://www.nuget.org/packages/cef.runtime.win-arm64) | [![NuGet](https://img.shields.io/nuget/v/cef.runtime.win-arm64?logo=nuget)](https://www.nuget.org/packages/cef.runtime.win-arm64) | Windows ARM64 |
+| [cef.runtime.win-x64](https://www.nuget.org/packages/cef.runtime.win-x64) | [![NuGet](https://img.shields.io/nuget/v/cef.runtime.win-x64?logo=nuget)](https://www.nuget.org/packages/cef.runtime.win-x64) | Windows x64 (CEF 154+) |
+| [cef.runtime.win-arm64](https://www.nuget.org/packages/cef.runtime.win-arm64) | [![NuGet](https://img.shields.io/nuget/v/cef.runtime.win-arm64?logo=nuget)](https://www.nuget.org/packages/cef.runtime.win-arm64) | Windows ARM64 (CEF 154+) |
 | [cef.runtime.linux-x64](https://www.nuget.org/packages/cef.runtime.linux-x64) | [![NuGet](https://img.shields.io/nuget/v/cef.runtime.linux-x64?logo=nuget)](https://www.nuget.org/packages/cef.runtime.linux-x64) | Linux x64 |
 | [cef.runtime.linux-arm64](https://www.nuget.org/packages/cef.runtime.linux-arm64) | [![NuGet](https://img.shields.io/nuget/v/cef.runtime.linux-arm64?logo=nuget)](https://www.nuget.org/packages/cef.runtime.linux-arm64) | Linux ARM64 |
 | [cef.runtime.osx-x64](https://www.nuget.org/packages/cef.runtime.osx-x64) | [![NuGet](https://img.shields.io/nuget/v/cef.runtime.osx-x64?logo=nuget)](https://www.nuget.org/packages/cef.runtime.osx-x64) | macOS x64 |
 | [cef.runtime.osx-arm64](https://www.nuget.org/packages/cef.runtime.osx-arm64) | [![NuGet](https://img.shields.io/nuget/v/cef.runtime.osx-arm64?logo=nuget)](https://www.nuget.org/packages/cef.runtime.osx-arm64) | macOS ARM64 |
 
-The source projects for these packages are also included directly in this workspace, so you can build them locally if needed. As of CEF 154.0.33 the Windows runtimes are fork-built too, so no third-party package paces a release.
+The source projects for these packages are also included directly in this workspace, so you can build them locally if needed.
+
+> **The referenced Windows packages changed with CEF 154.**
+> **From CEF 154.0.33 onwards**, the Windows runtimes are fork-built and referenced as
+> `cef.runtime.win-x64` and `cef.runtime.win-arm64` — so no third-party package paces a release.
+> **CEF 152 and older** releases of this fork instead reference the upstream
+> `chromiumembeddedframework.runtime`, `chromiumembeddedframework.runtime.win-x64` and
+> `chromiumembeddedframework.runtime.win-arm64` packages; those are still what you need when
+> consuming one of those older versions. The Linux and macOS packages are unaffected and have
+> always been fork-built.
 
 ## Repository Structure
 
