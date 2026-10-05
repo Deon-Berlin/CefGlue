@@ -9,9 +9,10 @@
   
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
-    <RuntimeIdentifiers>osx-arm64;osx-x64;linux-arm64;linux-x64</RuntimeIdentifiers>
+    <RuntimeIdentifiers>osx-arm64;osx-x64;linux-arm64;linux-x64;win-x64;win-arm64</RuntimeIdentifiers>
     <CurrentPlatform>osx</CurrentPlatform>
     <CurrentPlatform Condition="$([MSBuild]::IsOSPlatform('Linux'))">linux</CurrentPlatform>
+    <CurrentPlatform Condition="$([MSBuild]::IsOSPlatform('Windows'))">win</CurrentPlatform>
     <SecondaryRuntime Condition="$(RuntimeIdentifier) == ''">$(CurrentPlatform)-x64</SecondaryRuntime>
     <RuntimeIdentifier Condition="$(RuntimeIdentifier) == ''">$(CurrentPlatform)-arm64</RuntimeIdentifier>
     <PackageOutputPath>../LocalPackages</PackageOutputPath>
@@ -61,20 +62,28 @@
   <Target Name="PrepareRedist" BeforeTargets="GenerateNuspec;Build">
     <PropertyGroup>
       <IsWindows Condition="$([MSBuild]::IsOSPlatform('Windows'))">true</IsWindows>
+      <IsWindowsRedist Condition="$(RuntimeIdentifier.StartsWith('win-'))">true</IsWindowsRedist>
       <RedistBuildScript>$(MSBuildThisFileDirectory)make_cefredist_linux.sh</RedistBuildScript>
       <RedistBuildScript Condition="$(RuntimeIdentifier.StartsWith('osx-'))">$(MSBuildThisFileDirectory)make_cefredist_osx.sh</RedistBuildScript>
-    </PropertyGroup>
-
-    <Exec Command="chmod 755 $(RedistBuildScript)" Condition="'$(IsWindows)' != 'true'" />
-    <Exec Command="$(RedistBuildScript) $(RuntimeIdentifier) $(CefBuildVersion)" Condition="'$(IsWindows)' != 'true'" />
-
-    <PropertyGroup Condition="'$(IsWindows)' == 'true'">
-      <PowerShellExe Condition=" '$(PowerShellExe)'=='' ">%WINDIR%\System32\WindowsPowerShell\v1.0\powershell.exe</PowerShellExe>
+      <RedistBuildScript Condition="'$(IsWindowsRedist)' == 'true'">$(MSBuildThisFileDirectory)make_cefredist_windows.ps1</RedistBuildScript>
+      <!-- Windows hosts always have powershell (5.1); every other host uses pwsh, which is
+           preinstalled on the CI images. The script is 5.1-compatible for this reason. -->
+      <PowerShellExe Condition="'$(PowerShellExe)' == '' AND '$(IsWindows)' == 'true'">%WINDIR%\System32\WindowsPowerShell\v1.0\powershell.exe</PowerShellExe>
+      <PowerShellExe Condition="'$(PowerShellExe)' == ''">pwsh</PowerShellExe>
       <ScriptShell>$(MSBuildThisFileDirectory)make_cefredist.ps1</ScriptShell>
     </PropertyGroup>
 
+    <!-- Windows redist: run the staging script directly, on any host, no WSL involved. -->
+    <Exec Command="&quot;$(PowerShellExe)&quot; -NoProfile -ExecutionPolicy Bypass -File &quot;$(RedistBuildScript)&quot; &quot;$(RuntimeIdentifier)&quot; &quot;$(CefBuildVersion)&quot;"
+          Condition="'$(IsWindowsRedist)' == 'true'" />
+
+    <!-- Linux/macOS redist on a POSIX host: run the bash script directly. -->
+    <Exec Command="chmod 755 $(RedistBuildScript)" Condition="'$(IsWindows)' != 'true' AND '$(IsWindowsRedist)' != 'true'" />
+    <Exec Command="$(RedistBuildScript) $(RuntimeIdentifier) $(CefBuildVersion)" Condition="'$(IsWindows)' != 'true' AND '$(IsWindowsRedist)' != 'true'" />
+
+    <!-- Linux/macOS redist on a Windows host: via WSL. -->
     <Exec Command="$(PowerShellExe) -File &quot;$(ScriptShell)&quot; &quot;$(RedistBuildScript)&quot; &quot;$(RuntimeIdentifier)&quot; &quot;$(CefBuildVersion)&quot;"
-          Condition="'$(IsWindows)' == 'true'" />
+          Condition="'$(IsWindows)' == 'true' AND '$(IsWindowsRedist)' != 'true'" />
 
   </Target>
 
