@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--
+    Copies the CEF win-arm64 runtime next to a consuming executable, on build and on publish.
+
+    Every condition is evaluated when the target runs, never at import time: package props
+    are imported before the consuming project's own PropertyGroups, so $(RuntimeIdentifier),
+    $(Platform) and $(OutputType) are not reliably set yet while this file is being read.
+
+    Arch selection: an explicit win-arm64 RID always wins. With no RID at all we fall back to
+    $(Platform) == 'ARM64' on a Windows host; every other RID-less case is win-x64's to serve,
+    so exactly one of the two packages copies.
+
+    $(OutputType.Contains('Exe')) rather than == 'Exe' so WinExe projects (WPF, Avalonia) are
+    covered too.
+  -->
+  <Target Name="CefRedistWinArm64CopyResources" AfterTargets="Build"
+          Condition="'$(MSBuildRestoreSessionId)' == '' AND $(OutputType.Contains('Exe')) AND ('$(RuntimeIdentifier)' == 'win-arm64' OR ('$(RuntimeIdentifier)' == '' AND $([MSBuild]::IsOSPlatform('Windows')) AND '$(Platform)' == 'ARM64'))">
+    <PropertyGroup>
+      <CefRedistWinArm64TargetDir Condition="'$(CefRedistWinArm64TargetDir)' == ''">$(TargetDir)</CefRedistWinArm64TargetDir>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <_CefRedistWinArm64File Include="$(MSBuildThisFileDirectory)..\CEF\win-arm64\**\*.*" />
+    </ItemGroup>
+
+    <Message Importance="high" Text="Copying Chromium Embedded Framework Runtime win-arm64 files to $(CefRedistWinArm64TargetDir)" />
+    <Copy SourceFiles="@(_CefRedistWinArm64File)"
+          DestinationFiles="@(_CefRedistWinArm64File->'$(CefRedistWinArm64TargetDir)%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+  </Target>
+
+  <Target Name="CefRedistWinArm64CopyPublishResources" AfterTargets="Publish"
+          Condition="'$(MSBuildRestoreSessionId)' == '' AND $(OutputType.Contains('Exe')) AND ('$(RuntimeIdentifier)' == 'win-arm64' OR ('$(RuntimeIdentifier)' == '' AND $([MSBuild]::IsOSPlatform('Windows')) AND '$(Platform)' == 'ARM64'))">
+    <PropertyGroup>
+      <CefRedistWinArm64PublishDir Condition="'$(CefRedistWinArm64PublishDir)' == ''">$(PublishDir)</CefRedistWinArm64PublishDir>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <_CefRedistWinArm64PublishFile Include="$(MSBuildThisFileDirectory)..\CEF\win-arm64\**\*.*" />
+    </ItemGroup>
+
+    <Message Importance="high" Text="Publishing Chromium Embedded Framework Runtime win-arm64 files to $(CefRedistWinArm64PublishDir)" />
+    <Copy SourceFiles="@(_CefRedistWinArm64PublishFile)"
+          DestinationFiles="@(_CefRedistWinArm64PublishFile->'$(CefRedistWinArm64PublishDir)%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+  </Target>
+</Project>

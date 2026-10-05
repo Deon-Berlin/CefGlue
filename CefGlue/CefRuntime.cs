@@ -857,6 +857,7 @@ namespace Xilium.CefGlue
         ///   example.test.increment();
         /// </code>
         /// </summary>
+        [Obsolete("V8 extensions were removed in CEF 154 (API version 15400); this call does nothing and returns false. Inject script from CefRenderProcessHandler.OnContextCreated instead.")]
         public static bool RegisterExtension(string extensionName, string javascriptCode, CefV8Handler handler)
         {
             if (string.IsNullOrEmpty(extensionName)) throw new ArgumentNullException("extensionName");

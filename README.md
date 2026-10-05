@@ -1,6 +1,6 @@
-# CefGlue - CEF 152.0.6 Fork
+# CefGlue - CEF 154.0.33 Fork
 
-This repository contains a fork of [CefGlue](https://github.com/OutSystems/CefGlue) updated to **CEF version 152.0.6** (Chromium 152.0.7977.83), along with the necessary CEF redistribution packages for Linux and macOS.
+This repository contains a fork of [CefGlue](https://github.com/OutSystems/CefGlue) updated to **CEF version 154.0.33** (Chromium 154.0.8037.94), along with the necessary CEF redistribution packages for Linux and macOS.
 
 ## Overview
 
@@ -21,55 +21,80 @@ CefGlue is a .NET binding for The Chromium Embedded Framework (CEF). It allows y
 
 ### Why This Fork?
 
-At the time of this fork, the official NuGet packages for the following CEF redistributables were not yet available for version 152.0.6, so this fork builds and publishes them:
+At the time of this fork, the official NuGet packages for the following CEF redistributables were not yet available for version 154.0.33, so this fork builds and publishes them:
 
 | Package | Version | Platform |
 |---------|---------|----------|
+| [cef.runtime.win-x64](https://www.nuget.org/packages/cef.runtime.win-x64) | [![NuGet](https://img.shields.io/nuget/v/cef.runtime.win-x64?logo=nuget)](https://www.nuget.org/packages/cef.runtime.win-x64) | Windows x64 (CEF 154+) |
+| [cef.runtime.win-arm64](https://www.nuget.org/packages/cef.runtime.win-arm64) | [![NuGet](https://img.shields.io/nuget/v/cef.runtime.win-arm64?logo=nuget)](https://www.nuget.org/packages/cef.runtime.win-arm64) | Windows ARM64 (CEF 154+) |
 | [cef.runtime.linux-x64](https://www.nuget.org/packages/cef.runtime.linux-x64) | [![NuGet](https://img.shields.io/nuget/v/cef.runtime.linux-x64?logo=nuget)](https://www.nuget.org/packages/cef.runtime.linux-x64) | Linux x64 |
 | [cef.runtime.linux-arm64](https://www.nuget.org/packages/cef.runtime.linux-arm64) | [![NuGet](https://img.shields.io/nuget/v/cef.runtime.linux-arm64?logo=nuget)](https://www.nuget.org/packages/cef.runtime.linux-arm64) | Linux ARM64 |
 | [cef.runtime.osx-x64](https://www.nuget.org/packages/cef.runtime.osx-x64) | [![NuGet](https://img.shields.io/nuget/v/cef.runtime.osx-x64?logo=nuget)](https://www.nuget.org/packages/cef.runtime.osx-x64) | macOS x64 |
 | [cef.runtime.osx-arm64](https://www.nuget.org/packages/cef.runtime.osx-arm64) | [![NuGet](https://img.shields.io/nuget/v/cef.runtime.osx-arm64?logo=nuget)](https://www.nuget.org/packages/cef.runtime.osx-arm64) | macOS ARM64 |
 
-The source projects for these packages are also included directly in this workspace, so you can build them locally if needed. (Windows uses the official `chromiumembeddedframework.runtime.*` packages from nuget.org.)
+The source projects for these packages are also included directly in this workspace, so you can build them locally if needed.
+
+> **The referenced Windows packages changed with CEF 154.**
+> **From CEF 154.0.33 onwards**, the Windows runtimes are fork-built and referenced as
+> `cef.runtime.win-x64` and `cef.runtime.win-arm64` — so no third-party package paces a release.
+> **CEF 152 and older** releases of this fork instead reference the upstream
+> `chromiumembeddedframework.runtime`, `chromiumembeddedframework.runtime.win-x64` and
+> `chromiumembeddedframework.runtime.win-arm64` packages; those are still what you need when
+> consuming one of those older versions. The Linux and macOS packages are unaffected and have
+> always been fork-built.
 
 ## Repository Structure
 
+The layout is flat: the projects and the solution sit directly in the repository root.
+
 ```
-├── cef-version.json            # Central CEF version configuration (single source of truth)
-├── CefVersion.props            # MSBuild import for CEF version properties
-├── CefGlue/                    # Main CefGlue .NET bindings and demo projects
-│   ├── CefGlue/                # Core CefGlue library (.NET wrapper for CEF)
-│   ├── CefGlue.Avalonia/       # Avalonia browser control implementation
-│   ├── CefGlue.WPF/            # WPF browser control implementation
-│   ├── CefGlue.Common/         # Shared browser adapter code
-│   ├── CefGlue.Common.Shared/  # Shared utilities and serialization
-│   ├── CefGlue.BrowserProcess/ # Browser subprocess executable
-│   ├── CefGlue.Demo.Avalonia/  # Avalonia demo application
-│   ├── CefGlue.Demo.WPF/       # WPF demo application
-│   ├── CefGlue.Tests/          # Unit tests
-│   └── Nuget/                  # NuGet packaging configuration
+├── Xilium.CefGlue.slnx           # Solution
+├── cef-version.json              # Central CEF version configuration (single source of truth)
+├── CefVersion.props              # MSBuild import for CEF version properties (+ redist package version)
+├── upgrade-cef.sh / .ps1         # Automated CEF upgrade steps (see UPGRADE.md)
 │
-├── runtime-packages/           # CEF redistribution NuGet packages (all RIDs, single project)
-│   ├── runtime-packages.csproj # SDK-style project; build with `dotnet pack --runtime <rid>`
-│   ├── make_cefredist_linux.sh # Downloads & stages CEF binaries for Linux
-│   ├── make_cefredist_osx.sh   # Downloads & stages CEF binaries for macOS
-│   ├── make_cefredist.ps1      # Windows wrapper that calls the appropriate sh script via WSL
-│   ├── cef.runtime.<rid>.props # MSBuild props injected into consuming projects
-│   ├── deploy-cef-framework.sh # macOS post-install helper
-│   └── redist/                 # Staged CEF binaries (generated, git-ignored)
+├── CefGlue/                      # Core CefGlue library (.NET wrapper for CEF)
+├── CefGlue.Interop.Gen/          # CEF C API headers + interop generator (cefglue_interop_gen.py)
+├── CefGlue.Avalonia/             # Avalonia browser control implementation
+├── CefGlue.WPF/                  # WPF browser control implementation
+├── CefGlue.Common/               # Shared browser adapter code
+├── CefGlue.Common.Shared/        # Shared utilities and serialization
+├── CefGlue.BrowserProcess/       # Browser subprocess executable
+├── CefGlue.BrowserProcess.Core/  # Render-process side (JS bridge, frame delivery)
+├── CefGlue.Demo.Avalonia/        # Avalonia demo application
+├── CefGlue.Demo.WPF/             # WPF demo application
+├── CefGlue.Tests/                # Unit tests
+├── Nuget/                        # NuGet packaging configuration
 │
-└── LocalPackages/              # Output folder for locally built NuGet packages
+├── CefRuntime/                   # CEF redistribution NuGet packages (all RIDs, single project)
+│   ├── CefRuntime.csproj         # SDK-style project; build with `dotnet pack --runtime <rid>`
+│   ├── make_cefredist_linux.sh   # Downloads & stages CEF binaries for Linux
+│   ├── make_cefredist_osx.sh     # Downloads & stages CEF binaries for macOS
+│   ├── make_cefredist.ps1        # Windows wrapper that calls the appropriate sh script via WSL
+│   ├── cef.runtime.<rid>.props   # MSBuild props injected into consuming projects
+│   ├── deploy-cef-framework.sh   # macOS post-install helper
+│   └── redist/                   # Staged CEF binaries (generated, git-ignored)
+│
+└── LocalPackages/                # Output folder for locally built NuGet packages
 ```
 
 ## Version Information
 
 | Component | Version |
 |-----------|---------|
-| CEF | 152.0.6 |
-| Chromium | 152.0.7977.83 |
-| CefGlue | 152.7977.83 |
+| CEF | 154.0.33 |
+| Chromium | 154.0.8037.94 |
+| CefGlue | 154.8037.94 |
 | Target Framework | .NET 10.0 |
 | Avalonia | 11.3.14 |
+
+### CEF 154: V8 extensions removed
+
+CEF 154 removed V8 extensions: `CefRegisterExtension` is now a stub that does nothing and returns
+`false`. CefGlue no longer uses it; the `cefglue` JavaScript bridge (object binding, promises and
+script evaluation) is installed into each V8 context from `OnContextCreated` instead.
+`CefRuntime.RegisterExtension` is marked `[Obsolete]`. If your own code calls it, inject your script
+from `CefRenderProcessHandler.OnContextCreated` (e.g. with `CefV8Context.TryEval`) instead.
 
 ## Supported Platforms
 
@@ -96,26 +121,36 @@ The source projects for these packages are also included directly in this worksp
 
 ### Building the Solution
 
-1. Open `CefGlue/Xilium.CefGlue.slnx` in Visual Studio or your preferred IDE
-2. Build the solution
+1. Open `Xilium.CefGlue.slnx` (repository root) in Visual Studio or your preferred IDE, or build from the command line:
+   ```bash
+   dotnet restore Xilium.CefGlue.slnx
+   dotnet build Xilium.CefGlue.slnx -c Release
+   ```
+2. Run the tests:
+   ```bash
+   dotnet test CefGlue.Tests/CefGlue.Tests.csproj -c Release
+   ```
+
+Restoring anything downstream of `CefGlue.Common` requires the `cef.runtime.*` packages for the current CEF
+version to exist (on nuget.org or in `LocalPackages/`) — Windows, Linux and macOS alike.
 
 ### Running the Demo Applications
 
 **WPF Demo (Windows only):**
 ```powershell
-cd CefGlue/CefGlue.Demo.WPF
+cd CefGlue.Demo.WPF
 dotnet run -c Release
 ```
 
 **Avalonia Demo (Cross-platform):**
 ```bash
-cd CefGlue/CefGlue.Demo.Avalonia
+cd CefGlue.Demo.Avalonia
 dotnet run -c Release
 ```
 
 ## Building CEF Redistribution Packages
 
-All four runtime packages are built from the single `runtime-packages/runtime-packages.csproj` project using `dotnet pack`. The `PrepareRedist` MSBuild target automatically invokes the appropriate download/staging script before the nuspec is assembled, so no manual script invocation is needed.
+All six runtime packages are built from the single `CefRuntime/CefRuntime.csproj` project using `dotnet pack`. The `PrepareRedist` MSBuild target automatically invokes the appropriate download/staging script before the nuspec is assembled, so no manual script invocation is needed. Building the Windows packages needs `bzip2` on `PATH` (it ships with Git for Windows); the Linux and macOS packages use WSL when built on Windows.
 
 This will:
 1. Download CEF binaries from Spotify's CDN (~375 MB per architecture)
@@ -123,27 +158,27 @@ This will:
 3. Create NuGet packages in the `LocalPackages/` folder
 
 ```bash
-cd runtime-packages
+cd CefRuntime
 ```
 
 ### macOS
 
 ```bash
 # ARM64
-dotnet pack runtime-packages.csproj --runtime osx-arm64
+dotnet pack CefRuntime.csproj --runtime osx-arm64
 
 # x64
-dotnet pack runtime-packages.csproj --runtime osx-x64
+dotnet pack CefRuntime.csproj --runtime osx-x64
 ```
 
 ### Linux
 
 ```bash
 # x64
-dotnet pack runtime-packages.csproj --runtime linux-x64
+dotnet pack CefRuntime.csproj --runtime linux-x64
 
 # ARM64
-dotnet pack runtime-packages.csproj --runtime linux-arm64
+dotnet pack CefRuntime.csproj --runtime linux-arm64
 ```
 
 On **Windows** the `PrepareRedist` target calls `make_cefredist.ps1`, which delegates to the appropriate shell script via WSL. On **Linux/macOS** it calls the shell script directly.
@@ -165,7 +200,7 @@ There are known issues with dynamic loading of CEF on ARM64 Linux due to TLS (Th
    patchelf --add-needed libcef.so path/to/Xilium.CefGlue.BrowserProcess
    ```
 
-See [CefGlue/LINUX.md](CefGlue/LINUX.md) for more details.
+See [LINUX.md](LINUX.md) for more details.
 
 ## Related Repositories
 

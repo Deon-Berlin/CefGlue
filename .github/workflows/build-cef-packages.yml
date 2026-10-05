@@ -4,9 +4,9 @@ on:
     workflow_dispatch:
         inputs:
             cefbuildversion:
-                description: "CEF version (i.e. 152.0.6+g708dc14+chromium-152.0.7977.83)"
+                description: "CEF version (i.e. 154.0.33+ga03e714+chromium-154.0.8037.94)"
                 required: false
-                default: ""
+                default: "154.0.33+ga03e714+chromium-154.0.8037.94"
             packages:
                 description: "Packages to build"
                 required: true
@@ -16,6 +16,7 @@ on:
                     - all
                     - linux-only
                     - macos-only
+                    - windows-only
     # Rebuild the native CEF redist packages automatically when the pinned CEF
     # version changes on main. cef-version.json is the single source of truth;
     # when cefbuildversion is empty (as it is for push events) the redist scripts
@@ -30,7 +31,7 @@ jobs:
     build-linux-x64:
         name: Build Linux x64 Package
         runs-on: ubuntu-latest
-        if: ${{ github.event.inputs.packages != 'macos-only' }}
+        if: ${{ github.event.inputs.packages == '' || github.event.inputs.packages == 'all' || github.event.inputs.packages == 'linux-only' }}
 
         steps:
             - name: Checkout repository
@@ -65,7 +66,7 @@ jobs:
     build-linux-arm64:
         name: Build Linux ARM64 Package
         runs-on: ubuntu-latest
-        if: ${{ github.event.inputs.packages != 'macos-only' }}
+        if: ${{ github.event.inputs.packages == '' || github.event.inputs.packages == 'all' || github.event.inputs.packages == 'linux-only' }}
 
         steps:
             - name: Checkout repository
@@ -103,7 +104,7 @@ jobs:
     build-macos-x64:
         name: Build macOS x64 Package
         runs-on: ubuntu-latest
-        if: ${{ github.event.inputs.packages != 'linux-only' }}
+        if: ${{ github.event.inputs.packages == '' || github.event.inputs.packages == 'all' || github.event.inputs.packages == 'macos-only' }}
 
         steps:
             - name: Checkout repository
@@ -138,7 +139,7 @@ jobs:
     build-macos-arm64:
         name: Build macOS ARM64 Package
         runs-on: ubuntu-latest
-        if: ${{ github.event.inputs.packages != 'linux-only' }}
+        if: ${{ github.event.inputs.packages == '' || github.event.inputs.packages == 'all' || github.event.inputs.packages == 'macos-only' }}
 
         steps:
             - name: Checkout repository
@@ -170,6 +171,72 @@ jobs:
                   path: LocalPackages/*.nupkg
                   retention-days: 30
 
+    build-windows-x64:
+        name: Build Windows x64 Package
+        runs-on: ubuntu-latest
+        if: ${{ github.event.inputs.packages == '' || github.event.inputs.packages == 'all' || github.event.inputs.packages == 'windows-only' }}
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Create NuGet package
+              working-directory: CefRuntime
+              run: |
+                  dotnet pack CefRuntime.csproj --runtime win-x64 /p:CefBuildVersion=${{ github.event.inputs.cefbuildversion }}
+
+            - name: Verify NuGet package contents
+              run: |
+                  echo "=== NuGet Package Contents ==="
+                  unzip -l LocalPackages/*.nupkg | head -50
+                  echo ""
+                  echo "Checking for libcef.dll in package..."
+                  unzip -l LocalPackages/*.nupkg | grep libcef.dll
+                  echo "Checking the package is not empty..."
+                  SIZE=$(stat -c%s LocalPackages/cef.runtime.win-x64.*.nupkg)
+                  echo "Package size: $((SIZE / 1048576)) MB"
+                  test "$SIZE" -gt 104857600
+
+            - name: Upload artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: cef.runtime.win-x64
+                  path: LocalPackages/*.nupkg
+                  retention-days: 30
+
+    build-windows-arm64:
+        name: Build Windows ARM64 Package
+        runs-on: ubuntu-latest
+        if: ${{ github.event.inputs.packages == '' || github.event.inputs.packages == 'all' || github.event.inputs.packages == 'windows-only' }}
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Create NuGet package
+              working-directory: CefRuntime
+              run: |
+                  dotnet pack CefRuntime.csproj --runtime win-arm64 /p:CefBuildVersion=${{ github.event.inputs.cefbuildversion }}
+
+            - name: Verify NuGet package contents
+              run: |
+                  echo "=== NuGet Package Contents ==="
+                  unzip -l LocalPackages/*.nupkg | head -50
+                  echo ""
+                  echo "Checking for libcef.dll in package..."
+                  unzip -l LocalPackages/*.nupkg | grep libcef.dll
+                  echo "Checking the package is not empty..."
+                  SIZE=$(stat -c%s LocalPackages/cef.runtime.win-arm64.*.nupkg)
+                  echo "Package size: $((SIZE / 1048576)) MB"
+                  test "$SIZE" -gt 104857600
+
+            - name: Upload artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: cef.runtime.win-arm64
+                  path: LocalPackages/*.nupkg
+                  retention-days: 30
+
     # Summary job that collects all artifacts
     summary:
         name: Collect All Packages
@@ -180,6 +247,8 @@ jobs:
                 build-linux-arm64,
                 build-macos-x64,
                 build-macos-arm64,
+                build-windows-x64,
+                build-windows-arm64,
             ]
         if: always()
 
