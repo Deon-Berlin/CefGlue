@@ -1,13 +1,5 @@
 ﻿<Project>
 
-  <!-- Copy CEF DLLs and resources on Windows, on macOS and linux this happening automatically -->
-  <Target Name="CefRedistCopyWindowsResources" AfterTargets="Build" Condition="'$(MSBuildRestoreSessionId)' == '' AND $([MSBuild]::IsOSPlatform('Windows')) AND $(OutputType.Contains('Exe'))">
-    <Message Importance="high" Text="Copying CEF resources for Windows $(RuntimeIdentifier) ..." />
-    
-    <CallTarget Targets="CefRedist64CopyResources" Condition="'$(RuntimeIdentifier)' == 'win-x64' OR '$(RuntimeIdentifier)' == ''" />
-    <CallTarget Targets="CefRedistArm64CopyResources" Condition="'$(RuntimeIdentifier)' == 'win-arm64'" />
-  </Target>
-
   <Target Name="ResolveVcvarsFile" Condition="'$(MSBuildRestoreSessionId)' == ''">
     <PropertyGroup>
       <_VsWherePath>$([System.Environment]::GetEnvironmentVariable('ProgramFiles(x86)'))\Microsoft Visual Studio\Installer\vswhere.exe</_VsWherePath>

@@ -4,9 +4,8 @@
 
     <ItemGroup>
         <!-- Windows -->
-        <PackageReference PrivateAssets="runtime;native" ExcludeAssets="runtime;native" Include="chromiumembeddedframework.runtime.win-x64"/>
-        <PackageReference PrivateAssets="runtime;native" ExcludeAssets="runtime;native" Include="chromiumembeddedframework.runtime.win-arm64" />
-        <PackageReference PrivateAssets="runtime;native" ExcludeAssets="runtime;native" Include="chromiumembeddedframework.runtime" />
+        <PackageReference PrivateAssets="runtime;native" Include="cef.runtime.win-x64" />
+        <PackageReference PrivateAssets="runtime;native" Include="cef.runtime.win-arm64" />
 
         <!-- Linux -->
         <PackageReference PrivateAssets="runtime;native" Include="cef.runtime.linux-x64" />
