@@ -26,8 +26,14 @@ $ErrorActionPreference = 'Stop'
 $ExcludedFiles = @('libcef.lib', 'bootstrap.exe', 'bootstrapc.exe')
 
 $OnWindows = $env:OS -eq 'Windows_NT'
+# Tool names differ by host: Windows resolves the bundled curl.exe/tar.exe, while the CI
+# runners (where this also runs, because packing is RID-agnostic) have plain curl/tar.
 $TarExe = 'tar'
-if ($OnWindows) { $TarExe = 'tar.exe' }
+$CurlExe = 'curl'
+if ($OnWindows) {
+    $TarExe = 'tar.exe'
+    $CurlExe = 'curl.exe'
+}
 
 # Windows ships bsdtar (3.5.2) whose build advertises zlib only: handed a .tar.bz2 it hangs
 # indefinitely at 0% CPU instead of failing. So on Windows we decompress with bzip2 first
@@ -93,7 +99,7 @@ try {
         $encodedVersion = $CefBuildVersion.Replace('+', '%2B')
         $url = "https://cef-builds.spotifycdn.com/cef_binary_${encodedVersion}_${arch}_minimal.tar.bz2"
         Write-Host "Downloading CEF binaries v$CefVersion-$arch"
-        & curl.exe -fL --retry 3 -o $archive $url
+        & $CurlExe -fL --retry 3 -o $archive $url
         if ($LASTEXITCODE -ne 0) {
             Remove-Item -Force -ErrorAction SilentlyContinue $archive
             throw "Download failed for $url"
