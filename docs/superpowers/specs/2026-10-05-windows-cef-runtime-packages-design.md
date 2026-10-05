@@ -1,6 +1,6 @@
 # Fork-maintained Windows CEF runtime packages
 
-Status: approved design, not yet implemented
+Status: implemented on `build/cef-154.0.33`
 Date: 2026-10-05
 Branch: `build/cef-154.0.33`
 
@@ -231,6 +231,36 @@ In order, each step gating the next:
 
 Nuget.org's per-package limit is 250 MB, so the expected sizes leave headroom; step 1
 records the actual figures.
+
+## Implementation notes (2026-10-05)
+
+What the implementation found that the design above did not anticipate:
+
+- **Windows `tar.exe` cannot unpack `.tar.bz2`.** The design assumed the bundled tar handles
+  bz2. It does not: bsdtar 3.5.2 as shipped with Windows advertises zlib only and, handed a
+  `.tar.bz2`, **hangs indefinitely at 0% CPU** rather than failing — the worst failure mode,
+  because a timeout-less build just stops. The staging script therefore decompresses with
+  `bzip2` (ships with Git for Windows, already a prerequisite) and hands `tar.exe` a plain
+  `.tar`, which it unpacks in about a second. 37 s to decompress, 1 s to untar. Non-Windows
+  hosts, including CI, still use `tar -xjf`, so CI gains no new dependency. `bzip2` is now a
+  documented Windows prerequisite in UPGRADE.md and CLAUDE.md.
+- **Staging guards must judge content, not path existence.** A killed run left an empty
+  extraction directory behind, and an existence-only check then reported "already extracted"
+  and failed later with a misleading "Release directory not found". The script now looks for
+  an actual `Release` directory and re-extracts otherwise, and discards a truncated download.
+  (The linux/osx bash scripts still have the original existence-only check.)
+- **Actual package sizes: 179.5 MB (win-x64) and 179.8 MB (win-arm64)**, above the design's
+  130–170 MB estimate because `libcef.dll` alone is 277 MB uncompressed. Still comfortably
+  under nuget.org's 250 MB limit, but with less headroom than assumed — worth re-checking on
+  future CEF majors. Staged payload is 399 MB uncompressed per architecture.
+- **arm64 got a stronger check than planned.** Rather than only inspecting the file list, the
+  PE header of the packaged `libcef.dll` was read and reports machine type `0xaa64` (ARM64),
+  confirming the right distribution was downloaded. Running an arm64 app is still untested.
+
+Verified: restore (no NU1102), `dotnet build` 0 errors, 143 tests with 142 passed and 1
+skipped, `libcef.dll` 154.0.33 in the test output root and `subprocess/`, publish output
+carrying the natives, and a no-RID `WinExe` build copying win-x64 via the `$(Platform)`
+fallback.
 
 ## Known limits and follow-ups
 
