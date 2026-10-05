@@ -30,7 +30,8 @@ dotnet test    CefGlue.Tests/CefGlue.Tests.csproj -c Release
 - **`CefGlue` (core), `CefGlue.Common.Shared`, `CefGlue.BrowserProcess.Core`
   build without the redist packages.** Everything downstream of `CefGlue.Common`
   (Avalonia/WPF/Demos/Tests) can only *restore* once the `cef.runtime.*` packages
-  for the current version exist (see below).
+  for the current version exist (see below) — **including the Windows ones**
+  (`cef.runtime.win-x64`/`win-arm64`), which this fork builds itself as of CEF 154.0.33.
 - **Tests: all 142 pass, 1 skipped on Windows** (143 total) as of CEF 152.0.6. The tests
   pin **NUnit 3.12**: `[Platform(...)]` throws "Unknown framework version" on .NET 10 and
   **silently drops the whole fixture** from discovery (watch the total, not just failures),
@@ -44,22 +45,21 @@ dotnet test    CefGlue.Tests/CefGlue.Tests.csproj -c Release
 
 Do the full procedure in [UPGRADE.md](UPGRADE.md). The parts that bite:
 
-### 1. Check the official Windows nuget package FIRST — it gates the whole upgrade
+### 1. Check the CEF CDN — it is the only external gate
 
-`Directory.Packages.props` pins `chromiumembeddedframework.runtime[.win-x64/.win-arm64]`
-at `$(CefVersion)`, and `CefGlue.Packages.props` references them
-**unconditionally**, so a `cef_version` with no published Windows package fails
-`restore` with **NU1102 on every platform**, not just Windows.
+All runtime packages are fork-built (`cef.runtime.{win,linux,osx}-*`), so no third-party
+nuget package paces an upgrade any more. The only requirement is that the CDN has the
+needed architectures for the version you want:
 
 ```bash
-curl -s https://api.nuget.org/v3-flatcontainer/chromiumembeddedframework.runtime/index.json
+curl -s https://cef-builds.spotifycdn.com/index.json
 ```
 
-That package (same maintainer as CefSharp) **lags CEF stable by days and is
-unreliable** — and **only some CEF patches per major get published** (e.g. 146
-got .7 and .10; 147 and 148 got a single patch each). So do **not** wait for one
-specific CEF patch — adopt whichever version actually lands, then confirm the
-matching headers exist on the CDN (`https://cef-builds.spotifycdn.com/index.json`).
+Confirm a build exists for `windows64`, `windowsarm64`, `linux64`, `linuxarm64`, `macosx64`
+and `macosarm64` before starting. Windows packages are fork-built from CEF 154.0.33 on;
+before that the repo depended on `chromiumembeddedframework.runtime*` (same maintainer as
+CefSharp), which lagged CEF stable by days and published only some patches per major —
+that dependency is gone.
 
 ### 2. Version bookkeeping — two families, set by hand
 
@@ -102,9 +102,22 @@ fix **`CefGlue.Interop.Gen/make_interop.py`** and regenerate — do not hand-edi
 
 ### 5. Redist packages (`cef.runtime.*`) — fork-custom, built by CI or locally
 
-The Linux/macOS runtimes are **not on nuget** as official packages; this fork
-builds them. Normally CI (`.github/workflows/build-cef-packages.yml`) produces
-them. To build locally on Windows (uses **WSL**):
+**All six runtimes are fork-built** — Windows included, as of CEF 154.0.33. Normally CI
+(`.github/workflows/build-cef-packages.yml`) produces them.
+
+The **Windows** RIDs need no WSL (`make_cefredist_windows.ps1` runs under `powershell`
+locally and `pwsh` on CI) but they do need **`bzip2`**: the `tar.exe` bundled with Windows
+is a bsdtar built without bzip2 and **hangs forever at 0% CPU** on a `.tar.bz2` instead of
+failing, so the script decompresses with bzip2 first (it ships with Git for Windows) and
+hands tar a plain `.tar`.
+
+```bash
+# from CefRuntime/
+dotnet pack CefRuntime.csproj --runtime win-x64     "/p:CefBuildVersion=<full+version>" -c Release
+dotnet pack CefRuntime.csproj --runtime win-arm64   "/p:CefBuildVersion=<full+version>" -c Release
+```
+
+The Linux/macOS RIDs still use the bash scripts, which on Windows go through **WSL**:
 
 ```bash
 # from CefRuntime/ — run each RID; use PowerShell so /p: isn't mangled by MSYS

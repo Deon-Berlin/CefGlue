@@ -25,12 +25,14 @@ At the time of this fork, the official NuGet packages for the following CEF redi
 
 | Package | Version | Platform |
 |---------|---------|----------|
+| [cef.runtime.win-x64](https://www.nuget.org/packages/cef.runtime.win-x64) | [![NuGet](https://img.shields.io/nuget/v/cef.runtime.win-x64?logo=nuget)](https://www.nuget.org/packages/cef.runtime.win-x64) | Windows x64 |
+| [cef.runtime.win-arm64](https://www.nuget.org/packages/cef.runtime.win-arm64) | [![NuGet](https://img.shields.io/nuget/v/cef.runtime.win-arm64?logo=nuget)](https://www.nuget.org/packages/cef.runtime.win-arm64) | Windows ARM64 |
 | [cef.runtime.linux-x64](https://www.nuget.org/packages/cef.runtime.linux-x64) | [![NuGet](https://img.shields.io/nuget/v/cef.runtime.linux-x64?logo=nuget)](https://www.nuget.org/packages/cef.runtime.linux-x64) | Linux x64 |
 | [cef.runtime.linux-arm64](https://www.nuget.org/packages/cef.runtime.linux-arm64) | [![NuGet](https://img.shields.io/nuget/v/cef.runtime.linux-arm64?logo=nuget)](https://www.nuget.org/packages/cef.runtime.linux-arm64) | Linux ARM64 |
 | [cef.runtime.osx-x64](https://www.nuget.org/packages/cef.runtime.osx-x64) | [![NuGet](https://img.shields.io/nuget/v/cef.runtime.osx-x64?logo=nuget)](https://www.nuget.org/packages/cef.runtime.osx-x64) | macOS x64 |
 | [cef.runtime.osx-arm64](https://www.nuget.org/packages/cef.runtime.osx-arm64) | [![NuGet](https://img.shields.io/nuget/v/cef.runtime.osx-arm64?logo=nuget)](https://www.nuget.org/packages/cef.runtime.osx-arm64) | macOS ARM64 |
 
-The source projects for these packages are also included directly in this workspace, so you can build them locally if needed. (Windows uses the official `chromiumembeddedframework.runtime.*` packages from nuget.org.)
+The source projects for these packages are also included directly in this workspace, so you can build them locally if needed. As of CEF 154.0.33 the Windows runtimes are fork-built too, so no third-party package paces a release.
 
 ## Repository Structure
 
@@ -120,8 +122,8 @@ from `CefRenderProcessHandler.OnContextCreated` (e.g. with `CefV8Context.TryEval
    dotnet test CefGlue.Tests/CefGlue.Tests.csproj -c Release
    ```
 
-Restoring anything downstream of `CefGlue.Common` requires the `cef.runtime.*` packages and the official
-`chromiumembeddedframework.runtime.*` packages for the current CEF version to exist (on nuget.org or in `LocalPackages/`).
+Restoring anything downstream of `CefGlue.Common` requires the `cef.runtime.*` packages for the current CEF
+version to exist (on nuget.org or in `LocalPackages/`) — Windows, Linux and macOS alike.
 
 ### Running the Demo Applications
 
@@ -139,7 +141,7 @@ dotnet run -c Release
 
 ## Building CEF Redistribution Packages
 
-All four runtime packages are built from the single `CefRuntime/CefRuntime.csproj` project using `dotnet pack`. The `PrepareRedist` MSBuild target automatically invokes the appropriate download/staging script before the nuspec is assembled, so no manual script invocation is needed.
+All six runtime packages are built from the single `CefRuntime/CefRuntime.csproj` project using `dotnet pack`. The `PrepareRedist` MSBuild target automatically invokes the appropriate download/staging script before the nuspec is assembled, so no manual script invocation is needed. Building the Windows packages needs `bzip2` on `PATH` (it ships with Git for Windows); the Linux and macOS packages use WSL when built on Windows.
 
 This will:
 1. Download CEF binaries from Spotify's CDN (~375 MB per architecture)
