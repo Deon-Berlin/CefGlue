@@ -32,7 +32,7 @@ dotnet test    CefGlue.Tests/CefGlue.Tests.csproj -c Release
   (Avalonia/WPF/Demos/Tests) can only *restore* once the `cef.runtime.*` packages
   for the current version exist (see below) — **including the Windows ones**
   (`cef.runtime.win-x64`/`win-arm64`), which this fork builds itself as of CEF 154.0.33.
-- **Tests: all 142 pass, 1 skipped on Windows** (143 total) as of CEF 152.0.6. The tests
+- **Tests: all 142 pass, 1 skipped on Windows** (143 total) as of CEF 154.0.34. The tests
   pin **NUnit 3.12**: `[Platform(...)]` throws "Unknown framework version" on .NET 10 and
   **silently drops the whole fixture** from discovery (watch the total, not just failures),
   and `Assert.Ignore` is reported as a *failure* under the assembly-wide `[Timeout]` — use
@@ -63,16 +63,16 @@ that dependency is gone.
 
 ### 2. Version bookkeeping — two families, set by hand
 
-| File | Property | Scheme | Example (152) |
+| File | Property | Scheme | Example (154) |
 |------|----------|--------|---------------|
-| `cef-version.json` | `cefglue_version` (managed `CefGlue.Next.*`) | `{CefMajor}.{ChromeBuild}.{ChromePatch}` | `152.7977.83` |
-| `CefVersion.props` | `CefRuntimePackageVersion` (redist `cef.runtime.*`) | the CEF version `{CefMajor}.{CefMinor}.{CefPatch}` | `152.0.6` |
+| `cef-version.json` | `cefglue_version` (managed `CefGlue.Next.*`) | `{CefMajor}.{ChromeBuild}.{ChromePatch}` | `154.8037.98` |
+| `CefVersion.props` | `CefRuntimePackageVersion` (redist `cef.runtime.*`) | the CEF version `{CefMajor}.{CefMinor}.{CefPatch}` | `154.0.34` |
 
 `upgrade-cef.ps1` derives and writes `cef-version.json`; **`CefRuntimePackageVersion`
 is NOT auto-derived — bump it by hand.** A fresh upgrade is a base release. To
 **republish the same CEF binaries** with a build-script fix (nuget versions are
 immutable), use the **x10 patch scheme**: multiply the last component by 10 and add
-the patch number — managed `152.7977.83 → 152.7977.831`, redist `152.0.6 → 152.0.61`.
+the patch number — managed `154.8037.98 → 154.8037.981`, redist `154.0.34 → 154.0.341`.
 
 ### 3. Headers — overlay both platforms; don't chase enums
 
