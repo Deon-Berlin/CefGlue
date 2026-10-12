@@ -8,7 +8,7 @@
 #
 # Usage: make_cefredist_windows.ps1 <rid> [<cefBuildVersion>]
 #   rid              win-x64 | win-arm64
-#   cefBuildVersion  e.g. 154.0.33+ga03e714+chromium-154.0.8037.94
+#   cefBuildVersion  e.g. 154.0.34+g14c5a08+chromium-154.0.8037.98
 #                    When omitted, read from ../cef-version.json (the CI push trigger
 #                    relies on this).
 
