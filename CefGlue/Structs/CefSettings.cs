@@ -306,6 +306,24 @@
         /// </summary>
         public bool UseViewsDefaultPopup { get; set; }
 
+        /// <summary>
+        /// The macOS Keychain service name used by OSCrypt. If this value is empty
+        /// then the default Chromium/Chrome service name will be used. Changing this
+        /// value will create or access a different Keychain item and may make
+        /// previously encrypted data unreadable.
+        /// Added in CEF 156.
+        /// </summary>
+        public string KeychainServiceName { get; set; }
+
+        /// <summary>
+        /// The macOS Keychain account name used by OSCrypt. If this value is empty
+        /// then the default Chromium/Chrome account name will be used. Changing this
+        /// value will create or access a different Keychain item and may make
+        /// previously encrypted data unreadable.
+        /// Added in CEF 156.
+        /// </summary>
+        public string KeychainAccountName { get; set; }
+
         internal cef_settings_t* ToNative()
         {
             var ptr = cef_settings_t.Alloc();
@@ -339,6 +357,8 @@
             ptr->chrome_app_icon_id = ChromeAppIconId;
             ptr->disable_signal_handlers = DisableSignalHandlers ? 1 : 0;
             ptr->use_views_default_popup = UseViewsDefaultPopup ? 1 : 0;
+            cef_string_t.Copy(KeychainServiceName, &ptr->keychain_service_name);
+            cef_string_t.Copy(KeychainAccountName, &ptr->keychain_account_name);
             return ptr;
         }
 
@@ -358,6 +378,8 @@
             libcef.string_clear(&ptr->locales_dir_path);
             libcef.string_clear(&ptr->accept_language_list);
             libcef.string_clear(&ptr->cookieable_schemes_list);
+            libcef.string_clear(&ptr->keychain_service_name);
+            libcef.string_clear(&ptr->keychain_account_name);
         }
 
         internal static void Free(cef_settings_t* ptr)
