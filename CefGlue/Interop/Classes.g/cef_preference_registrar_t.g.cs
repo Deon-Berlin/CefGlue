@@ -14,6 +14,8 @@ namespace Xilium.CefGlue.Interop
     {
         internal cef_base_scoped_t _base;
         internal IntPtr _add_preference;
+        internal IntPtr _set_default_preference;
+        internal IntPtr _get_default_preference;
         
         [UnmanagedFunctionPointer(libcef.CEF_CALLBACK)]
         #if !DEBUG
@@ -26,6 +28,18 @@ namespace Xilium.CefGlue.Interop
         [SuppressUnmanagedCodeSecurity]
         #endif
         private delegate int add_preference_delegate(cef_preference_registrar_t* self, cef_string_t* name, cef_value_t* default_value);
+        
+        [UnmanagedFunctionPointer(libcef.CEF_CALLBACK)]
+        #if !DEBUG
+        [SuppressUnmanagedCodeSecurity]
+        #endif
+        private delegate int set_default_preference_delegate(cef_preference_registrar_t* self, cef_string_t* name, cef_value_t* value, cef_string_t* error);
+        
+        [UnmanagedFunctionPointer(libcef.CEF_CALLBACK)]
+        #if !DEBUG
+        [SuppressUnmanagedCodeSecurity]
+        #endif
+        private delegate cef_value_t* get_default_preference_delegate(cef_preference_registrar_t* self, cef_string_t* name);
         
         // Del
         private static IntPtr _p0;
@@ -59,6 +73,40 @@ namespace Xilium.CefGlue.Interop
                 if (_p1 == IntPtr.Zero) { _d1 = d; _p1 = p; }
             }
             return d(self, name, default_value);
+        }
+        
+        // SetDefaultPreference
+        private static IntPtr _p2;
+        private static set_default_preference_delegate _d2;
+        
+        public static int set_default_preference(cef_preference_registrar_t* self, cef_string_t* name, cef_value_t* value, cef_string_t* error)
+        {
+            set_default_preference_delegate d;
+            var p = self->_set_default_preference;
+            if (p == _p2) { d = _d2; }
+            else
+            {
+                d = (set_default_preference_delegate)Marshal.GetDelegateForFunctionPointer(p, typeof(set_default_preference_delegate));
+                if (_p2 == IntPtr.Zero) { _d2 = d; _p2 = p; }
+            }
+            return d(self, name, value, error);
+        }
+        
+        // GetDefaultPreference
+        private static IntPtr _p3;
+        private static get_default_preference_delegate _d3;
+        
+        public static cef_value_t* get_default_preference(cef_preference_registrar_t* self, cef_string_t* name)
+        {
+            get_default_preference_delegate d;
+            var p = self->_get_default_preference;
+            if (p == _p3) { d = _d3; }
+            else
+            {
+                d = (get_default_preference_delegate)Marshal.GetDelegateForFunctionPointer(p, typeof(get_default_preference_delegate));
+                if (_p3 == IntPtr.Zero) { _d3 = d; _p3 = p; }
+            }
+            return d(self, name);
         }
         
     }
