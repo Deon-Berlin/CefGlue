@@ -17,15 +17,6 @@ on:
                     - linux-only
                     - macos-only
                     - windows-only
-    # Rebuild the native CEF redist packages automatically when the pinned CEF
-    # version changes on main. cef-version.json is the single source of truth;
-    # when cefbuildversion is empty (as it is for push events) the redist scripts
-    # and CefRuntime.csproj read the version from cef-version.json.
-    push:
-        branches:
-            - main
-        paths:
-            - "cef-version.json"
 
 jobs:
     build-linux-x64:
