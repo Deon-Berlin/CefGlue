@@ -273,7 +273,14 @@ jobs:
                   name: cef-redist-all-packages
                   path: all-packages/*.nupkg
                   retention-days: 30
-
+      
+            # Get a short-lived NuGet API key
+            - name: NuGet login (OIDC → temp API key)
+              uses: NuGet/login@v1
+              id: login
+              with:
+                user: ${{ secrets.NUGET_USER }}
+          
             - name: Push to NuGet.org
               run: |
-                  dotnet nuget push all-packages/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
+                  dotnet nuget push all-packages/*.nupkg --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
