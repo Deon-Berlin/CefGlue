@@ -270,7 +270,7 @@ jobs:
             - name: List all packages
               run: |
                   echo "=== All Built Packages ==="
-                  ls -la all-packages/
+                  ls -la all-packages/ || echo "(no artifacts were downloaded)"
                   echo ""
                   echo "Package sizes:"
                   du -h all-packages/*.nupkg 2>/dev/null || echo "No packages found"
@@ -282,13 +282,64 @@ jobs:
                   path: all-packages/*.nupkg
                   retention-days: 30
       
+            # Publishing is irreversible - nuget.org versions are immutable, so a bad or
+            # partial push can only be superseded, never replaced. Gate it: never publish
+            # after a build failure, and only publish a set that matches the jobs that ran.
+            # A deliberately partial run (packages: windows-only) skips the other jobs, so
+            # "skipped" is fine; "failure" and "cancelled" are not.
+            - name: Verify the package set
+              id: verify
+              env:
+                  RESULTS: ${{ join(needs.*.result, ',') }}
+              run: |
+                  succeeded=0
+                  broken=0
+                  IFS=',' read -ra results <<< "$RESULTS"
+                  for r in "${results[@]}"; do
+                      case "$r" in
+                          success) succeeded=$((succeeded + 1)) ;;
+                          skipped) ;;
+                          *) echo "build job result: $r"; broken=$((broken + 1)) ;;
+                      esac
+                  done
+                  found=$(find all-packages -maxdepth 1 -name '*.nupkg' 2>/dev/null | wc -l)
+                  echo "build jobs: $succeeded succeeded, $broken not succeeded; packages found: $found"
+
+                  if [ "$broken" -ne 0 ]; then
+                      echo "publish=false" >> $GITHUB_OUTPUT
+                      echo "::warning::Not publishing: $broken build job(s) did not succeed."
+                      exit 0
+                  fi
+                  if [ "$succeeded" -eq 0 ]; then
+                      echo "publish=false" >> $GITHUB_OUTPUT
+                      echo "::warning::Not publishing: no build jobs ran."
+                      exit 0
+                  fi
+                  if [ "$found" -ne "$succeeded" ]; then
+                      echo "::error::Expected $succeeded package(s) from the jobs that ran, found $found."
+                      exit 1
+                  fi
+                  # A truncated stage still packs and still exits 0, so size is the only
+                  # thing that catches it before the version is burned on nuget.org.
+                  for p in all-packages/*.nupkg; do
+                      size=$(stat -c%s "$p")
+                      echo "$(basename "$p"): $((size / 1048576)) MB"
+                      if [ "$size" -lt 104857600 ]; then
+                          echo "::error::$(basename "$p") is only $((size / 1048576)) MB - the stage was probably truncated."
+                          exit 1
+                      fi
+                  done
+                  echo "publish=true" >> $GITHUB_OUTPUT
+
             # Get a short-lived NuGet API key
             - name: NuGet login (OIDC → temp API key)
               uses: NuGet/login@v1
               id: login
+              if: steps.verify.outputs.publish == 'true'
               with:
                 user: ${{ secrets.NUGET_USER }}
           
             - name: Push to NuGet.org
+              if: steps.verify.outputs.publish == 'true'
               run: |
                   dotnet nuget push all-packages/*.nupkg --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
