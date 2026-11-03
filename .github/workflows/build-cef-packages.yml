@@ -241,6 +241,14 @@ jobs:
     summary:
         name: Collect All Packages
         runs-on: ubuntu-latest
+        # NuGet/login exchanges a GitHub OIDC token for a short-lived nuget.org API
+        # key, and minting that token needs id-token: write, which the default token
+        # does not include. Granted only on this job: the six build jobs never touch
+        # nuget.org. Naming permissions here replaces the defaults for this job, so
+        # contents: read is listed explicitly.
+        permissions:
+            id-token: write
+            contents: read
         needs:
             [
                 build-linux-x64,
